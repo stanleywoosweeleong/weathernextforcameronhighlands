@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.170 — slider snaps to farm elevations (index-based, arrow-key/tap friendly); compact broadcast buttons; body forced flex (fixes slider clip). bump CACHE_VERSION on each release
+// Version 1.0.171 — group all readings on the left (no edge-to-edge scanning). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605310610';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605310710';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

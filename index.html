@@ -732,8 +732,20 @@
             .name-label-en { font-size: 18px !important; line-height: 1.15 !important; }
             .name-label-zh { font-size: 14px !important; margin-top: 1px !important; line-height: 1.15 !important; }
 
-            /* Readings row: keep horizontal (Tailwind default), comfortable gaps. */
-            #main-content .list-item-content .flex.gap-8 { margin-top: 0.7rem !important; gap: 1.75rem !important; }
+            /* Readings row: keep horizontal, but GROUP all four readings together
+               on the LEFT so the eye reads one farm in a single glance — don't let
+               them spread across the full width. */
+            #main-content .list-item-content .flex.gap-8 {
+                margin-top: 0.7rem !important;
+                gap: 1.75rem !important;
+                justify-content: flex-start !important;
+            }
+            /* The 病害 RISK column has flex-1 + items-end in markup, which shoves it
+               to the far right edge. Pin it back beside 海拔, left-aligned. */
+            #main-content .list-item-content .flex.gap-8 > div:last-child {
+                flex: 0 0 auto !important;
+                align-items: flex-start !important;
+            }
             .list-item-content .text-\[17px\] { font-size: 18px !important; }
             .list-item-content .text-\[9px\] { font-size: 10px !important; }
             .list-item-content .mb-2 { margin-bottom: 0.15rem !important; }
