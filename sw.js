@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.178 — disease engine uses past 3-day actuals for multi-day infection pressure + forecast-accuracy; added powdery/early blight/anthracnose. bump CACHE_VERSION on each release
+// Version 1.0.179 — forecast-accuracy tracking (rain+temp+RH, per-farm + regional avg, rolling 30d). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605311510';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605311610';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

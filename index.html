@@ -454,6 +454,14 @@
         .ch-disease-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
         .ch-chip { font-size: 10.5px; font-weight: 600; color: #475569; background: #f1f5f9; border-radius: 8px; padding: 4px 8px; }
         .ch-chip b { font-weight: 900; color: #0f172a; }
+        /* Forecast-accuracy badge */
+        .ch-acc { border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 9px 12px; margin-bottom: 12px; background: #fcfdff; }
+        .ch-acc-main { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+        .ch-acc-label { font-size: 11px; font-weight: 900; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; }
+        .ch-acc-score { font-size: 16px; font-weight: 900; tabular-nums: true; }
+        .ch-acc-sub { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; font-size: 10.5px; font-weight: 600; color: #64748b; }
+        .ch-acc-sub b { font-weight: 900; color: #334155; }
+        .ch-acc-empty { font-size: 10.5px; font-weight: 700; color: #94a3b8; background: #f8fafc; }
         .ch-section-lbl { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin: 12px 0 6px; }
         .ch-strip { display: flex; gap: 5px; }
         .ch-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
@@ -2212,6 +2220,174 @@
         };
         window.computeDiseaseRisk = computeDiseaseRisk;
 
+        // ====================================================================
+        // FORECAST ACCURACY TRACKING
+        // --------------------------------------------------------------------
+        // Goal: tell the forecaster (and farmers) how well recent forecasts have
+        // matched what ACTUALLY happened — vital when forecasting a microclimate
+        // remotely. Tracks rain + temp + humidity, per-farm, rolling 30 days.
+        //
+        // How it works (all client-side, persisted in localStorage):
+        //   1. SNAPSHOT — when detail data loads, we store the forecast for the
+        //      NEXT FULL DAY (tomorrow), aggregated to daily totals/means, keyed
+        //      by locationId|YYYY-MM-DD. Tomorrow because today is half-elapsed;
+        //      tomorrow is a clean full-day prediction we can verify a day later.
+        //   2. ACTUALS — the past-3-day fetch (_past) gives real hourly weather
+        //      for recent dates; we aggregate it the same way.
+        //   3. VERIFY — for any date that has BOTH a stored forecast and an
+        //      actual, we score the match per variable, save the verified result,
+        //      and prune anything older than 30 days.
+        //   4. The UI reads getForecastAccuracy(id) for a per-farm score, and
+        //      getRegionalAccuracy() for the all-farms average.
+        // ====================================================================
+        const ACC_FCST_KEY = 'weathernextforcameron__wnext_acc_forecasts';   // {locId|date: {rain,temp,rh}}
+        const ACC_VERIFIED_KEY = 'weathernextforcameron__wnext_acc_verified'; // {locId: [{date,rainErr,tempErr,rhErr,score}]}
+        const ACC_WINDOW_DAYS = 30;
+
+        const _accLoad = (key) => {
+            try { return JSON.parse(localStorage.getItem(key) || '{}') || {}; }
+            catch (e) { return {}; }
+        };
+        const _accSave = (key, obj) => {
+            try { localStorage.setItem(key, JSON.stringify(obj)); } catch (e) { /* quota best-effort */ }
+        };
+        // YYYY-MM-DD for a Date (local).
+        const _ymd = (d) => {
+            const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        };
+        // Aggregate one calendar day's hourly arrays → {rain (sum mm), temp (mean), rh (mean)}.
+        // `times` is the ISO time array; we pick indices whose date === targetYmd.
+        const _aggregateDay = (times, rainArr, tempArr, rhArr, targetYmd) => {
+            if (!times || !times.length) return null;
+            let rain = 0, tSum = 0, rhSum = 0, n = 0;
+            for (let i = 0; i < times.length; i++) {
+                if ((times[i] || '').slice(0, 10) !== targetYmd) continue;
+                rain += rainArr?.[i] || 0;
+                if (tempArr?.[i] != null) { tSum += tempArr[i]; }
+                if (rhArr?.[i] != null) { rhSum += rhArr[i]; }
+                n++;
+            }
+            if (n === 0) return null;
+            return { rain: Math.round(rain * 10) / 10, temp: Math.round(tSum / n * 10) / 10, rh: Math.round(rhSum / n) };
+        };
+
+        // Convert per-variable absolute errors to a 0–100 accuracy score.
+        // Tolerances tuned for a wet highland: rain is the hardest to nail, so its
+        // band is wider. Each variable scored 0–100, then averaged.
+        const _scoreVar = (err, tol) => Math.max(0, Math.min(100, Math.round(100 - (err / tol) * 100)));
+        const _accuracyFromErrors = (rainErr, tempErr, rhErr) => {
+            const rainS = _scoreVar(rainErr, 15);  // ±15mm → 0
+            const tempS = _scoreVar(tempErr, 5);    // ±5°C → 0
+            const rhS   = _scoreVar(rhErr, 25);     // ±25% → 0
+            return { rainS, tempS, rhS, score: Math.round((rainS + tempS + rhS) / 3) };
+        };
+
+        // Save tomorrow's forecast snapshot for one location.
+        const snapshotForecast = (id, dataObj) => {
+            if (!dataObj) return;
+            const model = (typeof activeModel !== 'undefined') ? activeModel : '';
+            const pick = (v) => dataObj[`${v}_${model}`] || dataObj[v] || null;
+            const times = pick('time') || dataObj.time;
+            const rainArr = pick('precipitation');
+            const tempArr = pick('temperature_2m');
+            const rhArr = pick('relative_humidity_2m');
+            if (!times) return;
+            const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+            const ymd = _ymd(tomorrow);
+            const agg = _aggregateDay(times, rainArr, tempArr, rhArr, ymd);
+            if (!agg) return;
+            const store = _accLoad(ACC_FCST_KEY);
+            // Only write once per (loc,date) — keep the FIRST forecast made for that
+            // day (the genuine lead-time prediction), don't overwrite as the day nears.
+            const key = `${id}|${ymd}`;
+            if (!store[key]) { store[key] = agg; _accSave(ACC_FCST_KEY, store); }
+        };
+
+        // Verify stored forecasts against actuals (from the _past payload), score,
+        // persist, and prune to the rolling window.
+        const verifyForecast = (id, dataObj) => {
+            const past = dataObj && dataObj._past;
+            if (!past || !past.time) return;
+            const fcStore = _accLoad(ACC_FCST_KEY);
+            const verified = _accLoad(ACC_VERIFIED_KEY);
+            if (!verified[id]) verified[id] = [];
+            const alreadyDates = new Set(verified[id].map(v => v.date));
+
+            // For each elapsed date present in the actuals, see if we have a stored
+            // forecast to compare against.
+            const seenDates = new Set((past.time || []).map(t => (t || '').slice(0, 10)));
+            seenDates.forEach(ymd => {
+                const key = `${id}|${ymd}`;
+                const fc = fcStore[key];
+                if (!fc || alreadyDates.has(ymd)) return; // need a forecast + not done yet
+                const actual = _aggregateDay(past.time, past.precipitation, past.temperature_2m, past.relative_humidity_2m, ymd);
+                if (!actual) return;
+                const rainErr = Math.abs(fc.rain - actual.rain);
+                const tempErr = Math.abs(fc.temp - actual.temp);
+                const rhErr   = Math.abs(fc.rh - actual.rh);
+                const acc = _accuracyFromErrors(rainErr, tempErr, rhErr);
+                verified[id].push({
+                    date: ymd,
+                    rainErr: Math.round(rainErr * 10) / 10, tempErr: Math.round(tempErr * 10) / 10, rhErr,
+                    fcRain: fc.rain, acRain: actual.rain,
+                    score: acc.score, rainS: acc.rainS, tempS: acc.tempS, rhS: acc.rhS
+                });
+            });
+
+            // Prune verified records + stored forecasts older than the window.
+            const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - ACC_WINDOW_DAYS);
+            const cutYmd = _ymd(cutoff);
+            verified[id] = verified[id].filter(v => v.date >= cutYmd).sort((a, b) => a.date < b.date ? 1 : -1);
+            _accSave(ACC_VERIFIED_KEY, verified);
+            // Prune old forecast snapshots (any loc) to keep storage tidy.
+            let changed = false;
+            Object.keys(fcStore).forEach(k => {
+                const d = k.split('|')[1];
+                if (d && d < cutYmd) { delete fcStore[k]; changed = true; }
+            });
+            if (changed) _accSave(ACC_FCST_KEY, fcStore);
+        };
+
+        // Public: per-farm accuracy summary over the rolling window.
+        window.getForecastAccuracy = (id) => {
+            const verified = _accLoad(ACC_VERIFIED_KEY)[id] || [];
+            if (!verified.length) return { available: false, n: 0 };
+            const avg = (sel) => Math.round(verified.reduce((a, v) => a + sel(v), 0) / verified.length);
+            return {
+                available: true,
+                n: verified.length,
+                score: avg(v => v.score),
+                rainScore: avg(v => v.rainS),
+                tempScore: avg(v => v.tempS),
+                rhScore: avg(v => v.rhS),
+                avgRainErr: Math.round(verified.reduce((a, v) => a + v.rainErr, 0) / verified.length * 10) / 10,
+                avgTempErr: Math.round(verified.reduce((a, v) => a + v.tempErr, 0) / verified.length * 10) / 10,
+                avgRhErr: avg(v => v.rhErr),
+                recent: verified.slice(0, 7)  // newest-first
+            };
+        };
+
+        // Public: regional average across all farms that have any verified data.
+        window.getRegionalAccuracy = () => {
+            const verified = _accLoad(ACC_VERIFIED_KEY);
+            const ids = Object.keys(verified).filter(id => (verified[id] || []).length);
+            if (!ids.length) return { available: false, farms: 0 };
+            let allScores = [], totalN = 0;
+            ids.forEach(id => { (verified[id] || []).forEach(v => { allScores.push(v.score); }); totalN += verified[id].length; });
+            const score = Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length);
+            return { available: true, farms: ids.length, n: totalN, score };
+        };
+
+        // Public: called when a location's detail data is ready. Does both the
+        // snapshot (tomorrow's forecast) and verification (past vs stored). Safe to
+        // call repeatedly; snapshots write once per day, verification dedupes.
+        window.updateForecastAccuracy = (id, dataObj) => {
+            try { snapshotForecast(id, dataObj); verifyForecast(id, dataObj); }
+            catch (e) { console.warn('accuracy update skipped:', e?.message); }
+        };
+
+
         // ------------------------------------------------------------
         // DISEASE DASHBOARD — renders the 7-day microclimate disease
         // outlook into the #ch-disease-panel-<id> slot in the detail view.
@@ -2226,6 +2402,8 @@
                   hrs: '小时', advice: '建议', noData: '正在载入天气数据…',
                   pressure3d: '近3天累积', pastWet: '潮湿天数', recentRain: '近3天实际雨量',
                   presUp: '↑ 病压上升(近期持续潮湿)', presDown: '↓ 病压下降(近期转干)', presFlat: '病压平稳',
+                  fcAcc: '预报准确度', fcAccReg: '区域平均', fcDays: '天', fcRainErr: '雨量误差', fcNoData: '准确度累积中(需数天数据)',
+                  fcHigh: '高', fcMed: '中', fcLow: '偏低',
                   valley: '山谷(积湿)', fog_z: '雾区(高湿)', midslope: '山坡(主产区)', ridge: '山脊(通风)', unknown: '—',
                   act_low: '风险低，照常管理。', act_mod: '中等风险，加强巡园、注意通风。',
                   act_high: '风险偏高，准备预防性喷药、降低叶面湿润。', act_crit: '风险危急，尽快喷药并改善排水通风。' },
@@ -2235,6 +2413,8 @@
                   hrs: 'h', advice: 'Action', noData: 'Loading weather data…',
                   pressure3d: '3-day buildup', pastWet: 'wet days', recentRain: 'actual rain (3d)',
                   presUp: '↑ Rising (recent wet spell)', presDown: '↓ Easing (recently drier)', presFlat: 'Steady pressure',
+                  fcAcc: 'Forecast accuracy', fcAccReg: 'regional avg', fcDays: 'd', fcRainErr: 'rain error', fcNoData: 'Accuracy building (needs a few days)',
+                  fcHigh: 'High', fcMed: 'Fair', fcLow: 'Low',
                   valley: 'Valley (moisture pool)', fog_z: 'Fog zone (high RH)', midslope: 'Mid-slope (main belt)', ridge: 'Ridge (well-aired)', unknown: '—',
                   act_low: 'Low risk — manage as usual.', act_mod: 'Moderate — scout fields, improve airflow.',
                   act_high: 'High — prepare preventive spray, reduce leaf wetness.', act_crit: 'Critical — spray promptly, improve drainage & airflow.' }
@@ -2255,6 +2435,32 @@
 
             const zoneLabel = ({ valley: T.valley, fog: T.fog_z, midslope: T.midslope, ridge: T.ridge })[loc.zone] || T.unknown;
             const elev = today.elev;
+
+            // Forecast accuracy (per-farm + regional), rolling 30 days.
+            const acc = (typeof window.getForecastAccuracy === 'function') ? window.getForecastAccuracy(id) : { available: false };
+            const reg = (typeof window.getRegionalAccuracy === 'function') ? window.getRegionalAccuracy() : { available: false };
+            const accColor = (s) => s >= 75 ? '#15803d' : s >= 50 ? '#ca8a00' : '#b91c1c';
+            const accLabel = (s) => s >= 75 ? T.fcHigh : s >= 50 ? T.fcMed : T.fcLow;
+            let accuracyHtml = '';
+            if (acc.available) {
+                const c = accColor(acc.score);
+                accuracyHtml = `
+                <div class="ch-acc" style="border-color:${c}33;">
+                    <div class="ch-acc-main">
+                        <span class="ch-acc-label">🎯 ${T.fcAcc}</span>
+                        <span class="ch-acc-score" style="color:${c};">${acc.score}% · ${accLabel(acc.score)}</span>
+                    </div>
+                    <div class="ch-acc-sub">
+                        <span>🌧️ ${T.fcRainErr}: <b>±${acc.avgRainErr}mm</b></span>
+                        <span>🌡️ <b>±${acc.avgTempErr}°</b></span>
+                        <span>💦 <b>±${acc.avgRhErr}%</b></span>
+                        <span>· ${acc.n}${T.fcDays}</span>
+                        ${reg.available ? `<span>· ${T.fcAccReg} <b style="color:${accColor(reg.score)};">${reg.score}%</b></span>` : ''}
+                    </div>
+                </div>`;
+            } else {
+                accuracyHtml = `<div class="ch-acc ch-acc-empty">🎯 ${T.fcAcc}: ${T.fcNoData}</div>`;
+            }
 
             // 7-day strip for the headline disease of this crop
             const headKey = today.primaryKey;
@@ -2312,6 +2518,7 @@
                     ${m.pastAvailable && m.pastWetDays!=null ? `<span class="ch-chip">💧 ${T.pastWet}: <b>${m.pastWetDays}/3</b></span>` : ''}
                     ${m.recentRainMM!=null ? `<span class="ch-chip">🌧️ ${T.recentRain}: <b>${m.recentRainMM}mm</b></span>` : ''}
                 </div>
+                ${accuracyHtml}
 
                 <div class="ch-section-lbl">${T.outlook} — ${headMeta.icon} ${lang==='en'?headMeta.en:headMeta.zh}</div>
                 <div class="ch-strip">${strip}</div>
@@ -3941,6 +4148,11 @@
                      // Attach the past-3-day actuals for the disease engine's
                      // multi-day accumulation + forecast-accuracy comparison.
                      if (data._past) detailData[id]._past = data._past;
+                     // Forecast-accuracy: snapshot tomorrow's forecast + verify any
+                     // past dates we previously predicted. Best-effort, never blocks.
+                     if (typeof window.updateForecastAccuracy === 'function') {
+                         window.updateForecastAccuracy(id, detailData[id]);
+                     }
                      // Persist to localStorage so the next session/page-refresh can hydrate
                      // this data instantly without re-fetching. Keyed by id+model so switching
                      // weather models doesn't return stale model data.
