@@ -79,7 +79,7 @@ figures for the day.
 Once GitHub Pages is enabled, the app is served at:
 
 ```
-https://stanleywoosweeleong.github.io/weathernextforcameron/
+https://stanleywoosweeleong.github.io/weathernextforcameronhighlands/
 ```
 
 Open that link on a phone and use **"Add to Home Screen"** to install it as an
@@ -170,7 +170,7 @@ The service worker caches the app shell. When you push changes, bump the
 their next visit. The current value is:
 
 ```
-wnext-weathernextforcameron-202605300100
+wnext-weathernextforcameron-202605301730
 ```
 
 ---

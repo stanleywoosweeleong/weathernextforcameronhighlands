@@ -658,12 +658,36 @@
         .w-modal-card { background: white; width: 85%; max-width: 320px; border-radius: 20px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); animation: modal-in 0.2s ease-out; }
         @keyframes modal-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        /* Crop picker: bigger fonts and padding on desktop */
+        /* Crop picker: bigger fonts, padding and a 2-column grid on desktop
+           so the full crop list is visible at a glance instead of a tall,
+           narrow, hard-to-click column. */
         @media (min-width: 600px) {
-            .crop-picker-card { max-width: 520px !important; max-height: 75vh !important; }
-            .crop-picker-card .crop-picker-title { font-size: 18px !important; }
-            .crop-picker-card #crop-picker-list button { padding: 16px 20px !important; font-size: 17px !important; }
-            .crop-picker-card #crop-picker-list button span { font-size: 17px !important; }
+            .crop-picker-card { width: 90% !important; max-width: 680px !important; max-height: 82vh !important; }
+            .crop-picker-card .crop-picker-title { font-size: 19px !important; }
+            /* Turn the list into a responsive grid */
+            .crop-picker-card #crop-picker-list {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                padding: 14px !important;
+                align-content: start;
+            }
+            /* Each crop becomes a self-contained card-button (no full-width /
+               bottom-border row styling, which doesn't suit a grid). */
+            .crop-picker-card #crop-picker-list button {
+                width: 100% !important;
+                border: 1.5px solid #e2e8f0 !important;
+                border-radius: 12px !important;
+                padding: 15px 16px !important;
+                background: #fff;
+            }
+            .crop-picker-card #crop-picker-list button:hover { background: #f8fafc; border-color: #cbd5e1 !important; }
+            .crop-picker-card #crop-picker-list button span { font-size: 16px !important; }
+        }
+        /* Wider desktops: 3 columns so all crops fit without scrolling. */
+        @media (min-width: 920px) {
+            .crop-picker-card { max-width: 820px !important; }
+            .crop-picker-card #crop-picker-list { grid-template-columns: 1fr 1fr 1fr; }
         }
         
         /* Main location list: scale up on desktop to match the forecast modal's visual weight */
@@ -1774,31 +1798,23 @@
         };
 
         const CROP_TYPES = [
-            // === TREE CROPS / ORCHARD ===
-            { id: 'durian',     label: '🌳 DURIAN',       zh: '🌳 榴莲',          ms: '🌳 DURIAN',       ta: '🌳 துரியன்',         my: '🌳 ဒူးရင်း' },
-            { id: 'mango',      label: '🥭 MANGO',        zh: '🥭 芒果',          ms: '🥭 MANGGA',       ta: '🥭 மாம்பழம்',         my: '🥭 သရက်သီး' },
-            { id: 'banana',     label: '🍌 BANANA',       zh: '🍌 香蕉',          ms: '🍌 PISANG',       ta: '🍌 வாழைப்பழம்',       my: '🍌 ငှက်ပျောသီး' },
-            { id: 'pineapple',  label: '🍍 PINEAPPLE',    zh: '🍍 黄梨',          ms: '🍍 NANAS',        ta: '🍍 அன்னாசிப்பழம்',     my: '🍍 နာနတ်သီး' },
-            { id: 'coconut',    label: '🥥 COCONUT',      zh: '🥥 椰子',          ms: '🥥 KELAPA',       ta: '🥥 தேங்காய்',          my: '🥥 အုန်းသီး' },
-            { id: 'citrus',     label: '🍋 CITRUS',       zh: '🍋 柑橘/酸柑',      ms: '🍋 LIMAU',        ta: '🍋 எலுமிச்சை',         my: '🍋 လိမ္မော်သီး' },
-            { id: 'papaya',     label: '🍈 PAPAYA',       zh: '🍈 木瓜',          ms: '🍈 BETIK',        ta: '🍈 பப்பாளி',           my: '🍈 သင်္ဘောသီး' },
-            { id: 'rambutan',   label: '🌰 RAMBUTAN',     zh: '🌰 红毛丹',        ms: '🌰 RAMBUTAN',     ta: '🌰 ரம்புட்டான்',       my: '🌰 ကြက်မောက်သီး' },
-            // === PLANTATION ===
-            { id: 'palm',       label: '🌴 OIL PALM',     zh: '🌴 油棕',          ms: '🌴 SAWIT',        ta: '🌴 எண்ணெய் பனை',      my: '🌴 ဆီအုန်း' },
-            { id: 'coffee',     label: '☕ COFFEE',       zh: '☕ 咖啡',          ms: '☕ KOPI',         ta: '☕ காபி',              my: '☕ ကော်ဖီ' },
-            { id: 'rubber',     label: '🌱 RUBBER',       zh: '🌱 橡胶',          ms: '🌱 GETAH',        ta: '🌱 ரப்பர்',            my: '🌱 ရာဘာ' },
-            { id: 'pepper',     label: '🌶️ PEPPER',       zh: '🌶️ 胡椒',          ms: '🌶️ LADA HITAM',   ta: '🌶️ மிளகு',             my: '🌶️ ငရုပ်ကောင်း' },
-            { id: 'cocoa',      label: '🍫 COCOA',        zh: '🍫 可可',          ms: '🍫 KOKO',         ta: '🍫 கொக்கோ',            my: '🍫 ကိုကိုး' },
-            // === FIELD CROPS & VEGETABLES ===
-            { id: 'rice',       label: '🌾 RICE/PADDY',   zh: '🌾 稻米',          ms: '🌾 PADI',         ta: '🌾 நெல்',              my: '🌾 စပါး' },
-            { id: 'leafy',      label: '🥬 LEAFY VEG',    zh: '🥬 叶菜类',        ms: '🥬 SAYUR DAUN',   ta: '🥬 இலைக்காய்கறி',     my: '🥬 ဟင်းရွက်' },
-            { id: 'chili',      label: '🌶️ CHILI',        zh: '🌶️ 辣椒',          ms: '🌶️ CILI',          ta: '🌶️ மிளகாய்',           my: '🌶️ ငရုပ်သီး' },
+            // === LEAFY GREENS & BRASSICAS ===
+            { id: 'leafy',      label: '🥬 LEAFY GREENS', zh: '🥬 叶菜类',        ms: '🥬 SAYUR DAUN',   ta: '🥬 இலைக்காய்கறி',     my: '🥬 ဟင်းရွက်' },
+            { id: 'brassica',   label: '🥬 CABBAGE/BRASSICA', zh: '🥬 包菜类',    ms: '🥬 KUBIS/KAILAN', ta: '🥬 முட்டைக்கோஸ்',     my: '🥬 ဂေါ်ဖီထုပ်' },
+            { id: 'herbs',      label: '🧅 HERBS/ALLIUM', zh: '🧅 葱蒜芹菜',      ms: '🧅 DAUN BAWANG',  ta: '🧅 வெங்காயம்/செலரி',  my: '🧅 ကြက်သွန်/နံနံ' },
+            // === FRUITING & ROOT VEG ===
             { id: 'tomato',     label: '🍅 TOMATO',       zh: '🍅 番茄',          ms: '🍅 TOMATO',       ta: '🍅 தக்காளி',           my: '🍅 ခရမ်းချဉ်သီး' },
-            { id: 'cucurbit',   label: '🥒 CUCURBITS',    zh: '🥒 瓜类',          ms: '🥒 LABU/TIMUN',   ta: '🥒 பூசணி/வெள்ளரி',    my: '🥒 ဖရဲသီး/သခွားသီး' },
-            { id: 'corn',       label: '🌽 CORN',         zh: '🌽 玉米',          ms: '🌽 JAGUNG',       ta: '🌽 சோளம்',              my: '🌽 ပြောင်းဖူး' },
-            { id: 'beans',      label: '🫘 BEANS',        zh: '🫘 豆类',          ms: '🫘 KACANG',       ta: '🫘 பீன்ஸ்',             my: '🫘 ပဲမျိုးစုံ' },
-            { id: 'tea',        label: '🍃 TEA',          zh: '🍃 茶叶',          ms: '🍃 TEH',          ta: '🍃 தேயிலை',             my: '🍃 လက်ဖက်' },
+            { id: 'capsicum',   label: '🫑 CAPSICUM/CHILI', zh: '🫑 甜椒辣椒',     ms: '🫑 CILI/LADA',    ta: '🫑 குடைமிளகாய்',      my: '🫑 ငရုတ်ကောင်း' },
+            { id: 'cucurbit',   label: '🥒 CUCURBITS',    zh: '🥒 瓜类',          ms: '🥒 TIMUN/LABU',   ta: '🥒 பூசணி/வெள்ளரி',    my: '🥒 ဖရဲသီး/သခွားသီး' },
+            { id: 'beans',      label: '🫛 BEANS/ASPARAGUS', zh: '🫛 豆类芦笋',    ms: '🫛 KACANG/ASPARAGUS', ta: '🫛 பீன்ஸ்/அஸ்பாரகஸ்', my: '🫛 ပဲ/ကညွတ်' },
+            { id: 'eggplant',   label: '🍆 EGGPLANT',     zh: '🍆 茄子',          ms: '🍆 TERUNG',       ta: '🍆 கத்திரிக்காய்',     my: '🍆 ခရမ်းသီး' },
+            { id: 'root',       label: '🥕 ROOT VEG',     zh: '🥕 根茎类',        ms: '🥕 SAYUR AKAR',   ta: '🥕 வேர் காய்கறி',     my: '🥕 အမြစ်ဟင်းသီး' },
+            { id: 'corn',       label: '🌽 SWEET CORN',   zh: '🌽 玉米',          ms: '🌽 JAGUNG MANIS', ta: '🌽 சோளம்',              my: '🌽 ပြောင်းဖူး' },
+            // === FRUITS ===
             { id: 'strawberry', label: '🍓 STRAWBERRY',   zh: '🍓 草莓',          ms: '🍓 STRAWBERI',    ta: '🍓 ஸ்ட்ராபெர்ரி',     my: '🍓 စတော်ဘယ်ရီ' },
+            { id: 'grape',      label: '🍇 GRAPE',        zh: '🍇 葡萄',          ms: '🍇 ANGGUR',       ta: '🍇 திராட்சை',          my: '🍇 စပျစ်သီး' },
+            // === COMMODITY & FLORICULTURE ===
+            { id: 'tea',        label: '🍃 TEA',          zh: '🍃 茶叶',          ms: '🍃 TEH',          ta: '🍃 தேயிலை',             my: '🍃 လက်ဖက်' },
             { id: 'flower',     label: '🌸 FLOWERS',      zh: '🌸 花卉',          ms: '🌸 BUNGA',        ta: '🌸 பூக்கள்',           my: '🌸 ပန်း' }
         ];
 
@@ -1848,20 +1864,29 @@
         const CROP_SUSCEPT = {
             //              botrytis  downy  blight
             strawberry:   { botrytis: 1.30, downy: 1.00, blight: 0.80 },
+            grape:        { botrytis: 1.25, downy: 1.25, blight: 0.70 },
             flower:       { botrytis: 1.20, downy: 1.00, blight: 0.70 },
             tomato:       { botrytis: 1.10, downy: 0.90, blight: 1.30 },
-            leafy:        { botrytis: 0.90, downy: 1.20, blight: 0.80 },
+            eggplant:     { botrytis: 1.05, downy: 0.90, blight: 1.10 },
+            capsicum:     { botrytis: 1.05, downy: 0.90, blight: 1.05 },
+            leafy:        { botrytis: 1.00, downy: 1.20, blight: 0.80 },
+            brassica:     { botrytis: 0.85, downy: 1.30, blight: 0.75 },
             cucurbit:     { botrytis: 0.90, downy: 1.30, blight: 0.90 },
-            chili:        { botrytis: 1.00, downy: 1.00, blight: 1.00 },
-            beans:        { botrytis: 1.00, downy: 1.10, blight: 0.80 },
+            herbs:        { botrytis: 1.00, downy: 1.15, blight: 0.75 },
+            beans:        { botrytis: 1.05, downy: 1.10, blight: 0.80 },
+            root:         { botrytis: 0.80, downy: 0.85, blight: 1.00 },
+            corn:         { botrytis: 0.70, downy: 0.80, blight: 0.70 },
             tea:          { botrytis: 0.70, downy: 0.60, blight: 0.50 },
             _default:     { botrytis: 1.00, downy: 1.00, blight: 1.00 }
         };
 
         // Which diseases are most relevant to show first for a given crop.
         const CROP_PRIMARY_DISEASE = {
-            strawberry: 'botrytis', flower: 'botrytis', tomato: 'blight',
-            leafy: 'downy', cucurbit: 'downy', tea: 'botrytis', _default: 'botrytis'
+            strawberry: 'botrytis', grape: 'botrytis', flower: 'botrytis',
+            tomato: 'blight', eggplant: 'blight', capsicum: 'blight',
+            leafy: 'downy', brassica: 'downy', cucurbit: 'downy', herbs: 'downy',
+            beans: 'downy', root: 'blight', corn: 'downy', tea: 'botrytis',
+            _default: 'botrytis'
         };
 
         const DISEASE_META = {
@@ -1902,18 +1927,41 @@
             return c;
         };
 
-        // --- Component sub-scores (each 0–25), per the brief's BRI v1 ---------
-        const _sRH   = (rh) => rh >= 90 ? 25 : rh >= 85 ? 18 : rh >= 80 ? 10 : 0;
-        const _sLW   = (h)  => h  >= 12 ? 25 : h  >= 6  ? 18 : h  >= 2  ? 10 : 0;
-        const _sTemp = (t, lo, hi) => (t >= lo && t <= hi) ? 25 : (t >= lo-5 && t <= hi+4) ? 15 : 5;
-        const _sRain = (mm) => mm > 20 ? 25 : mm >= 5 ? 18 : mm > 0.2 ? 10 : 0;
-        const _sFog  = (h)  => h  > 12 ? 25 : h  >= 6  ? 18 : h  >= 2  ? 10 : 0;
+        // --- Component sub-scores (each normalised 0–1) -----------------------
+        // Smoother, more graduated than the old 4-step buckets so scores spread
+        // across the full range instead of jumping straight to the ceiling.
+        const _nRH = (rh) => {
+            if (rh >= 95) return 1.0;
+            if (rh >= 80) return 0.4 + (rh - 80) / 15 * 0.6;   // 80→0.4 … 95→1.0
+            if (rh >= 65) return (rh - 65) / 15 * 0.4;          // 65→0 … 80→0.4
+            return 0;
+        };
+        const _nLW = (h) => Math.max(0, Math.min(1, (h - 1) / 13));     // 1h→0 … 14h→1
+        const _nFog = (h) => Math.max(0, Math.min(1, h / 14));         // 0h→0 … 14h→1
+        const _nRain = (mm) => mm <= 0 ? 0 : Math.min(1, 0.25 + mm / 25 * 0.75); // any rain ≥0.25, 25mm→1
+        // Temperature suitability: smooth triangular peak in [lo,hi].
+        const _nTemp = (t, lo, hi) => {
+            if (t >= lo && t <= hi) return 1.0;
+            const d = t < lo ? lo - t : t - hi;
+            return Math.max(0.1, 1 - d / 8);                            // falls to 0.1 by ±8°C outside band
+        };
 
         const riskBand = (score) =>
             score >= 76 ? { key: 'critical', zh: '危急', en: 'Critical', color: '#dc2626', emoji: '🔴' } :
             score >= 56 ? { key: 'high',     zh: '偏高', en: 'High',     color: '#ea580c', emoji: '🟠' } :
             score >= 31 ? { key: 'moderate', zh: '中等', en: 'Moderate', color: '#ca8a00', emoji: '🟡' } :
                           { key: 'low',      zh: '低',   en: 'Low',      color: '#16a34a', emoji: '🟢' };
+
+        // Count the longest run of "dry" hours (RH below threshold) in a slice —
+        // a sustained dry break sharply lowers fungal infection risk.
+        const longestDryRun = (rhArr, thresh) => {
+            let run = 0, best = 0;
+            for (let i = 0; i < rhArr.length; i++) {
+                if ((rhArr[i] ?? 100) < thresh) { run++; best = Math.max(best, run); }
+                else run = 0;
+            }
+            return best;
+        };
 
         // Compute all disease scores for one location, for a given forecast day
         // index (0 = today). `loc` carries elev + zone; `dataObj` is the hourly
@@ -1937,23 +1985,33 @@
             const fogHrs      = countHoursRHAbove(rhArr, 90);
             const rainMM      = rainArr.reduce((a, b) => a + (b || 0), 0);
             const avgRH       = rhArr.reduce((a, b) => a + (b || 0), 0) / rhArr.length;
-            // Night-biased mean temp (infection happens mostly overnight)
             const tMean       = tArr.reduce((a, b) => a + (b || 0), 0) / tArr.length;
+            const dryRun      = longestDryRun(rhArr, 70);
 
             const zoneMult = ZONE_RISK_MULT[loc?.zone] || 1.0;
             const sus = CROP_SUSCEPT[cropId] || CROP_SUSCEPT._default;
 
-            // Botrytis: RH + leaf wetness + 15–22°C optimum + rain + fog persistence
-            let botrytis = (_sRH(avgRH) + _sLW(leafWetHrs) + _sTemp(tMean, 15, 22) + _sRain(rainMM) + _sFog(fogHrs));
-            botrytis = Math.min(100, Math.round(botrytis * zoneMult * sus.botrytis));
+            // Normalised drivers (0–1)
+            const nRH = _nRH(avgRH), nLW = _nLW(leafWetHrs), nFog = _nFog(fogHrs), nRain = _nRain(rainMM);
 
-            // Downy mildew: very high RH + long leaf wetness + cool 10–20°C
-            let downy = (_sRH(avgRH) * 1.0 + _sLW(leafWetHrs) * 1.1 + _sTemp(tMean, 10, 20) + _sFog(fogHrs) * 0.6);
-            downy = Math.min(100, Math.round(downy * zoneMult * sus.downy));
+            // Dry-break reset: a long dry spell (RH<70% for ≥5h) suppresses risk.
+            // 5h → ~0.9×, 12h+ → 0.55×. Fungal spores need sustained moisture.
+            const dryFactor = dryRun >= 12 ? 0.55 : dryRun >= 5 ? (1 - (dryRun - 5) / 7 * 0.35) : 1.0;
 
-            // Late blight: sustained wetness + cool 10–18°C + consecutive rain/cloud
-            let blight = (_sLW(leafWetHrs) * 1.1 + _sTemp(tMean, 10, 18) + _sRain(rainMM) + _sFog(fogHrs) * 0.8);
-            blight = Math.min(100, Math.round(blight * zoneMult * sus.blight));
+            // Each disease = weighted average of its drivers (0–1) × temp suitability,
+            // then ×100, ×zone, ×crop-susceptibility, ×dry-break. Weighted-average
+            // base means a single extreme driver can't alone pin the score to 100.
+            const score = (wRH, wLW, wFog, wRain, tLo, tHi, susF) => {
+                const wSum = wRH + wLW + wFog + wRain;
+                const base = (nRH * wRH + nLW * wLW + nFog * wFog + nRain * wRain) / wSum; // 0–1
+                const val = base * _nTemp(tMean, tLo, tHi) * 100 * zoneMult * susF * dryFactor;
+                return Math.max(0, Math.min(100, Math.round(val)));
+            };
+
+            // Weights reflect each disease's biology (leaf wetness dominates).
+            const botrytis = score(0.25, 0.40, 0.15, 0.20, 15, 22, sus.botrytis);
+            const downy    = score(0.30, 0.40, 0.20, 0.10, 10, 20, sus.downy);
+            const blight   = score(0.15, 0.45, 0.15, 0.25, 10, 18, sus.blight);
 
             const diseases = {
                 botrytis: { score: botrytis, band: riskBand(botrytis) },
@@ -1967,7 +2025,7 @@
 
             return {
                 diseases, primaryKey, worstKey,
-                metrics: { leafWetHrs, fogHrs, rainMM: Math.round(rainMM * 10) / 10, avgRH: Math.round(avgRH), tMean: Math.round(tMean * 10) / 10, zoneMult },
+                metrics: { leafWetHrs, fogHrs, rainMM: Math.round(rainMM * 10) / 10, avgRH: Math.round(avgRH), tMean: Math.round(tMean * 10) / 10, zoneMult, dryRun },
                 elev: elevBand(loc?.elev), zone: loc?.zone
             };
         };
@@ -3290,7 +3348,7 @@
         // Helper to get localized crop name
         const getLocalizedCropName = (cropId, langCode) => {
             const c = CROP_TYPES.find(x => x.id === cropId);
-            if (!c) return 'DURIAN';
+            if (!c) return 'LEAFY GREENS';
             // Fallback to label (English) if specific lang translation missing
             return c[langCode] || c.label;
         };
@@ -4833,31 +4891,23 @@
             // Address the farmer in a way that reflects their actual crop, in their chosen language.
             const currentCropIdForGreeting = locationCrops[id] || 'leafy';
             const SALUTATIONS = {
-                // Tree crops
-                durian:    { en: 'Durian Grower',        ms: 'Pekebun Durian',     zh: '榴莲园老板',  ta: 'துரியன் விவசாயி',     my: 'ဒူးရင်းခြံပိုင်ရှင်' },
-                mango:     { en: 'Mango Grower',         ms: 'Pekebun Mangga',     zh: '芒果园老板',  ta: 'மாம்பழ விவசாயி',      my: 'သရက်ခြံပိုင်ရှင်' },
-                banana:    { en: 'Banana Grower',        ms: 'Pekebun Pisang',     zh: '香蕉园老板',  ta: 'வாழை விவசாயி',        my: 'ငှက်ပျောခြံပိုင်ရှင်' },
-                pineapple: { en: 'Pineapple Grower',     ms: 'Pekebun Nanas',      zh: '黄梨园老板',  ta: 'அன்னாசி விவசாயி',     my: 'နာနတ်ခြံပိုင်ရှင်' },
-                coconut:   { en: 'Coconut Grower',       ms: 'Pekebun Kelapa',     zh: '椰园老板',    ta: 'தென்னை விவசாயி',      my: 'အုန်းခြံပိုင်ရှင်' },
-                citrus:    { en: 'Citrus Grower',        ms: 'Pekebun Limau',      zh: '柑橘园老板',  ta: 'எலுமிச்சை விவசாயி',   my: 'လိမ္မော်ခြံပိုင်ရှင်' },
-                papaya:    { en: 'Papaya Grower',        ms: 'Pekebun Betik',      zh: '木瓜园老板',  ta: 'பப்பாளி விவசாயி',     my: 'သင်္ဘောသီးခြံပိုင်ရှင်' },
-                rambutan:  { en: 'Rambutan Grower',      ms: 'Pekebun Rambutan',   zh: '红毛丹园老板', ta: 'ரம்புட்டான் விவசாயி', my: 'ကြက်မောက်ခြံပိုင်ရှင်' },
-                // Plantation
-                palm:      { en: 'Oil Palm Grower',      ms: 'Pekebun Sawit',      zh: '油棕园老板',  ta: 'எண்ணெய் பனை விவசாயி', my: 'ဆီအုန်းခြံပိုင်ရှင်' },
-                coffee:    { en: 'Coffee Grower',        ms: 'Pekebun Kopi',       zh: '咖啡园老板',  ta: 'காபி விவசாயி',         my: 'ကော်ဖီခြံပိုင်ရှင်' },
-                rubber:    { en: 'Rubber Tapper',        ms: 'Penoreh Getah',      zh: '橡胶园老板',  ta: 'ரப்பர் விவசாயி',       my: 'ရာဘာခြံပိုင်ရှင်' },
-                pepper:    { en: 'Pepper Grower',        ms: 'Pekebun Lada',       zh: '胡椒园老板',  ta: 'மிளகு விவசாயி',         my: 'ငရုပ်ကောင်းခြံပိုင်ရှင်' },
-                cocoa:     { en: 'Cocoa Grower',         ms: 'Pekebun Koko',       zh: '可可园老板',  ta: 'கொக்கோ விவசாயி',       my: 'ကိုကိုးခြံပိုင်ရှင်' },
-                // Field crops & vegetables
-                rice:      { en: 'Rice Farmer',          ms: 'Pesawah',            zh: '稻农老板',    ta: 'நெல் விவசாயி',          my: 'စပါးခြံပိုင်ရှင်' },
+                // Leafy greens & brassicas
                 leafy:     { en: 'Vegetable Grower',     ms: 'Petani Sayur',       zh: '菜园老板',    ta: 'காய்கறி விவசாயி',      my: 'ဟင်းရွက်ခြံပိုင်ရှင်' },
-                chili:     { en: 'Chili Grower',         ms: 'Petani Cili',        zh: '辣椒园老板',  ta: 'மிளகாய் விவசாயி',      my: 'ငရုပ်သီးခြံပိုင်ရှင်' },
+                brassica:  { en: 'Cabbage Grower',       ms: 'Petani Kubis',       zh: '包菜园老板',  ta: 'முட்டைக்கோஸ் விவசாயி', my: 'ဂေါ်ဖီခြံပိုင်ရှင်' },
+                herbs:     { en: 'Herb Grower',          ms: 'Petani Herba',       zh: '葱蒜园老板',  ta: 'மூலிகை விவசாயி',       my: 'ဟင်းခတ်ခြံပိုင်ရှင်' },
+                // Fruiting & root veg
                 tomato:    { en: 'Tomato Grower',        ms: 'Petani Tomato',      zh: '番茄园老板',  ta: 'தக்காளி விவசாயி',      my: 'ခရမ်းချဉ်ခြံပိုင်ရှင်' },
+                capsicum:  { en: 'Capsicum Grower',      ms: 'Petani Cili/Lada',   zh: '甜椒园老板',  ta: 'குடைமிளகாய் விவசாயி',  my: 'ငရုတ်ခြံပိုင်ရှင်' },
                 cucurbit:  { en: 'Melon/Gourd Grower',   ms: 'Petani Labu/Timun',  zh: '瓜园老板',    ta: 'பூசணி விவசாயி',         my: 'ဖရဲခြံပိုင်ရှင်' },
+                beans:     { en: 'Bean/Asparagus Grower',ms: 'Petani Kacang',      zh: '豆园老板',    ta: 'பீன்ஸ் விவசாயி',         my: 'ပဲခြံပိုင်ရှင်' },
+                eggplant:  { en: 'Eggplant Grower',      ms: 'Petani Terung',      zh: '茄园老板',    ta: 'கத்திரி விவசாயி',       my: 'ခရမ်းသီးခြံပိုင်ရှင်' },
+                root:      { en: 'Root Veg Grower',      ms: 'Petani Sayur Akar',  zh: '根茎园老板',  ta: 'வேர் காய்கறி விவசாயி',  my: 'အမြစ်ဟင်းခြံပိုင်ရှင်' },
                 corn:      { en: 'Corn Grower',          ms: 'Petani Jagung',      zh: '玉米园老板',  ta: 'சோள விவசாயி',           my: 'ပြောင်းခြံပိုင်ရှင်' },
-                beans:     { en: 'Bean Grower',          ms: 'Petani Kacang',      zh: '豆园老板',    ta: 'பீன்ஸ் விவசாயி',         my: 'ပဲခြံပိုင်ရှင်' },
-                tea:       { en: 'Tea Grower',           ms: 'Pekebun Teh',        zh: '茶园老板',    ta: 'தேயிலை விவசாயி',       my: 'လက်ဖက်ခြံပိုင်ရှင်' },
+                // Fruits
                 strawberry:{ en: 'Strawberry Grower',    ms: 'Pekebun Strawberi',  zh: '草莓园老板',  ta: 'ஸ்ட்ராபெர்ரி விவசாயி', my: 'စတော်ဘယ်ရီခြံပိုင်ရှင်' },
+                grape:     { en: 'Grape Grower',         ms: 'Pekebun Anggur',     zh: '葡萄园老板',  ta: 'திராட்சை விவசாயி',     my: 'စပျစ်ခြံပိုင်ရှင်' },
+                // Commodity & floriculture
+                tea:       { en: 'Tea Grower',           ms: 'Pekebun Teh',        zh: '茶园老板',    ta: 'தேயிலை விவசாயி',       my: 'လက်ဖက်ခြံပိုင်ရှင်' },
                 flower:    { en: 'Flower Grower',        ms: 'Pekebun Bunga',      zh: '花园老板',    ta: 'பூ விவசாயி',           my: 'ပန်းခြံပိုင်ရှင်' }
             };
             const cropSalutation = (SALUTATIONS[currentCropIdForGreeting] && SALUTATIONS[currentCropIdForGreeting][langCode]) 
@@ -4952,17 +5002,16 @@
                 `;
             }
 
-            // Logic for Durian Flower Inducing
-            // FIX: Check ID instead of localized name to ensure it works for Chinese/Tamil etc.
+            // Highland crop flowering/fruiting vulnerability note.
+            // For Botrytis-prone fruit crops (strawberry, grape, flowers), the
+            // flowering & early-fruit stage is the highest-risk infection window,
+            // so flag it when conditions are wet.
             const currentCropId = locationCrops[id] || 'leafy';
-            const isDurian = currentCropId === 'durian';
-            
+            const isBotrytisFruit = (currentCropId === 'strawberry' || currentCropId === 'grape' || currentCropId === 'flower');
+
             let flowerInducingPrompt = "";
-            if (isDurian) {
-                flowerInducingPrompt = `For Durian, specifically assess if today's weather supports Flower Inducing (Dry Stress). MANDATORY: You MUST include this assessment translated in ${targetLangName} inside the Weather section.`;
-                if (langCode === 'zh') {
-                    flowerInducingPrompt += " (Use the term '催花' explicitly).";
-                }
+            if (isBotrytisFruit) {
+                flowerInducingPrompt = `For this crop, the flowering and early-fruit stage is the most vulnerable window for Botrytis (gray mould). If conditions are wet/foggy with long leaf wetness, advise protecting flowers and improving airflow. Include this assessment translated in ${targetLangName} inside the Weather section.`;
             }
 
             const prompt = `${getStrictCropExpertPrefix(id)}
@@ -5559,7 +5608,7 @@
             let V = (vpd < 0.6) ? 0.2 : (vpd <= 1.2) ? 0.4 : (vpd <= 1.8) ? 0.7 : 1.0;
             let E = (dailyEt0 < 3) ? 0.3 : (dailyEt0 <= 5) ? 0.6 : (dailyEt0 <= 7) ? 0.8 : 1.0;
             let wvet = (0.3 * W) + (0.4 * V) + (0.3 * E);
-            let level = (wvet > 0.75) ? 'SEVERE' : (wvet > ((cropType === 'durian') ? 0.65 : 0.60)) ? 'HIGH' : (wvet > 0.4) ? 'MOD' : 'LOW';
+            let level = (wvet > 0.75) ? 'SEVERE' : (wvet > ((cropType === 'tea') ? 0.65 : 0.60)) ? 'HIGH' : (wvet > 0.4) ? 'MOD' : 'LOW';
             let color = (level === 'SEVERE') ? 'wvet-sev' : (level === 'HIGH') ? 'wvet-high' : (level === 'MOD') ? 'wvet-mod' : 'wvet-low';
             const isSafeWind = w_ms >= 0.5 && w_ms <= 3.0; const isSafeDeltaT = typeof deltaT === 'number' ? (deltaT >= 2.0 && deltaT <= 8.0) : true;
             const canSpray = isSafeWind && vpd < 1.5 && wvet < 0.60 && isSafeDeltaT;

@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.155 — two-phase share + single link + html2canvas guard. bump CACHE_VERSION on each release
+// Version 1.0.156 — Cameron crop set + rebalanced disease scoring. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605300100';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605301730';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
