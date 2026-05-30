@@ -333,7 +333,12 @@
             width: 390px; /* FIXED WIDTH to prevent text wrapping */
             min-width: 390px; /* Ensure it doesn't shrink in layout */
             height: auto;
-            position: relative; transform-origin: 50% 0; touch-action: pan-y; padding-bottom: 60px; min-height: 100%; will-change: transform;
+            position: relative; transform-origin: 50% 0; touch-action: pan-y; padding-bottom: 60px; min-height: 100%;
+            /* NOTE: deliberately NO `will-change: transform` here. That promotes
+               the report to a GPU layer that gets rasterized once at the base
+               390px size, so scaling it up blows up a bitmap → blurry text. Without
+               it, the browser re-renders the text crisply at the scaled size. */
+            backface-visibility: hidden;
             /* Centering handled by JS in applyTransform via translateX */
         }
 
@@ -6640,7 +6645,11 @@
             posY = 0;
             
             const tx = centeringTranslate + posX;
-            r.style.transform = `translate3d(${tx}px, ${posY}px, 0) scale(${scale})`;
+            // Use 2D translate + scale (NOT translate3d). translate3d forces a GPU
+            // composited layer that scales a cached bitmap → blurry text. A plain 2D
+            // transform lets the browser re-rasterize the text crisply at the final
+            // scaled size.
+            r.style.transform = `translate(${tx}px, ${posY}px) scale(${scale})`;
             
             const h = r.offsetHeight;
             const diff = h * (1 - scale);
