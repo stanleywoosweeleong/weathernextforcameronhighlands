@@ -1934,22 +1934,22 @@
         // Crop susceptibility per disease (multiplier on the raw score).
         // Values follow the brief's susceptibility table; 1.0 = baseline.
         const CROP_SUSCEPT = {
-            //              botrytis  downy  blight
-            strawberry:   { botrytis: 1.30, downy: 1.00, blight: 0.80 },
-            grape:        { botrytis: 1.25, downy: 1.25, blight: 0.70 },
-            flower:       { botrytis: 1.20, downy: 1.00, blight: 0.70 },
-            tomato:       { botrytis: 1.10, downy: 0.90, blight: 1.30 },
-            eggplant:     { botrytis: 1.05, downy: 0.90, blight: 1.10 },
-            capsicum:     { botrytis: 1.05, downy: 0.90, blight: 1.05 },
-            leafy:        { botrytis: 1.00, downy: 1.20, blight: 0.80 },
-            brassica:     { botrytis: 0.85, downy: 1.30, blight: 0.75 },
-            cucurbit:     { botrytis: 0.90, downy: 1.30, blight: 0.90 },
-            herbs:        { botrytis: 1.00, downy: 1.15, blight: 0.75 },
-            beans:        { botrytis: 1.05, downy: 1.10, blight: 0.80 },
-            root:         { botrytis: 0.80, downy: 0.85, blight: 1.00 },
-            corn:         { botrytis: 0.70, downy: 0.80, blight: 0.70 },
-            tea:          { botrytis: 0.70, downy: 0.60, blight: 0.50 },
-            _default:     { botrytis: 1.00, downy: 1.00, blight: 1.00 }
+            //              botrytis  downy  blight  | powdery earlyblight anthracnose
+            strawberry:   { botrytis: 1.30, downy: 1.00, blight: 0.80, powdery: 1.20, earlyblight: 0.70, anthracnose: 1.15 },
+            grape:        { botrytis: 1.25, downy: 1.25, blight: 0.70, powdery: 1.35, earlyblight: 0.60, anthracnose: 1.20 },
+            flower:       { botrytis: 1.20, downy: 1.00, blight: 0.70, powdery: 1.25, earlyblight: 0.60, anthracnose: 0.80 },
+            tomato:       { botrytis: 1.10, downy: 0.90, blight: 1.30, powdery: 1.00, earlyblight: 1.35, anthracnose: 1.30 },
+            eggplant:     { botrytis: 1.05, downy: 0.90, blight: 1.10, powdery: 1.10, earlyblight: 1.15, anthracnose: 1.20 },
+            capsicum:     { botrytis: 1.05, downy: 0.90, blight: 1.05, powdery: 1.05, earlyblight: 1.10, anthracnose: 1.35 },
+            leafy:        { botrytis: 1.00, downy: 1.20, blight: 0.80, powdery: 0.95, earlyblight: 0.85, anthracnose: 0.90 },
+            brassica:     { botrytis: 0.85, downy: 1.30, blight: 0.75, powdery: 0.90, earlyblight: 0.85, anthracnose: 0.80 },
+            cucurbit:     { botrytis: 0.90, downy: 1.30, blight: 0.90, powdery: 1.40, earlyblight: 0.90, anthracnose: 1.25 },
+            herbs:        { botrytis: 1.00, downy: 1.15, blight: 0.75, powdery: 1.05, earlyblight: 0.80, anthracnose: 0.85 },
+            beans:        { botrytis: 1.05, downy: 1.10, blight: 0.80, powdery: 1.10, earlyblight: 0.85, anthracnose: 1.30 },
+            root:         { botrytis: 0.80, downy: 0.85, blight: 1.00, powdery: 0.85, earlyblight: 1.05, anthracnose: 0.90 },
+            corn:         { botrytis: 0.70, downy: 0.80, blight: 0.70, powdery: 0.80, earlyblight: 0.70, anthracnose: 0.85 },
+            tea:          { botrytis: 0.70, downy: 0.60, blight: 0.50, powdery: 0.65, earlyblight: 0.50, anthracnose: 0.70 },
+            _default:     { botrytis: 1.00, downy: 1.00, blight: 1.00, powdery: 1.00, earlyblight: 1.00, anthracnose: 1.00 }
         };
 
         // Which diseases are most relevant to show first for a given crop.
@@ -1962,9 +1962,12 @@
         };
 
         const DISEASE_META = {
-            botrytis: { en: 'Botrytis (Gray Mould)', zh: '灰霉病',   icon: '🍄' },
-            downy:    { en: 'Downy Mildew',          zh: '霜霉病',   icon: '💧' },
-            blight:   { en: 'Late Blight',           zh: '晚疫病',   icon: '🥀' }
+            botrytis:    { en: 'Botrytis (Gray Mould)', zh: '灰霉病',   icon: '🍄' },
+            downy:       { en: 'Downy Mildew',          zh: '霜霉病',   icon: '💧' },
+            blight:      { en: 'Late Blight',           zh: '晚疫病',   icon: '🥀' },
+            powdery:     { en: 'Powdery Mildew',        zh: '白粉病',   icon: '🌫️' },
+            earlyblight: { en: 'Early Blight',          zh: '早疫病',   icon: '🍂' },
+            anthracnose: { en: 'Anthracnose',           zh: '炭疽病',   icon: '🎯' }
         };
 
         // Estimate leaf-wetness hours over a 24h hourly slice.
@@ -2035,6 +2038,73 @@
             return best;
         };
 
+        // ---- MULTI-DAY INFECTION PRESSURE (uses past 3 days of ACTUAL weather) --
+        // Fungal disease is cumulative: consecutive wet/humid days build inoculum
+        // and infection, while a dry day resets the cycle. `_past` holds the last
+        // ~72h of real weather. We score each elapsed day as wet (1), borderline
+        // (0.5) or dry (0), then turn the recent run of wet days into a multiplier
+        // that AMPLIFIES today's forecast-based risk. No past data → factor 1.0
+        // (falls back to pure forecast behaviour, so nothing breaks).
+        const pastWetPressure = (dataObj) => {
+            const past = dataObj && dataObj._past;
+            if (!past) return { factor: 1.0, wetDays: null, available: false };
+            const rh = past.relative_humidity_2m || [];
+            const rain = past.precipitation || [];
+            const dp = past.dew_point_2m || [];
+            const t = past.temperature_2m || [];
+            const cloud = past.cloudcover_mid || [];
+            if (rh.length < 24) return { factor: 1.0, wetDays: null, available: false };
+            // Use the most recent 3 full days (72h) ending at "now".
+            const total = rh.length;
+            const startIdx = Math.max(0, total - 72);
+            let dayScores = [];
+            for (let d = 0; d < 3; d++) {
+                const s = startIdx + d * 24, e = s + 24;
+                if (e > total) break;
+                let wetHrs = 0;
+                for (let i = s; i < e; i++) {
+                    const dewSpread = (t[i] != null && dp[i] != null) ? (t[i] - dp[i]) : 99;
+                    if ((rh[i] ?? 0) >= 90 || (rain[i] ?? 0) > 0.1 || (dewSpread < 2 && (cloud[i] ?? 0) > 70)) wetHrs++;
+                }
+                // Day classified: ≥8 wet hours = wet(1), 3–7 = borderline(0.5), <3 = dry(0)
+                dayScores.push(wetHrs >= 8 ? 1 : wetHrs >= 3 ? 0.5 : 0);
+            }
+            if (!dayScores.length) return { factor: 1.0, wetDays: null, available: false };
+            // Recency-weighted: yesterday matters most (×3), then ×2, then ×1.
+            // weighted sum / max possible → 0..1 "recent wetness".
+            const w = [1, 2, 3].slice(0, dayScores.length); // oldest→newest
+            let num = 0, den = 0;
+            dayScores.forEach((sc, i) => { num += sc * w[i]; den += w[i]; });
+            const recentWet = den ? num / den : 0; // 0..1
+            const wetDayCount = dayScores.filter(s => s >= 1).length;
+            // Factor: dry recent days SUPPRESS (down to 0.7×), wet recent days
+            // AMPLIFY (up to 1.35×). 0.5 (neutral) → ~1.0×.
+            const factor = 0.7 + recentWet * 0.65;
+            return {
+                factor: Math.round(factor * 100) / 100,
+                wetDays: wetDayCount,
+                dayScores,
+                recentWet: Math.round(recentWet * 100) / 100,
+                available: true
+            };
+        };
+
+        // ---- FORECAST ACCURACY (actual vs previously-forecast rain) ------------
+        // Compares the rain that ACTUALLY fell over the past days (from _past)
+        // against what the model is now showing for those same past timestamps in
+        // its forecast arrays is not possible (forecast arrays start at "now"), so
+        // instead we expose recent actual rainfall totals; the caller can compare
+        // against the cached prior forecast it stored. Returns recent actual mm.
+        const recentActualRain = (dataObj) => {
+            const past = dataObj && dataObj._past && dataObj._past.precipitation;
+            if (!past || !past.length) return null;
+            const total = past.length;
+            const startIdx = Math.max(0, total - 72);
+            let mm = 0;
+            for (let i = startIdx; i < total; i++) mm += (past[i] || 0);
+            return Math.round(mm * 10) / 10;
+        };
+
         // Compute all disease scores for one location, for a given forecast day
         // index (0 = today). `loc` carries elev + zone; `dataObj` is the hourly
         // weather store entry (detailData[id] preferred, weatherData[id] else).
@@ -2074,25 +2144,53 @@
             // 5h → ~0.9×, 12h+ → 0.55×. Fungal spores need sustained moisture.
             const dryFactor = dryRun >= 12 ? 0.55 : dryRun >= 5 ? (1 - (dryRun - 5) / 7 * 0.35) : 1.0;
 
+            // MULTI-DAY pressure from the past 3 actual days (only applied to the
+            // "today" view, dayIdx 0 — future days have no observed past). 1.0 when
+            // unavailable, so forecast-only behaviour is preserved.
+            const past = (dayIdx === 0) ? pastWetPressure(dataObj) : { factor: 1.0, available: false };
+            const pastFactor = past.factor;
+
             // Each disease = weighted average of its drivers (0–1) × temp suitability,
-            // then ×100, ×zone, ×crop-susceptibility, ×dry-break. Weighted-average
-            // base means a single extreme driver can't alone pin the score to 100.
-            const score = (wRH, wLW, wFog, wRain, tLo, tHi, susF) => {
+            // then ×100, ×zone, ×crop-susceptibility, ×dry-break, ×past-pressure.
+            const score = (wRH, wLW, wFog, wRain, tLo, tHi, susF, extraDamp) => {
                 const wSum = wRH + wLW + wFog + wRain;
                 const base = (nRH * wRH + nLW * wLW + nFog * wFog + nRain * wRain) / wSum; // 0–1
-                const val = base * _nTemp(tMean, tLo, tHi) * 100 * zoneMult * susF * dryFactor;
+                const val = base * _nTemp(tMean, tLo, tHi) * 100 * zoneMult * susF * dryFactor * pastFactor * (extraDamp || 1);
                 return Math.max(0, Math.min(100, Math.round(val)));
             };
 
+            // --- The 3 original fungal diseases ---
             // Weights reflect each disease's biology (leaf wetness dominates).
             const botrytis = score(0.25, 0.40, 0.15, 0.20, 15, 22, sus.botrytis);
             const downy    = score(0.30, 0.40, 0.20, 0.10, 10, 20, sus.downy);
             const blight   = score(0.15, 0.45, 0.15, 0.25, 10, 18, sus.blight);
 
+            // --- 3 added weather-driven diseases (precision forecast helps most) ---
+            // POWDERY MILDEW: unusual — needs humid AIR but DRY leaves. So it is
+            // driven by moderate-high RH but SUPPRESSED by leaf wetness/rain. We
+            // invert the wetness contribution: build a dedicated 0–1 base here.
+            const powderyBase = (() => {
+                // favoured 60–85% RH, mild temp; long leaf-wetness LOWERS it.
+                const rhTerm = avgRH >= 60 && avgRH <= 88 ? 1 - Math.abs(avgRH - 74) / 14 : 0.15;
+                const wetPenalty = leafWetHrs >= 10 ? 0.45 : leafWetHrs >= 6 ? 0.7 : 1.0;
+                return Math.max(0, Math.min(1, rhTerm * wetPenalty));
+            })();
+            const powderyVal = powderyBase * _nTemp(tMean, 16, 27) * 100 * zoneMult
+                               * (sus.powdery || 1.0) * pastFactor;
+            const powdery = Math.max(0, Math.min(100, Math.round(powderyVal)));
+
+            // EARLY BLIGHT (Alternaria): warm days + leaf wetness + humidity cycling.
+            const earlyblight = score(0.20, 0.40, 0.10, 0.30, 20, 30, sus.earlyblight || 1.0);
+            // ANTHRACNOSE: rain splash + warmth + leaf wetness; rain weighted high.
+            const anthracnose = score(0.15, 0.35, 0.10, 0.40, 20, 30, sus.anthracnose || 1.0);
+
             const diseases = {
-                botrytis: { score: botrytis, band: riskBand(botrytis) },
-                downy:    { score: downy,    band: riskBand(downy) },
-                blight:   { score: blight,   band: riskBand(blight) }
+                botrytis:    { score: botrytis,    band: riskBand(botrytis) },
+                downy:       { score: downy,       band: riskBand(downy) },
+                blight:      { score: blight,      band: riskBand(blight) },
+                powdery:     { score: powdery,     band: riskBand(powdery) },
+                earlyblight: { score: earlyblight, band: riskBand(earlyblight) },
+                anthracnose: { score: anthracnose, band: riskBand(anthracnose) }
             };
             // The headline disease for this crop, and the single worst score.
             const primaryKey = CROP_PRIMARY_DISEASE[cropId] || CROP_PRIMARY_DISEASE._default;
@@ -2101,7 +2199,14 @@
 
             return {
                 diseases, primaryKey, worstKey,
-                metrics: { leafWetHrs, fogHrs, rainMM: Math.round(rainMM * 10) / 10, avgRH: Math.round(avgRH), tMean: Math.round(tMean * 10) / 10, zoneMult, dryRun },
+                metrics: {
+                    leafWetHrs, fogHrs, rainMM: Math.round(rainMM * 10) / 10,
+                    avgRH: Math.round(avgRH), tMean: Math.round(tMean * 10) / 10,
+                    zoneMult, dryRun,
+                    // Multi-day pressure (from past actuals) + recent actual rain.
+                    pastFactor, pastWetDays: past.wetDays, pastAvailable: past.available,
+                    recentRainMM: recentActualRain(dataObj)
+                },
                 elev: elevBand(loc?.elev), zone: loc?.zone
             };
         };
@@ -2119,6 +2224,8 @@
                   zone: '微气候区', elevation: '海拔', today: '今日风险', outlook: '7天展望',
                   drivers: '关键指标', lw: '叶面湿润', fog: '高湿(RH≥90%)', rain: '降雨', rh: '平均湿度', temp: '均温',
                   hrs: '小时', advice: '建议', noData: '正在载入天气数据…',
+                  pressure3d: '近3天累积', pastWet: '潮湿天数', recentRain: '近3天实际雨量',
+                  presUp: '↑ 病压上升(近期持续潮湿)', presDown: '↓ 病压下降(近期转干)', presFlat: '病压平稳',
                   valley: '山谷(积湿)', fog_z: '雾区(高湿)', midslope: '山坡(主产区)', ridge: '山脊(通风)', unknown: '—',
                   act_low: '风险低，照常管理。', act_mod: '中等风险，加强巡园、注意通风。',
                   act_high: '风险偏高，准备预防性喷药、降低叶面湿润。', act_crit: '风险危急，尽快喷药并改善排水通风。' },
@@ -2126,6 +2233,8 @@
                   zone: 'Zone', elevation: 'Elevation', today: "Today's Risk", outlook: '7-Day Outlook',
                   drivers: 'Key Drivers', lw: 'Leaf wet', fog: 'High RH (≥90%)', rain: 'Rain', rh: 'Mean RH', temp: 'Mean T',
                   hrs: 'h', advice: 'Action', noData: 'Loading weather data…',
+                  pressure3d: '3-day buildup', pastWet: 'wet days', recentRain: 'actual rain (3d)',
+                  presUp: '↑ Rising (recent wet spell)', presDown: '↓ Easing (recently drier)', presFlat: 'Steady pressure',
                   valley: 'Valley (moisture pool)', fog_z: 'Fog zone (high RH)', midslope: 'Mid-slope (main belt)', ridge: 'Ridge (well-aired)', unknown: '—',
                   act_low: 'Low risk — manage as usual.', act_mod: 'Moderate — scout fields, improve airflow.',
                   act_high: 'High — prepare preventive spray, reduce leaf wetness.', act_crit: 'Critical — spray promptly, improve drainage & airflow.' }
@@ -2166,7 +2275,10 @@
             }
 
             // Today's three-disease breakdown
-            const order = ['botrytis', 'downy', 'blight'];
+            // Show all six diseases, highest score first so the worst sits on top.
+            const order = ['botrytis', 'downy', 'blight', 'powdery', 'earlyblight', 'anthracnose']
+                .filter(k => today.diseases[k])
+                .sort((a, b) => today.diseases[b].score - today.diseases[a].score);
             const bars = order.map(k => {
                 const dz = today.diseases[k];
                 const meta = DISEASE_META[k];
@@ -2196,6 +2308,9 @@
                 <div class="ch-disease-meta">
                     <span class="ch-chip">📍 ${T.zone}: <b>${zoneLabel}</b></span>
                     <span class="ch-chip">⛰️ ${T.elevation}: <b>${loc.elev ? loc.elev + 'm' : '—'}</b> · ${lang==='en'?elev.en:elev.zh}</span>
+                    ${m.pastAvailable ? `<span class="ch-chip" style="${m.pastFactor>=1.15?'background:#fef2f2;color:#b91c1c':m.pastFactor<=0.85?'background:#f0fdf4;color:#15803d':''}">📈 ${T.pressure3d}: <b>${m.pastFactor>=1.15?T.presUp:m.pastFactor<=0.85?T.presDown:T.presFlat}</b></span>` : ''}
+                    ${m.pastAvailable && m.pastWetDays!=null ? `<span class="ch-chip">💧 ${T.pastWet}: <b>${m.pastWetDays}/3</b></span>` : ''}
+                    ${m.recentRainMM!=null ? `<span class="ch-chip">🌧️ ${T.recentRain}: <b>${m.recentRainMM}mm</b></span>` : ''}
                 </div>
 
                 <div class="ch-section-lbl">${T.outlook} — ${headMeta.icon} ${lang==='en'?headMeta.en:headMeta.zh}</div>
@@ -3482,7 +3597,7 @@
                         const r = window.computeDiseaseRisk(loc, dObj, 0, cropId);
                         if (r) {
                             const d = r.diseases, m = r.metrics;
-                            chCtx += `The app's microclimate model for today estimates — Botrytis ${d.botrytis.score}/100, Downy mildew ${d.downy.score}/100, Late blight ${d.blight.score}/100; leaf-wetness ~${m.leafWetHrs}h, high-RH(≥90%) ~${m.fogHrs}h, rain ${m.rainMM}mm, mean RH ${m.avgRH}%, mean temp ${m.tMean}°C. Use these figures when judging disease pressure. `;
+                            chCtx += `The app's microclimate model for today estimates — Botrytis ${d.botrytis.score}/100, Downy mildew ${d.downy.score}/100, Late blight ${d.blight.score}/100, Powdery mildew ${d.powdery.score}/100, Early blight ${d.earlyblight.score}/100, Anthracnose ${d.anthracnose.score}/100; leaf-wetness ~${m.leafWetHrs}h, high-RH(≥90%) ~${m.fogHrs}h, rain ${m.rainMM}mm, mean RH ${m.avgRH}%, mean temp ${m.tMean}°C. ${m.pastAvailable ? `Recent 3-day actual weather shows ${m.pastWetDays}/3 wet days (${m.recentRainMM}mm actual rain), giving a ${m.pastFactor>=1.15?'RISING':m.pastFactor<=0.85?'EASING':'steady'} multi-day infection pressure (${m.pastFactor}×).` : ''} Use these figures when judging disease pressure. `;
                         }
                     }
                 } catch (e) { /* risk context is best-effort */ }
@@ -3765,6 +3880,29 @@
                  ].join(',');
                  const url = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lng}&hourly=${hourlyVars}&models=${activeModel}&timezone=auto&forecast_days=14`;
                  const res = await fetch(url); const data = await res.json();
+
+                 // PAST WEATHER (isolated): a small, separate call for the last 3 days
+                 // of ACTUAL weather. Used ONLY by the disease engine to accumulate
+                 // multi-day infection pressure (wet spells build risk; dry breaks
+                 // reset it) and to compare forecast-vs-actual rainfall. Kept separate
+                 // so it never shifts the main forecast array indices the rest of the
+                 // app relies on. Best-effort: if it fails, the engine falls back to
+                 // forecast-only behaviour.
+                 try {
+                     const pastVars = 'relative_humidity_2m,temperature_2m,dew_point_2m,precipitation,cloudcover_mid';
+                     const pastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lng}&hourly=${pastVars}&models=${activeModel}&timezone=auto&past_days=3&forecast_days=1`;
+                     const pastRes = await fetch(pastUrl);
+                     if (pastRes.ok) {
+                         const pastData = await pastRes.json();
+                         if (pastData && pastData.hourly && !pastData.error) {
+                             // Keep only the first 72 hours = the 3 elapsed days (the
+                             // forecast_days=1 tail is dropped by the engine via slice).
+                             data._past = pastData.hourly;
+                         }
+                     }
+                 } catch (e) {
+                     console.warn('Past weather unavailable (engine uses forecast-only):', e?.message);
+                 }
                  
                  // OPTIONAL: fetch daily-only variables (leaf wetness, growing degree days).
                  // Wrapped in try/catch because not all models support these — if it fails, the app continues without them.
@@ -3800,6 +3938,9 @@
                      }
                      // Attach daily data (leaf wetness, growing degree days) onto detailData so AI prompts can use it
                      if (data.daily) detailData[id]._daily = data.daily;
+                     // Attach the past-3-day actuals for the disease engine's
+                     // multi-day accumulation + forecast-accuracy comparison.
+                     if (data._past) detailData[id]._past = data._past;
                      // Persist to localStorage so the next session/page-refresh can hydrate
                      // this data instantly without re-fetching. Keyed by id+model so switching
                      // weather models doesn't return stale model data.
@@ -3867,7 +4008,10 @@
                                 const metaMap = {
                                     botrytis: {icon:'🍄', zh:'灰霉', en:'Botrytis'},
                                     downy:    {icon:'💧', zh:'霜霉', en:'Downy'},
-                                    blight:   {icon:'🥀', zh:'晚疫', en:'Blight'}
+                                    blight:   {icon:'🥀', zh:'晚疫', en:'Blight'},
+                                    powdery:     {icon:'🌫️', zh:'白粉', en:'Powdery'},
+                                    earlyblight: {icon:'🍂', zh:'早疫', en:'Early Blight'},
+                                    anthracnose: {icon:'🎯', zh:'炭疽', en:'Anthracnose'}
                                 };
                                 const meta = metaMap[dk] || {icon:'🍄', zh:'病害', en:'Disease'};
                                 const dname = (lang === 'en') ? meta.en : meta.zh;

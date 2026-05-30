@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.177 — sharper detail report (remove will-change GPU-layer + 2D transform → crisp text). bump CACHE_VERSION on each release
+// Version 1.0.178 — disease engine uses past 3-day actuals for multi-day infection pressure + forecast-accuracy; added powdery/early blight/anthracnose. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605311410';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605311510';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
