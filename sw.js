@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.182 — disease strip extended to 14 days with confidence fade on days >7 (label still from confident 7d window). bump CACHE_VERSION on each release
+// Version 1.0.183 — Phase 1: slim microclimate panel (zone/elev/past-3d/rainfall/accuracy + key index); dropped disease bars // Version 1.0.182 — disease strip extended to 14 days with confidence fade on days >7 (label still from confident 7d window). bump CACHE_VERSION on each release 14-day strip. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605311910';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010110';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
