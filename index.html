@@ -2122,13 +2122,22 @@
         // instead we expose recent actual rainfall totals; the caller can compare
         // against the cached prior forecast it stored. Returns recent actual mm.
         const recentActualRain = (dataObj) => {
-            const past = dataObj && dataObj._past && dataObj._past.precipitation;
-            if (!past || !past.length) return null;
-            const total = past.length;
-            const startIdx = Math.max(0, total - 72);
-            let mm = 0;
-            for (let i = startIdx; i < total; i++) mm += (past[i] || 0);
-            return Math.round(mm * 10) / 10;
+            const past = dataObj && dataObj._past;
+            if (!past || !past.precipitation || !past.time) return null;
+            const rain = past.precipitation, times = past.time;
+            // Sum the SAME 3 calendar dates the past strip shows (yesterday, −2, −3),
+            // by date — not a rolling "last 72 entries" window. The _past fetch
+            // (past_days=3 & forecast_days=1) returns more than 72 hours and isn't
+            // 72-aligned, so a fixed 72-row slice drifts and disagrees with the
+            // per-day strip totals. Matching by date keeps the header chip and the
+            // strip in exact agreement.
+            const ymdOf = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
+            const wanted = new Set([1, 2, 3].map(d => ymdOf(new Date(Date.now() - d * 86400000))));
+            let mm = 0, any = false;
+            for (let i = 0; i < times.length; i++) {
+                if (wanted.has((times[i] || '').slice(0, 10))) { mm += rain[i] || 0; any = true; }
+            }
+            return any ? Math.round(mm * 10) / 10 : null;
         };
 
         // Compute all disease scores for one location, for a given forecast day
@@ -2492,17 +2501,9 @@
 
             slot.innerHTML = `
               <div class="ch-disease-card">
-                <div class="ch-disease-head">
-                    <div>
-                        <div class="ch-disease-title">${T.mtitle}</div>
-                        <div class="ch-disease-sub">${T.msub}</div>
-                    </div>
-                </div>
                 <div class="ch-disease-meta">
                     <span class="ch-chip">📍 ${T.zone}: <b>${zoneLabel}</b></span>
                     <span class="ch-chip">⛰️ ${T.elevation}: <b>${loc.elev ? loc.elev + 'm' : '—'}</b> · ${lang==='en'?elev.en:elev.zh}</span>
-                    ${m.pastAvailable ? `<span class="ch-chip" style="${m.pastFactor>=1.15?'background:#fef2f2;color:#b91c1c':m.pastFactor<=0.85?'background:#f0fdf4;color:#15803d':''}">📈 ${T.pressure3d}: <b>${m.pastFactor>=1.15?T.presUp:m.pastFactor<=0.85?T.presDown:T.presFlat}</b></span>` : ''}
-                    ${m.pastAvailable && m.pastWetDays!=null ? `<span class="ch-chip">💧 ${T.pastWet}: <b>${m.pastWetDays}/3</b></span>` : ''}
                     ${m.recentRainMM!=null ? `<span class="ch-chip">🌧️ ${T.recentRain}: <b>${m.recentRainMM}mm</b></span>` : ''}
                 </div>
                 ${accuracyHtml}

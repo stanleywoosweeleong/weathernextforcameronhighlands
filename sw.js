@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.186 — past-3d actual strips above each forecast chart (rain/temp/humidity); new 14d humidity forecast row; 14d forecast untouched. bump CACHE_VERSION on each release
+// Version 1.0.189 — fix: header 近3天实际雨量 now sums same 3 calendar dates as the past strip (was rolling-72h, excluded today wrongly). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010410';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010710';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
