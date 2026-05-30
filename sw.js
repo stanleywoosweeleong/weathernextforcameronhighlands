@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.160 — verified responsive centering (desktop 760px frame, mobile full). bump CACHE_VERSION on each release
+// Version 1.0.162 — final: responsive centered layout, diagnostic removed. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605302230-diag';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605302300';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

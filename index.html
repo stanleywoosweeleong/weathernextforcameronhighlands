@@ -789,67 +789,6 @@
 <body class="flex flex-col">
 
     <!-- ============================================================
-         DIAGNOSTIC PANEL (temporary) — reports what THIS browser sees.
-         Plain inline script so it runs even if the module/Firebase fail.
-         Screenshot this to diagnose layout/caching. Remove after debugging.
-         ============================================================ -->
-    <div id="diag-panel" style="position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#0f172a;color:#e2f2ff;font:13px/1.5 monospace;padding:10px 12px;box-shadow:0 2px 12px rgba(0,0,0,0.5);white-space:pre-wrap;word-break:break-word;">measuring…</div>
-    <script>
-      (function () {
-        var BUILD_STAMP = 'BUILD 2026-05-30 v1.0.161-diag';
-        function px(n){ return Math.round(n); }
-        function render() {
-          try {
-            var vw = window.innerWidth, vh = window.innerHeight;
-            var dpr = window.devicePixelRatio || 1;
-            var sw = screen.width, sh = screen.height;
-            var bodyW = px(document.body.getBoundingClientRect().width);
-            var bodyLeft = px(document.body.getBoundingClientRect().left);
-            var bodyMaxW = getComputedStyle(document.body).maxWidth;
-            var bodyWidthCss = getComputedStyle(document.body).width;
-            // Which breakpoints match RIGHT NOW
-            var mq768 = window.matchMedia('(min-width: 768px)').matches;
-            var mq900 = window.matchMedia('(min-width: 900px)').matches;
-            // Is the 760px rule actually winning? read computed width
-            var centered = (bodyW <= 800 && bodyLeft > 5);
-            // Is a service worker controlling this page (stale-cache suspect)?
-            var swCtl = (navigator.serviceWorker && navigator.serviceWorker.controller) ? 'YES (cached SW active)' : 'no';
-            var lines = [
-              BUILD_STAMP,
-              '— if the build date/version above is OLD, the service worker is serving a STALE cached file. Fix: unregister SW + hard reload.',
-              'viewport (CSS px): ' + vw + ' x ' + vh + '   devicePixelRatio: ' + dpr,
-              'screen (physical): ' + sw + ' x ' + sh + '   → est. Windows zoom: ' + Math.round(dpr * 100) + '%',
-              'body width: computed=' + bodyWidthCss + '  measured=' + bodyW + 'px  left-offset=' + bodyLeft + 'px  max-width=' + bodyMaxW,
-              'media (min-width:768px): ' + mq768 + '    media (min-width:900px): ' + mq900,
-              'centered 760 frame active: ' + (centered ? 'YES ✓' : 'NO ✗  ← layout not applying') ,
-              'service worker controlling page: ' + swCtl,
-              'URL: ' + location.href,
-              '(tap this panel to dismiss)'
-            ];
-            var el = document.getElementById('diag-panel');
-            if (el) el.textContent = lines.join('\n');
-          } catch (e) {
-            var el2 = document.getElementById('diag-panel');
-            if (el2) el2.textContent = 'diag error: ' + e.message;
-          }
-        }
-        // Run now, after load, and on resize. Re-run a few times so it captures
-        // the state after CSS/layout settle.
-        render();
-        window.addEventListener('load', render);
-        window.addEventListener('resize', render);
-        setTimeout(render, 600);
-        setTimeout(render, 1500);
-        setTimeout(render, 3000);
-        // Tap to dismiss
-        document.addEventListener('click', function (ev) {
-          var el = document.getElementById('diag-panel');
-          if (el && ev.target === el) el.style.display = 'none';
-        });
-      })();
-    </script>
-
-    <!-- ============================================================
          BOOT SCREEN — paints immediately, before Tailwind / the
          type="module" script (which statically imports Firebase from a
          CDN) have loaded. Uses ONLY inline styles so it needs no
