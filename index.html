@@ -706,42 +706,22 @@
             }
             
             /* Compact cards — fit several farms in view so the slider's centered
-               farm shows with neighbours above and below at the same time.
-               Name sits on the LEFT, readings flow on the RIGHT (same row), which
-               roughly halves the card height vs the stacked mobile layout. */
-            .list-item-content {
-                padding: 9px 52px 9px 22px !important;
-                display: flex !important;
-                flex-direction: row !important;
-                align-items: center !important;
-                gap: 16px !important;
-                flex-wrap: nowrap !important;
-            }
-            .name-label-en { font-size: 17px !important; line-height: 1.05 !important; }
-            .name-label-zh { font-size: 13px !important; margin-top: 0 !important; line-height: 1.05 !important; }
-            /* Name block (en+zh) = fixed left column; zh sits under en, not inline. */
-            .list-item-content .name-label-en,
-            .list-item-content .name-label-zh { flex: 0 0 auto; width: 130px; }
-            .list-item-content .name-label-zh { order: 1; }
-            /* Readings row: horizontal, no wrap, pushed to the right, fills space. */
-            #main-content .list-item-content .flex.gap-8 {
-                margin-top: 0 !important;
-                flex: 1 1 auto !important;
-                flex-direction: row !important;
-                flex-wrap: nowrap !important;
-                justify-content: flex-end !important;
-                align-items: center !important;
-                gap: 20px !important;
-                order: 2;
-            }
-            /* Each reading stays a small vertical label/value pair. */
-            #main-content .list-item-content .flex.gap-8 > div { flex: 0 0 auto !important; flex-direction: column !important; }
-            .list-item-content .text-\[17px\] { font-size: 16px !important; }
+               farm shows with neighbours above and below. Keeps the reliable
+               STACKED layout (name on top, readings row below) but tightened:
+               smaller fonts, minimal padding and gaps. */
+            .list-item-content { padding: 7px 44px 7px 22px !important; }
+            .name-label-en { font-size: 16px !important; line-height: 1.1 !important; }
+            .name-label-zh { font-size: 12px !important; margin-top: 0 !important; line-height: 1.1 !important; }
+
+            /* Readings row stays horizontal (its natural Tailwind layout); just
+               pull it tight to the name above it and shrink the label/value text. */
+            #main-content .list-item-content .flex.gap-8 { margin-top: 0.3rem !important; gap: 1.5rem !important; }
+            .list-item-content .text-\[17px\] { font-size: 15px !important; }
             .list-item-content .text-\[9px\] { font-size: 9px !important; }
-            .list-item-content .mb-2 { margin-bottom: 0.1rem !important; }
-            
-            /* Pin/heart icon — modest, vertically centered on the shorter card */
-            .pin-btn { width: 36px !important; height: 36px !important; right: 6px !important; top: 50% !important; transform: translateY(-50%) !important; }
+            .list-item-content .mb-2 { margin-bottom: 0.05rem !important; }
+
+            /* Pin/heart icon — modest, near the top of the shorter card */
+            .pin-btn { width: 36px !important; height: 36px !important; right: 6px !important; top: 6px !important; transform: none !important; }
             .pin-icon { width: 22px !important; height: 22px !important; }
             
             /* Footer elevation slider — comfortable touch target */
