@@ -440,47 +440,52 @@
             white-space: nowrap; letter-spacing: 0.01em;
             border: 1.5px solid transparent;
         }
-        /* ===== Cameron Highlands disease dashboard ===== */
-        .ch-disease-loading { font-size: 12px; font-weight: 700; color: #64748b; padding: 14px; text-align: center; }
+        /* ===== Cameron Highlands disease dashboard =====
+           Option B "polished hero": a distinct summary block that sits at the top
+           of the report, but in the SAME flat visual language as the native data
+           rows below (white, thin borders, small uppercase labels, no gradients,
+           no shadows, no rounded-pill emoji chrome) — so it reads as an intentional
+           part of the report, not a bolted-on widget. */
+        .ch-disease-loading { font-size: 12px; font-weight: 600; color: #64748b; padding: 14px; text-align: center; }
         .ch-disease-card {
-            background: linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);
-            border: 1.5px solid #e2e8f0; border-radius: 16px;
-            padding: 14px; box-shadow: 0 2px 10px rgba(15,23,42,0.05);
+            background: #ffffff;
+            border: 1px solid #e2e8f0; border-radius: 8px;
+            padding: 14px;
         }
-        .ch-disease-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
-        .ch-disease-title { font-size: 14px; font-weight: 900; color: #0f172a; line-height: 1.1; letter-spacing: -0.01em; }
-        .ch-disease-sub { font-size: 10px; font-weight: 600; color: #94a3b8; margin-top: 2px; }
-        .ch-disease-badge { font-size: 11px; font-weight: 900; padding: 5px 10px; border-radius: 999px; border: 1.5px solid transparent; white-space: nowrap; flex-shrink: 0; }
+        .ch-disease-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
+        .ch-disease-title { font-size: 12px; font-weight: 800; color: #0f172a; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.04em; }
+        .ch-disease-sub { font-size: 10px; font-weight: 500; color: #94a3b8; margin-top: 3px; text-transform: none; letter-spacing: 0; }
+        /* Headline risk reads as a plain colored value, not a filled pill. */
+        .ch-disease-badge { font-size: 14px; font-weight: 800; white-space: nowrap; flex-shrink: 0; }
         .ch-disease-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-        .ch-chip { font-size: 10.5px; font-weight: 600; color: #475569; background: #f1f5f9; border-radius: 8px; padding: 4px 8px; }
-        .ch-chip b { font-weight: 900; color: #0f172a; }
-        /* Forecast-accuracy badge */
-        .ch-acc { border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 9px 12px; margin-bottom: 12px; background: #fcfdff; }
+        .ch-chip { font-size: 10.5px; font-weight: 500; color: #475569; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 6px; padding: 4px 8px; }
+        .ch-chip b { font-weight: 800; color: #0f172a; }
+        /* Forecast-accuracy badge — flat, matches the data rows. */
+        .ch-acc { border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; margin-bottom: 12px; background: #ffffff; }
         .ch-acc-main { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-        .ch-acc-label { font-size: 11px; font-weight: 900; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; }
-        .ch-acc-score { font-size: 16px; font-weight: 900; tabular-nums: true; }
-        .ch-acc-sub { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; font-size: 10.5px; font-weight: 600; color: #64748b; }
-        .ch-acc-sub b { font-weight: 900; color: #334155; }
-        .ch-acc-empty { font-size: 10.5px; font-weight: 700; color: #94a3b8; background: #f8fafc; }
-        .ch-section-lbl { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin: 12px 0 6px; }
+        .ch-acc-label { font-size: 10px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.06em; }
+        .ch-acc-score { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .ch-acc-sub { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; font-size: 10.5px; font-weight: 500; color: #64748b; }
+        .ch-acc-sub b { font-weight: 800; color: #334155; }
+        .ch-acc-empty { font-size: 10.5px; font-weight: 600; color: #94a3b8; background: #f8fafc; }
+        .ch-section-lbl { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; margin: 14px 0 6px; }
         .ch-strip { display: flex; gap: 5px; }
         .ch-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .ch-day-dot {
-            width: 100%; aspect-ratio: 1; max-width: 38px; border-radius: 9px;
+            width: 100%; aspect-ratio: 1; max-width: 38px; border-radius: 6px;
             display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 11px; font-weight: 900;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+            color: #fff; font-size: 11px; font-weight: 800;
         }
-        .ch-day-lbl { font-size: 9px; font-weight: 800; color: #64748b; }
+        .ch-day-lbl { font-size: 9px; font-weight: 700; color: #64748b; }
         .ch-bars { display: flex; flex-direction: column; gap: 7px; }
         .ch-bar-row { display: flex; align-items: center; gap: 8px; }
-        .ch-bar-name { font-size: 11px; font-weight: 700; color: #334155; width: 96px; flex-shrink: 0; }
-        .ch-bar-track { flex: 1; height: 9px; background: #eef2f6; border-radius: 999px; overflow: hidden; }
-        .ch-bar-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
-        .ch-bar-score { font-size: 12px; font-weight: 900; width: 28px; text-align: right; flex-shrink: 0; tabular-nums: true; }
+        .ch-bar-name { font-size: 11px; font-weight: 600; color: #334155; width: 96px; flex-shrink: 0; }
+        .ch-bar-track { flex: 1; height: 9px; background: #eef2f6; border-radius: 3px; overflow: hidden; }
+        .ch-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+        .ch-bar-score { font-size: 12px; font-weight: 800; width: 28px; text-align: right; flex-shrink: 0; font-variant-numeric: tabular-nums; }
         .ch-drivers { display: grid; grid-template-columns: repeat(auto-fit,minmax(88px,1fr)); gap: 6px; }
-        .ch-driver { background: #f8fafc; border: 1px solid #eef2f6; border-radius: 9px; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px; }
-        .ch-driver span { font-size: 9.5px; font-weight: 700; color: #64748b; }
+        .ch-driver { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 6px; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px; }
+        .ch-driver span { font-size: 9.5px; font-weight: 600; color: #64748b; }
         .ch-driver b { font-size: 14px; font-weight: 900; color: #0f172a; }
         .ch-advice { font-size: 11.5px; font-weight: 600; color: #334155; padding: 9px 11px; border-radius: 9px; margin-top: 12px; line-height: 1.45; }
         .ch-advice b { font-weight: 900; }
@@ -2504,10 +2509,10 @@
               <div class="ch-disease-card" style="border-color:${headBand.color}33;">
                 <div class="ch-disease-head">
                     <div>
-                        <div class="ch-disease-title">🌫️ ${T.title}</div>
+                        <div class="ch-disease-title">${T.title}</div>
                         <div class="ch-disease-sub">${T.sub}</div>
                     </div>
-                    <div class="ch-disease-badge" style="background:${headBand.color}1a;color:${headBand.color};border-color:${headBand.color}55;">
+                    <div class="ch-disease-badge" style="color:${headBand.color};">
                         ${headBand.emoji} ${(lang==='en'?headBand.en:headBand.zh)}
                     </div>
                 </div>

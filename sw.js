@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.179 — forecast-accuracy tracking (rain+temp+RH, per-farm + regional avg, rolling 30d). bump CACHE_VERSION on each release
+// Version 1.0.180 — restyle microclimate panel to native flat language (Option B: polished hero, no bolted-on look). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605311610';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605311710';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
