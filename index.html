@@ -486,16 +486,19 @@
         .ch-drivers { display: grid; grid-template-columns: repeat(auto-fit,minmax(88px,1fr)); gap: 6px; }
         .ch-driver { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 6px; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px; }
         .ch-driver span { font-size: 9.5px; font-weight: 600; color: #64748b; }
-        /* ===== Weather trends (past 3d + 14d forecast, continuous) ===== */
-        .ch-trends-card { background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:14px; }
-        .ch-trends-head { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:4px; padding-bottom:10px; border-bottom:1px solid #f1f5f9; }
-        .ch-trends-title { font-size:12px; font-weight:800; color:#0f172a; text-transform:uppercase; letter-spacing:0.04em; }
-        .ch-trends-legend { font-size:9px; font-weight:600; color:#94a3b8; }
-        .ch-trends-legend b { color:#475569; }
-        .ch-trend-block { margin-top:12px; }
-        .ch-trend-lbl { display:flex; justify-content:space-between; align-items:baseline; font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.06em; color:#475569; margin-bottom:4px; }
-        .ch-trend-lbl .now { font-size:9px; font-weight:700; color:#94a3b8; text-transform:none; letter-spacing:0; }
-        .ch-trend-svg { width:100%; display:block; }
+        /* ===== Past-3-day mini-strips (sit above each forecast chart) ===== */
+        .ch-past-strip { margin: 0; }
+        .ch-ps-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; background: #f8fafc; border-top: 1px solid #eef2f6; }
+        .ch-ps-tag { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; color: #94a3b8; width: 84px; flex-shrink: 0; line-height: 1.25; }
+        .ch-ps-cells { display: flex; gap: 14px; align-items: flex-end; }
+        .ch-ps-cell { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+        .ch-ps-barwrap { height: 28px; display: flex; align-items: flex-end; }
+        .ch-ps-bar { width: 14px; border-radius: 2px 2px 0 0; min-height: 2px; }
+        .ch-ps-val { font-size: 10px; font-weight: 800; color: #1e3a8a; }
+        .ch-ps-temp { font-size: 11px; font-weight: 800; }
+        .ch-ps-dow { font-size: 8px; font-weight: 600; color: #94a3b8; }
+        .ch-past-empty { font-size: 9px; font-weight: 600; color: #cbd5e1; padding: 4px 8px; background: #f8fafc; border-top: 1px solid #eef2f6; }
+        .ch-rh-forecast { padding-top: 4px; }
         .ch-driver b { font-size: 14px; font-weight: 900; color: #0f172a; }
         .ch-advice { font-size: 11.5px; font-weight: 600; color: #334155; padding: 9px 11px; border-radius: 9px; margin-top: 12px; line-height: 1.45; }
         .ch-advice b { font-weight: 900; }
@@ -2514,26 +2517,22 @@
         // with a dashed "today" divider. Built fresh so it never touches the
         // existing (fragile) chart renderers.
         // ============================================================
-        window.renderWeatherTrends = (id) => {
-            const slot = document.getElementById(`ch-trends-${id}`);
-            if (!slot) return;
+        // Render compact "Past 3 days (actual)" mini-strips that sit directly
+        // ABOVE each matching forecast chart (rain, temp, humidity), plus the
+        // 14-day humidity forecast line (humidity had no forecast chart before).
+        // The existing 14-day forecast charts are left FULL-WIDTH and untouched —
+        // past data lives in its own strip so the forecast is never shrunk.
+        window.renderPastStrips = (id) => {
             const data = (typeof detailData !== 'undefined') ? detailData[id] : null;
-            if (!data) { slot.innerHTML = ''; return; }
+            if (!data) return;
             const lang = (typeof getLang === 'function') ? getLang(id) : 'zh';
             const L = (lang === 'en')
-                ? { title:'Weather Trends', past:'Past (actual)', fc:'Forecast', now:'today', rain:'Rainfall (mm/day)', temp:'Temp Hi / Lo (°C)', rh:'Humidity (avg %)', days3:'3d', noPast:'(building past data…)' }
-                : { title:'天气趋势', past:'过去(实测)', fc:'预报', now:'今天', rain:'每日雨量 (mm)', temp:'高/低温 (°C)', rh:'平均湿度 (%)', days3:'近3天', noPast:'(实测数据累积中…)' };
-
+                ? { past3:'Past 3 days (actual)', noPast:'Past 3-day data building…', rain:'rain', hi:'hi', lo:'lo', rh:'RH' }
+                : { past3:'过去3天 (实测)', noPast:'实测数据累积中…', rain:'雨', hi:'高', lo:'低', rh:'湿度' };
             const model = (typeof activeModel !== 'undefined') ? activeModel : '';
             const fPick = (v) => data[`${v}_${model}`] || data[v] || null;
-            const fTime = fPick('time') || data.time;
-            const fRain = fPick('precipitation');
-            const fTemp = fPick('temperature_2m');
-            const fRH = fPick('relative_humidity_2m');
 
-            const past = data._past || null;
-
-            // Aggregate one local calendar date from hourly arrays.
+            const ymdOf = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
             const aggDate = (times, ymd, rainA, tempA, rhA) => {
                 if (!times) return null;
                 let rain = 0, tHi = -99, tLo = 99, rhSum = 0, n = 0;
@@ -2541,115 +2540,74 @@
                     if ((times[i] || '').slice(0, 10) !== ymd) continue;
                     rain += rainA?.[i] || 0;
                     if (tempA?.[i] != null) { tHi = Math.max(tHi, tempA[i]); tLo = Math.min(tLo, tempA[i]); }
-                    if (rhA?.[i] != null) { rhSum += rhA[i]; }
+                    if (rhA?.[i] != null) rhSum += rhA[i];
                     n++;
                 }
                 if (n === 0) return null;
-                return { rain: Math.round(rain * 10) / 10, tHi: tHi > -99 ? Math.round(tHi * 10) / 10 : null, tLo: tLo < 99 ? Math.round(tLo * 10) / 10 : null, rh: Math.round(rhSum / n), n };
+                return { rain: Math.round(rain * 10) / 10, tHi: tHi > -99 ? Math.round(tHi * 10) / 10 : null, tLo: tLo < 99 ? Math.round(tLo * 10) / 10 : null, rh: Math.round(rhSum / n) };
             };
-            const ymdOf = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
+            const dow = (ymd) => { const d = new Date(ymd + 'T00:00'); return (lang === 'en' ? ['Su','Mo','Tu','We','Th','Fr','Sa'] : ['日','一','二','三','四','五','六'])[d.getDay()]; };
 
-            // Build the day series: 3 past (if available) + 14 forecast.
-            const series = [];
-            const todayYmd = ymdOf(new Date());
+            // Build the 3 past days (oldest → newest).
+            const past = data._past || null;
+            const pdays = [];
             if (past && past.time) {
                 for (let d = 3; d >= 1; d--) {
                     const ymd = ymdOf(new Date(Date.now() - d * 86400000));
                     const a = aggDate(past.time, ymd, past.precipitation, past.temperature_2m, past.relative_humidity_2m);
-                    if (a) series.push({ ...a, ymd, kind: 'past' });
+                    if (a) pdays.push({ ...a, ymd });
                 }
             }
-            for (let d = 0; d < 14; d++) {
-                const ymd = ymdOf(new Date(Date.now() + d * 86400000));
-                const a = aggDate(fTime, ymd, fRain, fTemp, fRH);
-                if (a) series.push({ ...a, ymd, kind: (d === 0 ? 'today' : 'fc') });
-            }
-            if (series.length < 2) { slot.innerHTML = ''; return; }
 
-            const W = 360, padL = 4, padR = 4, plotW = W - padL - padR;
-            const n = series.length;
-            const step = plotW / n;
-            const todayIdx = series.findIndex(s => s.ymd === todayYmd);
-            const dividerX = padL + (todayIdx >= 0 ? todayIdx : 0) * step;
-            const colPast = '#1e3a8a', colFc = '#93c5fd';        // rain
-            const colTHi = '#f97316', colTLo = '#2563eb';         // temp
-            const colRH = '#0891b2';                              // humidity
+            const setStrip = (slotId, builder) => {
+                const el = document.getElementById(slotId);
+                if (!el) return;
+                if (!pdays.length) { el.innerHTML = `<div class="ch-past-empty">${L.noPast}</div>`; return; }
+                el.innerHTML = builder();
+            };
 
-            // Day-of-week tick labels (compact).
-            const dow = (ymd) => { const d = new Date(ymd + 'T00:00'); return (lang === 'en' ? ['Su','Mo','Tu','We','Th','Fr','Sa'] : ['日','一','二','三','四','五','六'])[d.getDay()]; };
-
-            // --- RAIN: bars (past solid, forecast light) ---
-            const maxRain = Math.max(5, ...series.map(s => s.rain || 0));
-            const Hr = 56;
-            let rainBars = '', rainLbls = '';
-            series.forEach((s, i) => {
-                const x = padL + i * step, bw = Math.max(2, step * 0.62);
-                const h = Math.round((s.rain / maxRain) * (Hr - 14));
-                const col = s.kind === 'fc' ? colFc : colPast;
-                const op = s.kind === 'fc' ? 0.85 : 1;
-                rainBars += `<rect x="${x + (step-bw)/2}" y="${Hr - h - 10}" width="${bw}" height="${h}" rx="1.5" fill="${col}" opacity="${op}"/>`;
-                if (s.rain >= maxRain * 0.25) rainBars += `<text x="${x + step/2}" y="${Hr - h - 12}" font-size="7" fill="#475569" text-anchor="middle" font-weight="700">${s.rain}</text>`;
-                if (i % 2 === 0) rainLbls += `<text x="${x + step/2}" y="${Hr-1}" font-size="7" fill="#94a3b8" text-anchor="middle">${dow(s.ymd)}</text>`;
+            // RAIN past strip: 3 small solid bars + value + day label.
+            setStrip(`ch-past-rain-${id}`, () => {
+                const maxR = Math.max(3, ...pdays.map(d => d.rain));
+                const cells = pdays.map(d => {
+                    const h = Math.round((d.rain / maxR) * 26);
+                    return `<div class="ch-ps-cell"><div class="ch-ps-barwrap"><div class="ch-ps-bar" style="height:${h}px;background:#1e3a8a;"></div></div><div class="ch-ps-val">${d.rain}</div><div class="ch-ps-dow">${dow(d.ymd)}</div></div>`;
+                }).join('');
+                return `<div class="ch-ps-row"><div class="ch-ps-tag">${L.past3} · ${L.rain}</div><div class="ch-ps-cells">${cells}</div></div>`;
             });
 
-            // --- TEMP: hi/lo lines ---
-            const Ht = 64;
-            const temps = series.flatMap(s => [s.tHi, s.tLo]).filter(v => v != null);
-            const tMax = Math.max(...temps), tMin = Math.min(...temps), tRange = Math.max(1, tMax - tMin);
-            const ty = (v) => 8 + (1 - (v - tMin) / tRange) * (Ht - 22);
-            const tx = (i) => padL + i * step + step / 2;
-            const linePath = (sel) => series.map((s, i) => `${i === 0 ? 'M' : 'L'}${tx(i).toFixed(1)},${ty(sel(s)).toFixed(1)}`).join(' ');
-            // split past vs forecast for dashing: draw forecast portion dashed.
-            const firstFcIdx = series.findIndex(s => s.kind !== 'past');
-            const seg = (sel, from, to) => series.slice(from, to).map((s, j) => `${j === 0 ? 'M' : 'L'}${tx(from + j).toFixed(1)},${ty(sel(s)).toFixed(1)}`).join(' ');
-            const hiPast = seg(s => s.tHi, 0, firstFcIdx < 0 ? n : firstFcIdx + 1);
-            const hiFc   = seg(s => s.tHi, firstFcIdx < 0 ? 0 : firstFcIdx, n);
-            const loPast = seg(s => s.tLo, 0, firstFcIdx < 0 ? n : firstFcIdx + 1);
-            const loFc   = seg(s => s.tLo, firstFcIdx < 0 ? 0 : firstFcIdx, n);
+            // TEMP past strip: hi/lo per day.
+            setStrip(`ch-past-temp-${id}`, () => {
+                const cells = pdays.map(d => `<div class="ch-ps-cell"><div class="ch-ps-temp"><span style="color:#f97316;">${d.tHi != null ? Math.round(d.tHi) + '°' : '—'}</span> <span style="color:#2563eb;">${d.tLo != null ? Math.round(d.tLo) + '°' : '—'}</span></div><div class="ch-ps-dow">${dow(d.ymd)}</div></div>`).join('');
+                return `<div class="ch-ps-row"><div class="ch-ps-tag">${L.past3} · ${L.hi}/${L.lo}</div><div class="ch-ps-cells">${cells}</div></div>`;
+            });
 
-            // --- HUMIDITY: area-ish line ---
-            const Hh = 48;
-            const hy = (v) => 6 + (1 - v / 100) * (Hh - 16);
-            const rhSegP = series.slice(0, firstFcIdx < 0 ? n : firstFcIdx + 1).map((s, j) => `${j === 0 ? 'M' : 'L'}${tx(j).toFixed(1)},${hy(s.rh).toFixed(1)}`).join(' ');
-            const rhSegF = series.slice(firstFcIdx < 0 ? 0 : firstFcIdx, n).map((s, j) => `${j === 0 ? 'M' : 'L'}${tx((firstFcIdx<0?0:firstFcIdx) + j).toFixed(1)},${hy(s.rh).toFixed(1)}`).join(' ');
+            // HUMIDITY past strip.
+            setStrip(`ch-past-rh-${id}`, () => {
+                const cells = pdays.map(d => `<div class="ch-ps-cell"><div class="ch-ps-val" style="color:#0891b2;">${d.rh}%</div><div class="ch-ps-dow">${dow(d.ymd)}</div></div>`).join('');
+                return `<div class="ch-ps-row"><div class="ch-ps-tag">${L.past3} · ${L.rh}</div><div class="ch-ps-cells">${cells}</div></div>`;
+            });
 
-            const divider = (H) => todayIdx > 0 ? `<line x1="${dividerX.toFixed(1)}" y1="2" x2="${dividerX.toFixed(1)}" y2="${H-2}" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/><text x="${dividerX+3}" y="9" font-size="7" fill="#94a3b8" font-weight="700">${L.now}</text>` : '';
-
-            slot.innerHTML = `
-              <div class="ch-trends-card">
-                <div class="ch-trends-head">
-                    <div class="ch-trends-title">${L.title}</div>
-                    <div class="ch-trends-legend">${past ? `<b>${L.past}</b> ▌ · ${L.fc} ░` : L.noPast}</div>
-                </div>
-
-                <div class="ch-trend-block">
-                    <div class="ch-trend-lbl"><span>${L.rain}</span></div>
-                    <svg class="ch-trend-svg" viewBox="0 0 ${W} ${Hr}" preserveAspectRatio="none" height="${Hr}">
-                        ${divider(Hr)}${rainBars}${rainLbls}
-                    </svg>
-                </div>
-
-                <div class="ch-trend-block">
-                    <div class="ch-trend-lbl"><span>${L.temp}</span></div>
-                    <svg class="ch-trend-svg" viewBox="0 0 ${W} ${Ht}" preserveAspectRatio="none" height="${Ht}">
-                        ${divider(Ht)}
-                        <path d="${hiPast}" fill="none" stroke="${colTHi}" stroke-width="2" stroke-linejoin="round"/>
-                        <path d="${hiFc}" fill="none" stroke="${colTHi}" stroke-width="2" stroke-dasharray="3 3" opacity="0.7" stroke-linejoin="round"/>
-                        <path d="${loPast}" fill="none" stroke="${colTLo}" stroke-width="2" stroke-linejoin="round"/>
-                        <path d="${loFc}" fill="none" stroke="${colTLo}" stroke-width="2" stroke-dasharray="3 3" opacity="0.7" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-
-                <div class="ch-trend-block">
-                    <div class="ch-trend-lbl"><span>${L.rh}</span></div>
-                    <svg class="ch-trend-svg" viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none" height="${Hh}">
-                        ${divider(Hh)}
-                        <path d="${rhSegP}" fill="none" stroke="${colRH}" stroke-width="2" stroke-linejoin="round"/>
-                        <path d="${rhSegF}" fill="none" stroke="${colRH}" stroke-width="2" stroke-dasharray="3 3" opacity="0.7" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-              </div>`;
+            // HUMIDITY 14-DAY FORECAST line (new — humidity had no forecast chart).
+            const rhSlot = document.getElementById(`ch-rh-forecast-${id}`);
+            if (rhSlot) {
+                const fTime = fPick('time') || data.time, fRH = fPick('relative_humidity_2m');
+                const fdays = [];
+                for (let d = 0; d < 14; d++) {
+                    const ymd = ymdOf(new Date(Date.now() + d * 86400000));
+                    const a = aggDate(fTime, ymd, null, null, fRH);
+                    if (a) fdays.push(a.rh);
+                }
+                if (fdays.length >= 2) {
+                    const W = 360, H = 46, padL = 4, stepF = (W - 8) / fdays.length;
+                    const hy = (v) => 6 + (1 - v / 100) * (H - 14);
+                    const path = fdays.map((v, i) => `${i === 0 ? 'M' : 'L'}${(padL + i * stepF + stepF / 2).toFixed(1)},${hy(v).toFixed(1)}`).join(' ');
+                    rhSlot.innerHTML = `<svg width="100%" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" height="${H}" style="display:block;padding-top:4px;"><path d="${path}" fill="none" stroke="#0891b2" stroke-width="2" stroke-linejoin="round"/></svg>`;
+                }
+            }
         };
+        // back-compat alias (old name) so any stray caller still works
+        window.renderWeatherTrends = (id) => { try { window.renderPastStrips(id); } catch(e){} };
         // ============================================================
         // END MICROCLIMATE DISEASE-RISK ENGINE
         // ============================================================
@@ -6288,10 +6246,6 @@
                 </div>
 
                 <div class="mt-2 mb-2">
-                    <div id="ch-trends-${id}" class="ch-trends"></div>
-                </div>
-
-                <div class="mt-2 mb-2">
                     <button id="ai-btn-${id}" class="ai-btn semi-bleed" style="margin-bottom:0;" onclick="window.handleSmartBriefClick('${id}')"><div class="ai-btn-progress" id="ai-prog-${id}"></div><span id="ai-btn-text-${id}">${labels.brief}</span><div class="ai-loading-spinner" id="ai-spin-${id}"></div></button>
                     <div id="ai-brief-result-${id}" class="ai-result-box relative" style="display:none; margin-top:12px; margin-bottom:12px;">
                         <div id="ai-content-brief-${id}"></div>
@@ -6353,13 +6307,17 @@
 
                 <div class="info-row" id="row-dates-top-${id}"></div>
                 <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" style="color: #b45309;">WVET Crop Stress (Risk)<span class="help-icon-btn" id="help-icon-wvet-${id}" onclick="window.toggleHelpCard('${id}', 'wvet')" title="What is WVET?">?</span></div><div id="help-card-wvet-${id}" class="help-card"></div><div class="info-row" id="row-wvet-${id}" style="min-height: 60px; padding-top: 14px;"></div></div>
+                <div id="ch-past-temp-${id}" class="ch-past-strip"></div>
                 <div class="relative"><div class="row-label-overlay"><span style="color:#f97316;">Hi</span>/<span style="color:#2563eb;">Lo</span> / <span style="color:#06b6d4;">DewPt</span> <span style="color:#cbd5e1; margin:0 2px;">|</span> <span style="color:#7e22ce;">DeltaT (8AM)</span> / <span style="color:#166534;">Safe Hours</span><span class="help-icon-btn" id="help-icon-temp-${id}" onclick="window.toggleHelpCard('${id}', 'temp')" title="What is DeltaT and Safe Hours?">?</span></div><div id="help-card-temp-${id}" class="help-card"></div><div class="info-row" id="row-temp-combined-${id}" style="min-height: 200px; padding-top: 10px;"></div><svg id="trend-layer-temp-${id}" class="trend-layer" height="200"></svg></div>
                 <div class="relative bg-slate-50/10" id="wind-row-container-${id}" style="margin-top:-38px;z-index:10;"><div class="row-label-overlay">Wind 2m / Dir 10m / Gusts (km/h)</div><div class="info-row" id="row-wind-${id}" style="min-height:60px;padding-top:14px;"></div></div>
                 <div class="relative bg-slate-50/10"><div class="row-label-overlay">Cloud (%) & CB Risk<span class="help-icon-btn" id="help-icon-cloud-${id}" onclick="window.toggleHelpCard('${id}', 'cloud')" title="What is Cloud % and CB Risk?">?</span></div><div id="help-card-cloud-${id}" class="help-card"></div><div class="info-row" id="row-cl-high-${id}" style="min-height:42px;padding-top:14px;"></div><div class="info-row" id="row-cl-mid-${id}" style="min-height:28px;"></div><div class="info-row" id="row-cl-low-${id}" style="min-height:28px;"></div></div>
                 <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" style="color:#7c2d12;">Storm Risk (CAPE/CIN)<span class="help-icon-btn" id="help-icon-storm-${id}" onclick="window.toggleHelpCard('${id}', 'storm')" title="What is Storm Risk?">?</span></div><div id="help-card-storm-${id}" class="help-card"></div><div class="info-row" id="row-storm-${id}" style="min-height: 70px; padding-top: 14px;"></div></div>
                 <div class="relative"><div class="row-label-overlay">Sky Tint (AM/PM)<span class="help-icon-btn" id="help-icon-sky-${id}" onclick="window.toggleHelpCard('${id}', 'sky')" title="What is Sky Tint?">?</span></div><div id="help-card-sky-${id}" class="help-card"></div><div class="info-row" id="row-sky-${id}" style="min-height: 42px; padding-top: 14px;"></div></div>
                 <div class="relative"><div class="row-label-overlay">Rain Prob (%)</div><div class="info-row" id="row-rain-pp-${id}" style="min-height:70px;padding-top:18px;"></div><svg id="trend-layer-pp-${id}" class="trend-layer" height="70"></svg></div>
+                <div id="ch-past-rain-${id}" class="ch-past-strip"></div>
                 <div class="relative bg-slate-50/10"><div class="row-label-overlay" style="color:#1e3a8a">Rainfall (mm)</div><div class="info-row" id="row-rain-vv-${id}" style="min-height:52px;padding-top:18px;"></div><svg id="trend-layer-vv-${id}" class="trend-layer" height="52"></svg></div>
+                <div id="ch-past-rh-${id}" class="ch-past-strip"></div>
+                <div class="relative"><div class="row-label-overlay" style="color:#0891b2">Humidity (RH %)</div><div id="ch-rh-forecast-${id}" class="ch-rh-forecast"></div></div>
                 <div class="relative"><div class="row-label-overlay" style="color:#059669">ET0 (mm)</div><div class="info-row" id="row-et-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-et-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="info-row" id="row-dates-bottom-${id}"></div>
              </div>`;
@@ -6880,7 +6838,7 @@
 
             // Cameron Highlands: render the microclimate disease dashboard for this location
             try { if (typeof window.renderDiseaseDashboard === 'function') window.renderDiseaseDashboard(id); } catch (e) { console.warn('[disease] dashboard render skipped', e); }
-            try { if (typeof window.renderWeatherTrends === 'function') window.renderWeatherTrends(id); } catch (e) { console.warn('[trends] render skipped', e); }
+            try { if (typeof window.renderPastStrips === 'function') window.renderPastStrips(id); } catch (e) { console.warn('[paststrips] render skipped', e); }
 
             requestAnimationFrame(() => setTimeout(() => drawTrends(days, id), 50));
         }
