@@ -730,7 +730,7 @@
                top, readings row below — the reliable Tailwind-native arrangement. */
             .list-item-content { padding: 14px 56px 14px 24px !important; }
             .name-label-en { font-size: 18px !important; line-height: 1.15 !important; }
-            .name-label-zh { font-size: 14px !important; margin-top: 1px !important; line-height: 1.15 !important; }
+            .name-label-zh { font-size: 16px !important; margin-top: 1px !important; line-height: 1.15 !important; }
 
             /* Readings row: keep horizontal, GROUP all four readings together on
                the LEFT so the eye reads one farm in a single glance. */
@@ -2432,7 +2432,7 @@
         // unless SEED_VERSION is bumped in a future build.
         // ============================================================
         (function seedCompanyLocations() {
-            var SEED_VERSION = 'ch-1';
+            var SEED_VERSION = 'ch-2';
             var SEED_FLAG_KEY = 'weathernextforcameron__wnext_company_seed_version';
             var CUSTOM_KEY = 'weathernextforcameron__wnext_v41_custom_store';
             var FAV_KEY = 'weathernextforcameron__wnext_v41_favs_store';
@@ -2451,7 +2451,7 @@
                     localStorage.setItem(NAME_KEY, "金马伦");
                     localStorage.setItem(NAME_ASCII_KEY, "Cameron");
                 }
-                var seedLocs = [{"id": "c_ch-ringlet", "en": "Ringlet", "zh": "冷力", "lat": 4.41453, "lng": 101.38415, "t": 0, "p": 0, "em": false, "elev": 1135, "zone": "valley", "crop": "leafy"}, {"id": "c_ch-bertam-valley", "en": "Bertam Valley", "zh": "伯坦谷", "lat": 4.397, "lng": 101.381, "t": 0, "p": 0, "em": false, "elev": 1100, "zone": "valley", "crop": "leafy"}, {"id": "c_ch-habu", "en": "Habu", "zh": "哈布", "lat": 4.44011, "lng": 101.38921, "t": 0, "p": 0, "em": false, "elev": 1300, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-tanah-rata", "en": "Tanah Rata", "zh": "丹那拉打", "lat": 4.47135, "lng": 101.37565, "t": 0, "p": 0, "em": false, "elev": 1440, "zone": "midslope", "crop": "strawberry"}, {"id": "c_ch-brinchang", "en": "Brinchang", "zh": "碧兰璋", "lat": 4.49223, "lng": 101.38732, "t": 0, "p": 0, "em": false, "elev": 1470, "zone": "midslope", "crop": "strawberry"}, {"id": "c_ch-kea-farm", "en": "Kea Farm", "zh": "吉亚农场", "lat": 4.50436, "lng": 101.40734, "t": 0, "p": 0, "em": false, "elev": 1530, "zone": "ridge", "crop": "leafy"}, {"id": "c_ch-tringkap", "en": "Tringkap", "zh": "丁甲", "lat": 4.51494, "lng": 101.42771, "t": 0, "p": 0, "em": false, "elev": 1450, "zone": "midslope", "crop": "leafy"}, {"id": "c_ch-kuala-terla", "en": "Kuala Terla", "zh": "吉拉烈", "lat": 4.54673, "lng": 101.41608, "t": 0, "p": 0, "em": false, "elev": 1430, "zone": "midslope", "crop": "leafy"}, {"id": "c_ch-kampung-raja", "en": "Kampung Raja", "zh": "甘榜拉惹", "lat": 4.56709, "lng": 101.40968, "t": 0, "p": 0, "em": false, "elev": 1470, "zone": "fog", "crop": "tomato"}, {"id": "c_ch-blue-valley", "en": "Blue Valley", "zh": "蓝谷", "lat": 4.58322, "lng": 101.41243, "t": 0, "p": 0, "em": false, "elev": 1600, "zone": "fog", "crop": "leafy"}, {"id": "c_ch-sungai-palas", "en": "Sungai Palas", "zh": "双溪巴拉斯", "lat": 4.5225, "lng": 101.367, "t": 0, "p": 0, "em": false, "elev": 1550, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-cameron-valley", "en": "Cameron Valley", "zh": "金马伦谷", "lat": 4.4305, "lng": 101.401, "t": 0, "p": 0, "em": false, "elev": 1180, "zone": "valley", "crop": "tea"}, {"id": "c_ch-boh-tea", "en": "Boh Tea Plantation", "zh": "BOH 茶园", "lat": 4.52, "lng": 101.37, "t": 0, "p": 0, "em": false, "elev": 1560, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-kuala-terla-tea", "en": "Kuala Terla Tea Estate", "zh": "吉拉烈茶园", "lat": 4.548, "lng": 101.42, "t": 0, "p": 0, "em": false, "elev": 1440, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-taman-sedia", "en": "Kampung Taman Sedia", "zh": "塔曼斯迪亚村", "lat": 4.458, "lng": 101.384, "t": 0, "p": 0, "em": false, "elev": 1400, "zone": "midslope", "crop": "strawberry"}, {"id": "c_ch-mardi", "en": "MARDI Cameron Highlands", "zh": "MARDI 农业站", "lat": 4.4619, "lng": 101.3838, "t": 0, "p": 0, "em": false, "elev": 1420, "zone": "midslope", "crop": "leafy"}];
+                var seedLocs = [{"id": "c_ch-ringlet", "en": "Ringlet", "zh": "冷力", "lat": 4.41453, "lng": 101.38415, "t": 0, "p": 0, "em": false, "elev": 1135, "zone": "valley", "crop": "leafy"}, {"id": "c_ch-bertam-valley", "en": "Bertam Valley", "zh": "伯坦谷", "lat": 4.397, "lng": 101.381, "t": 0, "p": 0, "em": false, "elev": 1100, "zone": "valley", "crop": "leafy"}, {"id": "c_ch-habu", "en": "Habu", "zh": "哈布", "lat": 4.44011, "lng": 101.38921, "t": 0, "p": 0, "em": false, "elev": 1300, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-tanah-rata", "en": "Tanah Rata", "zh": "丹那拉打", "lat": 4.47135, "lng": 101.37565, "t": 0, "p": 0, "em": false, "elev": 1440, "zone": "midslope", "crop": "strawberry"}, {"id": "c_ch-brinchang", "en": "Brinchang", "zh": "碧兰璋", "lat": 4.49223, "lng": 101.38732, "t": 0, "p": 0, "em": false, "elev": 1470, "zone": "midslope", "crop": "strawberry"}, {"id": "c_ch-kea-farm", "en": "Kea Farm", "zh": "吉亚农场", "lat": 4.50436, "lng": 101.40734, "t": 0, "p": 0, "em": false, "elev": 1530, "zone": "ridge", "crop": "leafy"}, {"id": "c_ch-tringkap", "en": "Tringkap", "zh": "丁甲", "lat": 4.51494, "lng": 101.42771, "t": 0, "p": 0, "em": false, "elev": 1450, "zone": "midslope", "crop": "leafy"}, {"id": "c_ch-kuala-terla", "en": "Kuala Terla", "zh": "吉拉烈", "lat": 4.54673, "lng": 101.41608, "t": 0, "p": 0, "em": false, "elev": 1430, "zone": "midslope", "crop": "leafy"}, {"id": "c_ch-kampung-raja", "en": "Kampung Raja", "zh": "甘榜拉惹", "lat": 4.56709, "lng": 101.40968, "t": 0, "p": 0, "em": false, "elev": 1470, "zone": "fog", "crop": "tomato"}, {"id": "c_ch-blue-valley", "en": "Blue Valley", "zh": "蓝谷", "lat": 4.58322, "lng": 101.41243, "t": 0, "p": 0, "em": false, "elev": 1600, "zone": "fog", "crop": "leafy"}, {"id": "c_ch-sungai-palas", "en": "Sungai Palas", "zh": "双溪巴拉斯", "lat": 4.5225, "lng": 101.367, "t": 0, "p": 0, "em": false, "elev": 1550, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-cameron-valley", "en": "Cameron Valley", "zh": "金马伦谷", "lat": 4.4305, "lng": 101.401, "t": 0, "p": 0, "em": false, "elev": 1180, "zone": "valley", "crop": "tea"}, {"id": "c_ch-boh-tea", "en": "Boh Tea Plantation", "zh": "BOH 茶园", "lat": 4.52, "lng": 101.37, "t": 0, "p": 0, "em": false, "elev": 1560, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-kuala-terla-tea", "en": "Kuala Terla Tea Estate", "zh": "吉拉烈茶园", "lat": 4.548, "lng": 101.42, "t": 0, "p": 0, "em": false, "elev": 1440, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-taman-sedia", "en": "Kampung Taman Sedia", "zh": "草莓农场", "lat": 4.458, "lng": 101.384, "t": 0, "p": 0, "em": false, "elev": 1400, "zone": "midslope", "crop": "strawberry"}, {"id": "c_ch-mardi", "en": "MARDI Cameron Highlands", "zh": "MARDI 农业站", "lat": 4.4619, "lng": 101.3838, "t": 0, "p": 0, "em": false, "elev": 1420, "zone": "midslope", "crop": "leafy"}];
                 // Merge into whatever is already there (e.g. a deep-link
                 // location the user received before first cold start).
                 var existing = [];
@@ -2465,6 +2465,23 @@
                 seedLocs.forEach(function (l) {
                     if (!haveIds[l.id]) existing.push(l);
                 });
+                // --- One-time name correction (ch-2): Kampung Taman Sedia's
+                // Chinese name was 塔曼斯迪亚村, corrected to 草莓农场. Only update an
+                // EXISTING seeded entry that still carries the old name AND that the
+                // user hasn't renamed themselves (renames live in RENAME_KEY), so we
+                // never clobber a user's own edit.
+                try {
+                    var renameRaw = localStorage.getItem(RENAME_KEY);
+                    var renameMap = renameRaw ? (JSON.parse(renameRaw) || {}) : {};
+                    var userRenamedSedia = renameMap && renameMap['c_ch-taman-sedia'];
+                    if (!userRenamedSedia) {
+                        existing.forEach(function (l) {
+                            if (l && l.id === 'c_ch-taman-sedia' && l.zh === '塔曼斯迪亚村') {
+                                l.zh = '草莓农场';
+                            }
+                        });
+                    }
+                } catch (e) { /* migration best-effort */ }
                 localStorage.setItem(CUSTOM_KEY, JSON.stringify(existing));
                 // --- Cameron Highlands: seed per-zone default crop -----------
                 // Each seeded zone carries a `crop` hint (leafy / tea / tomato /
