@@ -239,7 +239,7 @@
            OVERLAYS it — the card content never moves. The .actions-open
            class is toggled on the wrapper by the open/close logic.
            ============================================================ */
-        @media (min-width: 900px) {
+        @media (min-width: 768px) {
             .swipe-actions {
                 width: 210px; /* roomier buttons to match the scaled-up desktop card */
                 z-index: 1; /* below the card by default... */
@@ -691,38 +691,38 @@
         }
         
         /* Main location list: scale up on desktop to match the forecast modal's visual weight */
-        @media (min-width: 900px) {
-            /* Bigger header */
-            header h1.text-base { font-size: 22px !important; }
-            #ui-greg-date { font-size: 22px !important; }
-            #ui-time { font-size: 18px !important; }
-            #ui-term-countdown { font-size: 14px !important; }
+        @media (min-width: 768px) {
+            /* Bigger header (kept modest so the long 金马伦农友天气 title fits) */
+            header h1 { font-size: 20px !important; }
+            #ui-greg-date { font-size: 20px !important; }
+            #ui-time { font-size: 16px !important; }
+            #ui-term-countdown { font-size: 13px !important; }
             
             /* Bigger West/East column headers */
             #main-content > div > div.p-4 { 
-                font-size: 14px !important;
-                padding: 18px !important;
-                letter-spacing: 0.15em !important;
+                font-size: 13px !important;
+                padding: 16px !important;
+                letter-spacing: 0.12em !important;
             }
             
-            /* Bigger location card content */
-            .list-item-content { padding: 28px 28px !important; }
-            .name-label-en { font-size: 32px !important; }
-            .name-label-zh { font-size: 26px !important; margin-top: 6px !important; }
+            /* Bigger location card content — comfortable to read from across a room */
+            .list-item-content { padding: 22px 24px !important; }
+            .name-label-en { font-size: 26px !important; }
+            .name-label-zh { font-size: 21px !important; margin-top: 5px !important; }
             
             /* Bigger temperature/rain readings */
-            .list-item-content .text-\[17px\] { font-size: 26px !important; }
-            .list-item-content .text-\[9px\] { font-size: 13px !important; }
-            .list-item-content .mt-6 { margin-top: 1.5rem !important; }
+            .list-item-content .text-\[17px\] { font-size: 23px !important; }
+            .list-item-content .text-\[9px\] { font-size: 12px !important; }
+            .list-item-content .mt-6 { margin-top: 1.25rem !important; }
             
             /* Bigger pin/heart icon */
-            .pin-btn { width: 64px !important; height: 64px !important; right: 10px !important; top: 16px !important; }
-            .pin-icon { width: 36px !important; height: 36px !important; }
+            .pin-btn { width: 56px !important; height: 56px !important; right: 8px !important; top: 14px !important; }
+            .pin-icon { width: 30px !important; height: 30px !important; }
             
             /* Footer slider taller for clickability */
             footer { padding: 16px 32px !important; }
-            #ui-proj-time { font-size: 18px !important; }
-            #ui-date-display { font-size: 14px !important; }
+            #ui-proj-time { font-size: 17px !important; }
+            #ui-date-display { font-size: 13px !important; }
 
         }
 
@@ -730,18 +730,24 @@
            stretching the two-column list across the whole screen (which leaves
            the empty East column as dead space) or letting it float marooned,
            center the ENTIRE app as one tidy column at a comfortable width.
-           Header, broadcast bars, list and footer all align together. */
+           Header, broadcast bars, list and footer all align together.
+           The body is `display:flex; flex-direction:column`, so we must force
+           it (and its children) to actually occupy the capped width — otherwise
+           a flex item with margin:auto shrinks to content and pins left. */
         @media (min-width: 768px) {
+            html { background: #e8eef5; }
             body {
-                max-width: 760px;
-                margin-left: auto;
-                margin-right: auto;
-                box-shadow: 0 0 0 1px #e2e8f0, 0 8px 40px rgba(15,23,42,0.08);
+                width: 760px !important;
+                max-width: 100vw;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                box-shadow: 0 0 0 1px #e2e8f0, 0 8px 40px rgba(15,23,42,0.10);
                 background: #fff;
             }
-            /* The app fills the centered body; the West list then uses the full
-               centered width when East is hidden. */
-            #main-content { background: #f1f5f9; }
+            body > header,
+            body > main,
+            body > footer { width: 100% !important; align-self: stretch; }
+            #main-content { background: #f1f5f9; width: 100% !important; }
         }
         .w-input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; margin-bottom: 12px; font-size: 16px; outline: none; }
         .w-input:focus { border-color: #2563eb; }
