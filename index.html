@@ -469,14 +469,14 @@
         .ch-acc-sub b { font-weight: 800; color: #334155; }
         .ch-acc-empty { font-size: 10.5px; font-weight: 600; color: #94a3b8; background: #f8fafc; }
         .ch-section-lbl { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; margin: 14px 0 6px; }
-        .ch-strip { display: flex; gap: 5px; }
-        .ch-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .ch-strip { display: flex; gap: 3px; }
+        .ch-day { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; }
         .ch-day-dot {
-            width: 100%; aspect-ratio: 1; max-width: 38px; border-radius: 6px;
+            width: 100%; aspect-ratio: 1; max-width: 30px; border-radius: 5px;
             display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 11px; font-weight: 800;
+            color: #fff; font-size: 10px; font-weight: 800;
         }
-        .ch-day-lbl { font-size: 9px; font-weight: 700; color: #64748b; }
+        .ch-day-lbl { font-size: 8px; font-weight: 700; color: #64748b; }
         .ch-bars { display: flex; flex-direction: column; gap: 7px; }
         .ch-bar-row { display: flex; align-items: center; gap: 8px; }
         .ch-bar-name { font-size: 11px; font-weight: 600; color: #334155; width: 96px; flex-shrink: 0; }
@@ -2478,7 +2478,7 @@
             const DAY_KEYS = ['botrytis', 'downy', 'blight', 'powdery', 'earlyblight', 'anthracnose'];
             let strip = '';
             const weekPeak = {};   // disease → highest score seen this week
-            for (let d = 0; d < 7; d++) {
+            for (let d = 0; d < 14; d++) {
                 const r = window.computeDiseaseRisk(loc, dObj, d, cropId);
                 if (!r) { strip += `<div class="ch-day"><div class="ch-day-dot" style="background:#e2e8f0;"></div></div>`; continue; }
                 // Find the worst disease for THIS day.
@@ -2486,7 +2486,9 @@
                 DAY_KEYS.forEach(k => {
                     const sc = r.diseases[k] ? r.diseases[k].score : -1;
                     if (sc > dayWorst) { dayWorst = sc; dayWorstKey = k; }
-                    if (sc > (weekPeak[k] || 0)) weekPeak[k] = sc;
+                    // Only let the CONFIDENT window (first 7 days) decide the strip's
+                    // dominant-disease label — a fuzzy day-12 spike shouldn't rename it.
+                    if (d < 7 && sc > (weekPeak[k] || 0)) weekPeak[k] = sc;
                 });
                 const dz = r.diseases[dayWorstKey];
                 const dt = new Date(Date.now() + d * 86400000);
@@ -2495,7 +2497,14 @@
                     : ['日','一','二','三','四','五','六'][dt.getDay()];
                 const dMeta = DISEASE_META[dayWorstKey];
                 const dName = dMeta ? (lang === 'en' ? dMeta.en : dMeta.zh) : '';
-                strip += `<div class="ch-day" title="${dName} ${dz.score}">
+                // Confidence fade: days 0–6 (this week) are full strength; days 7–13
+                // fade progressively because weather-forecast skill — and therefore
+                // disease-risk reliability — drops off after ~a week. This shows the
+                // trend honestly without implying we "know" day-12 precisely.
+                const far = d >= 7;
+                const opacity = far ? Math.max(0.4, 1 - (d - 6) * 0.08) : 1;   // 0.92 … 0.4
+                const sep = (d === 7) ? 'margin-left:6px;border-left:1px dashed #e2e8f0;padding-left:6px;' : '';
+                strip += `<div class="ch-day" style="opacity:${opacity};${sep}" title="${dName} ${dz.score}${far ? (lang==='en'?' (low confidence)':' (远期参考)') : ''}">
                     <div class="ch-day-dot" style="background:${dz.band.color};">${dz.score}</div>
                     <div class="ch-day-lbl">${dn}</div>
                 </div>`;

@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.181 — 7-day strip now shows worst disease per day + names the week's dominant disease (generic when mixed). bump CACHE_VERSION on each release
+// Version 1.0.182 — disease strip extended to 14 days with confidence fade on days >7 (label still from confident 7d window). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605311810';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605311910';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
