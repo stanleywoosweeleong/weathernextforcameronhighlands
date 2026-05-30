@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.166 — elevation slider scrolls-to-center (no filter, no Show All); list always full. bump CACHE_VERSION on each release
+// Version 1.0.167 — compact horizontal cards (name left, readings right); 3+ fit in view. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605310210';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605310310';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

@@ -705,24 +705,56 @@
                 letter-spacing: 0.12em !important;
             }
             
-            /* Compact-but-readable card content — fits more farms per screen */
-            .list-item-content { padding: 12px 22px !important; }
-            .name-label-en { font-size: 20px !important; }
-            .name-label-zh { font-size: 15px !important; margin-top: 1px !important; }
+            /* Compact cards — fit several farms in view so the slider's centered
+               farm shows with neighbours above and below at the same time.
+               Name sits on the LEFT, readings flow on the RIGHT (same row), which
+               roughly halves the card height vs the stacked mobile layout. */
+            .list-item-content {
+                padding: 9px 52px 9px 22px !important;
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 16px !important;
+                flex-wrap: nowrap !important;
+            }
+            .name-label-en { font-size: 17px !important; line-height: 1.05 !important; }
+            .name-label-zh { font-size: 13px !important; margin-top: 0 !important; line-height: 1.05 !important; }
+            /* Name block (en+zh) = fixed left column; zh sits under en, not inline. */
+            .list-item-content .name-label-en,
+            .list-item-content .name-label-zh { flex: 0 0 auto; width: 130px; }
+            .list-item-content .name-label-zh { order: 1; }
+            /* Readings row: horizontal, no wrap, pushed to the right, fills space. */
+            #main-content .list-item-content .flex.gap-8 {
+                margin-top: 0 !important;
+                flex: 1 1 auto !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                justify-content: flex-end !important;
+                align-items: center !important;
+                gap: 20px !important;
+                order: 2;
+            }
+            /* Each reading stays a small vertical label/value pair. */
+            #main-content .list-item-content .flex.gap-8 > div { flex: 0 0 auto !important; flex-direction: column !important; }
+            .list-item-content .text-\[17px\] { font-size: 16px !important; }
+            .list-item-content .text-\[9px\] { font-size: 9px !important; }
+            .list-item-content .mb-2 { margin-bottom: 0.1rem !important; }
             
-            /* Readings: clear but not oversized */
-            .list-item-content .text-\[17px\] { font-size: 19px !important; }
-            .list-item-content .text-\[9px\] { font-size: 11px !important; }
-            .list-item-content .mt-6 { margin-top: 0.6rem !important; }
-            .list-item-content .mb-2 { margin-bottom: 0.25rem !important; }
-            
-            /* Pin/heart icon — modest */
-            .pin-btn { width: 44px !important; height: 44px !important; right: 8px !important; top: 10px !important; }
-            .pin-icon { width: 24px !important; height: 24px !important; }
+            /* Pin/heart icon — modest, vertically centered on the shorter card */
+            .pin-btn { width: 36px !important; height: 36px !important; right: 6px !important; top: 50% !important; transform: translateY(-50%) !important; }
+            .pin-icon { width: 22px !important; height: 22px !important; }
             
             /* Footer elevation slider — comfortable touch target */
-            footer { padding: 16px 32px !important; }
+            footer { padding: 10px 32px !important; height: auto !important; }
             #elev-value { font-size: 17px !important; }
+
+            /* Reclaim vertical space on short laptop screens so the slider's
+               centered farm shows with neighbours above AND below. Trim the
+               fixed chrome (header / broadcast bar / footer) that otherwise
+               eats most of a ~574px-tall viewport. */
+            header { height: calc(78px + var(--safe-top)) !important; }
+            #broadcast-bar { padding-top: 6px !important; padding-bottom: 6px !important; gap: 6px !important; }
+            #main-content { height: calc(100vh - 150px - var(--safe-top) - var(--safe-bottom)) !important; }
 
         }
 
