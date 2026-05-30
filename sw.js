@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.168 — compact stacked cards (robust); readings row intact. bump CACHE_VERSION on each release
+// Version 1.0.169 — West full-width when East empty (fixes readings clip); main flex-fills (fixes slider clip); 3-in-view. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605310410';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605310510';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
