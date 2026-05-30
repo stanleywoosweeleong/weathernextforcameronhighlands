@@ -705,24 +705,24 @@
                 letter-spacing: 0.12em !important;
             }
             
-            /* Bigger location card content — comfortable to read from across a room */
-            .list-item-content { padding: 22px 24px !important; }
-            .name-label-en { font-size: 26px !important; }
-            .name-label-zh { font-size: 21px !important; margin-top: 5px !important; }
+            /* Compact-but-readable card content — fits more farms per screen */
+            .list-item-content { padding: 12px 22px !important; }
+            .name-label-en { font-size: 20px !important; }
+            .name-label-zh { font-size: 15px !important; margin-top: 1px !important; }
             
-            /* Bigger temperature/rain readings */
-            .list-item-content .text-\[17px\] { font-size: 23px !important; }
-            .list-item-content .text-\[9px\] { font-size: 12px !important; }
-            .list-item-content .mt-6 { margin-top: 1.25rem !important; }
+            /* Readings: clear but not oversized */
+            .list-item-content .text-\[17px\] { font-size: 19px !important; }
+            .list-item-content .text-\[9px\] { font-size: 11px !important; }
+            .list-item-content .mt-6 { margin-top: 0.6rem !important; }
+            .list-item-content .mb-2 { margin-bottom: 0.25rem !important; }
             
-            /* Bigger pin/heart icon */
-            .pin-btn { width: 56px !important; height: 56px !important; right: 8px !important; top: 14px !important; }
-            .pin-icon { width: 30px !important; height: 30px !important; }
+            /* Pin/heart icon — modest */
+            .pin-btn { width: 44px !important; height: 44px !important; right: 8px !important; top: 10px !important; }
+            .pin-icon { width: 24px !important; height: 24px !important; }
             
-            /* Footer slider taller for clickability */
+            /* Footer elevation slider — comfortable touch target */
             footer { padding: 16px 32px !important; }
-            #ui-proj-time { font-size: 17px !important; }
-            #ui-date-display { font-size: 13px !important; }
+            #elev-value { font-size: 17px !important; }
 
         }
 
@@ -909,14 +909,16 @@
     </main>
 
     <footer class="bg-white border-t-2 border-slate-100 px-10 flex flex-col justify-center shrink-0 z-50 shadow-inner">
-        <div class="flex justify-center mb-2">
-            <span id="ui-proj-time" class="text-blue-700 font-black text-xs tabular-nums uppercase tracking-widest">--:-- --</span>
+        <div class="flex justify-center mb-2 items-baseline gap-2">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">海拔 ELEVATION</span>
+            <span id="elev-value" class="text-emerald-700 font-black text-base tabular-nums">-- m</span>
+            <span id="elev-band-count" class="text-[10px] font-black text-slate-400 tabular-nums"></span>
         </div>
-        <input type="range" id="timeline" min="0" max="24" value="0" step="1" class="w-full">
+        <input type="range" id="elev-slider" min="1000" max="1700" value="1700" step="10" class="w-full">
         <div class="flex justify-between mt-3 text-[10px] font-black uppercase tracking-widest items-center">
-            <span class="text-slate-400 font-black">NOW</span>
-            <span id="ui-date-display" class="text-[10px] font-black text-slate-400 tabular-nums tracking-widest uppercase">--/-- ---</span>
-            <span class="font-black text-slate-400">+24H</span>
+            <span class="text-slate-400 font-black">⬇ 低 LOW</span>
+            <span id="elev-show-all" class="text-blue-700 font-black cursor-pointer active:opacity-60 select-none">全部 SHOW ALL</span>
+            <span class="font-black text-slate-400">高 HIGH ⬆</span>
         </div>
     </footer>
 
@@ -2346,6 +2348,15 @@
         }
 
         // Helper to get ALL valid locations (Static + Custom)
+        // GPS-derived elevations captured from Open-Meteo responses (keyed by
+        // farm id). These OVERRIDE any hand-entered elev so the slider/sort/card
+        // reflect the model's real terrain elevation for each coordinate.
+        let gpsElevations = {};
+        try {
+            const _ge = localStorage.getItem('weathernextforcameron__wnext_gps_elev');
+            if (_ge) gpsElevations = JSON.parse(_ge) || {};
+        } catch (e) { gpsElevations = {}; }
+
         function getAllLocations() {
             const stable = STABLE_LOCATIONS.filter(l => !purgedIds.includes(l.id));
             // Ensure customLocations is always an array
@@ -2354,10 +2365,15 @@
             // MERGE & ENFORCE GEOGRAPHY:
             // Instead of relying on the stored 'em' flag, we recalculate it based on Longitude.
             // Longitude > 108.0 puts it in East Malaysia (Borneo), otherwise West (Peninsular).
-            return [...stable, ...custom].map(l => ({
-                ...l,
-                em: l.lng > 108.0
-            }));
+            return [...stable, ...custom].map(l => {
+                const gpsElev = gpsElevations[l.id];
+                return {
+                    ...l,
+                    // GPS elevation wins when we have it; otherwise keep supplied value.
+                    elev: (typeof gpsElev === 'number') ? gpsElev : l.elev,
+                    em: l.lng > 108.0
+                };
+            });
         }
 
 
@@ -3567,8 +3583,18 @@
                 flatResults.forEach((r, idx) => { 
                     if(r?.hourly && visibleLocations[idx]) {
                         weatherData[visibleLocations[idx].id] = r.hourly; 
+                        // CAMERON: capture the model terrain elevation for each farm's
+                        // GPS coordinate (Open-Meteo returns `elevation` per location).
+                        // This OVERRIDES hand-entered elev for sort/slider/card.
+                        if (typeof r.elevation === 'number' && isFinite(r.elevation)) {
+                            gpsElevations[visibleLocations[idx].id] = Math.round(r.elevation);
+                        }
                     }
                 });
+                // Persist captured elevations + re-render so the new GPS values drive
+                // the list order and the elevation slider range immediately.
+                try { localStorage.setItem('weathernextforcameron__wnext_gps_elev', JSON.stringify(gpsElevations)); } catch (e) {}
+                try { if (typeof renderList === 'function') renderList(); } catch (e) {}
                 
                 safeSet(WEATHER_CACHE_KEY, JSON.stringify(weatherData));
                 syncUI(); setStatus("Ready", true); landingAbortController = null;
@@ -3696,6 +3722,20 @@
                  }
                  if(data?.hourly) {
                      detailData[id] = data.hourly;
+                     // CAMERON: capture the model's terrain elevation for this farm's
+                     // GPS coordinate. Open-Meteo returns `elevation` (metres) at the
+                     // top level of every forecast response. This OVERRIDES any
+                     // hand-entered elev (sort / slider / card all use it). Persisted
+                     // so it survives refresh; re-applied on next render.
+                     if (typeof data.elevation === 'number' && isFinite(data.elevation)) {
+                         const newElev = Math.round(data.elevation);
+                         if (gpsElevations[id] !== newElev) {
+                             gpsElevations[id] = newElev;
+                             try { localStorage.setItem('weathernextforcameron__wnext_gps_elev', JSON.stringify(gpsElevations)); } catch (e) {}
+                             // Refresh slider range + list order now that elevation changed.
+                             try { if (typeof renderList === 'function') renderList(); } catch (e) {}
+                         }
+                     }
                      // Attach daily data (leaf wetness, growing degree days) onto detailData so AI prompts can use it
                      if (data.daily) detailData[id]._daily = data.daily;
                      // Persist to localStorage so the next session/page-refresh can hydrate
@@ -3720,12 +3760,11 @@
         };
 
         window.syncUI = () => {
-            const timeline = document.getElementById('timeline'); if (!timeline) return;
-            const now = new Date(), val = parseInt(timeline.value) || 0, proj = new Date(now.getTime() + val * 60 * 60 * 1000);
-            const dateEl = document.getElementById('ui-date-display'), projTimeEl = document.getElementById('ui-proj-time');
-            if (projTimeEl) { const hours = proj.getHours(), mins = String(proj.getMinutes()).padStart(2, '0'), ampm = hours >= 12 ? 'PM' : 'AM'; projTimeEl.innerText = `${hours % 12 || 12}:${mins} ${ampm}`; }
-            if (dateEl) dateEl.innerText = `${String(proj.getDate()).padStart(2,'0')}/${proj.getMonth()+1} ${DAYS_OF_WEEK[proj.getDay()]}`;
-            const dataIdx = now.getHours() + val;
+            // The footer slider is now an ELEVATION filter, not a time control.
+            // Cards always show current-hour weather (dataIdx = now). Elevation
+            // filtering happens separately in applyElevationFilter().
+            const now = new Date();
+            const dataIdx = now.getHours();
             
             // Sync all potentially visible items
             getAllLocations().forEach(s => {
@@ -4851,9 +4890,96 @@
                     }
                 }
             } catch (e) { /* layout tweak is best-effort */ }
+
+            // After (re)building the list, refresh the elevation slider's range
+            // from the now-loaded farms (idempotent) and re-apply any active band.
+            try {
+                if (typeof window.refreshElevationRange === 'function') window.refreshElevationRange();
+                if (typeof window.applyElevationFilter === 'function') window.applyElevationFilter();
+            } catch (e) {}
         };
 
-        // --- Simplified AI Button Logic (no long press toggle anymore) ---
+        // Set the slider min/max from actual visible farm elevations. Safe to call
+        // repeatedly; only widens to fit. Preserves the user's current value.
+        window.refreshElevationRange = () => {
+            const slider = document.getElementById('elev-slider');
+            if (!slider) return;
+            const elevs = getAllLocations()
+                .filter(l => !hiddenIds.includes(l.id) && typeof l.elev === 'number')
+                .map(l => l.elev);
+            if (!elevs.length) return;
+            const lo = Math.floor(Math.min(...elevs) / 10) * 10 - 50;
+            const hi = Math.ceil(Math.max(...elevs) / 10) * 10 + 50;
+            const prevVal = parseInt(slider.value, 10);
+            slider.min = lo; slider.max = hi; slider.step = 10;
+            // If the slider was still at its default top (or out of new range),
+            // snap it to the new max so it starts on the highest farms.
+            if (isNaN(prevVal) || prevVal > hi || prevVal < lo || !elevFilterActive) {
+                slider.value = hi;
+            }
+        };
+
+        // ============================================================
+        // ELEVATION SLIDER — filter farms by altitude band (±100m)
+        // Replaces the old hourly time slider. Dragging low→high reveals the
+        // farms at that elevation; "SHOW ALL" clears the filter.
+        // ============================================================
+        const ELEV_BAND = 100; // ± metres around the slider value
+        let elevFilterActive = false;
+
+        window.initElevationSlider = () => {
+            const slider = document.getElementById('elev-slider');
+            if (!slider) return;
+            window.refreshElevationRange();
+            slider.oninput = () => { elevFilterActive = true; window.applyElevationFilter(); };
+            const showAll = document.getElementById('elev-show-all');
+            if (showAll) showAll.onclick = () => {
+                elevFilterActive = false;
+                const s = document.getElementById('elev-slider');
+                if (s) s.value = s.max;
+                window.applyElevationFilter();
+            };
+            window.applyElevationFilter();
+        };
+
+        window.applyElevationFilter = () => {
+            const slider = document.getElementById('elev-slider');
+            const valEl = document.getElementById('elev-value');
+            const countEl = document.getElementById('elev-band-count');
+            if (!slider) return;
+            const v = parseInt(slider.value, 10);
+            if (valEl) valEl.textContent = v + ' m';
+
+            const all = getAllLocations().filter(l => !hiddenIds.includes(l.id));
+            let shown = 0;
+            all.forEach(s => {
+                const wrap = document.getElementById(`content-${s.id}`);
+                if (!wrap) return;
+                const card = wrap.closest('.list-item-wrapper') || wrap;
+                let visible = true;
+                if (elevFilterActive && typeof s.elev === 'number') {
+                    visible = Math.abs(s.elev - v) <= ELEV_BAND;
+                } else if (elevFilterActive && typeof s.elev !== 'number') {
+                    // Farms without an elevation only show when filter is off.
+                    visible = false;
+                }
+                card.style.display = visible ? '' : 'none';
+                if (visible) shown++;
+            });
+
+            if (countEl) {
+                if (elevFilterActive) {
+                    countEl.textContent = `· ${v - ELEV_BAND}–${v + ELEV_BAND}m (${shown})`;
+                } else {
+                    countEl.textContent = `· 全部 ${shown}`;
+                }
+            }
+            // Highlight SHOW ALL when a filter is active so the escape hatch is obvious.
+            const showAll = document.getElementById('elev-show-all');
+            if (showAll) showAll.style.opacity = elevFilterActive ? '1' : '0.45';
+        };
+        // ============================================================
+
         window.handleSmartBriefClick = (id) => {
             const rb = document.getElementById(`ai-brief-result-${id}`);
             if (rb && rb.style.display === 'block') {
@@ -8220,7 +8346,8 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             await initApp(); onAuthStateChanged(auth, (u) => { if(u) { user = u; startSilentSync(); } });
-            document.getElementById('timeline').oninput = syncUI;
+            // Elevation slider wiring (replaces the old hourly timeline).
+            if (typeof window.initElevationSlider === 'function') window.initElevationSlider();
             setInterval(syncUI, 1000); setInterval(updateLunarDate, 60000);
             setInterval(() => { if(currentDisplayedIds.length === 0) fetchLandingWeather(); }, 10 * 60 * 1000); 
         });
