@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.180 — restyle microclimate panel to native flat language (Option B: polished hero, no bolted-on look). bump CACHE_VERSION on each release
+// Version 1.0.181 — 7-day strip now shows worst disease per day + names the week's dominant disease (generic when mixed). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605311710';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605311810';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
