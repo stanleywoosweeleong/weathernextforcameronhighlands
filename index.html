@@ -917,7 +917,7 @@
         <input type="range" id="elev-slider" min="1000" max="1700" value="1700" step="10" class="w-full">
         <div class="flex justify-between mt-3 text-[10px] font-black uppercase tracking-widest items-center">
             <span class="text-slate-400 font-black">⬇ 低 LOW</span>
-            <span id="elev-show-all" class="text-blue-700 font-black cursor-pointer active:opacity-60 select-none">全部 SHOW ALL</span>
+            <span class="text-slate-300 font-black normal-case tracking-normal">滑动跳到海拔 · slide to jump</span>
             <span class="font-black text-slate-400">高 HIGH ⬆</span>
         </div>
     </footer>
@@ -4912,36 +4912,34 @@
             const hi = Math.ceil(Math.max(...elevs) / 10) * 10 + 50;
             const prevVal = parseInt(slider.value, 10);
             slider.min = lo; slider.max = hi; slider.step = 10;
-            // If the slider was still at its default top (or out of new range),
-            // snap it to the new max so it starts on the highest farms.
-            if (isNaN(prevVal) || prevVal > hi || prevVal < lo || !elevFilterActive) {
+            // Keep the handle inside the new range; default to the top (highest farms)
+            // on first run when no valid value is set yet.
+            if (isNaN(prevVal)) {
                 slider.value = hi;
+            } else {
+                slider.value = Math.min(hi, Math.max(lo, prevVal));
             }
         };
 
         // ============================================================
-        // ELEVATION SLIDER — filter farms by altitude band (±100m)
-        // Replaces the old hourly time slider. Dragging low→high reveals the
-        // farms at that elevation; "SHOW ALL" clears the filter.
+        // ELEVATION SLIDER — a vertical "jump to altitude" control.
+        // Dragging low→high scrolls the list so the farm nearest that elevation
+        // is centered in view. It NEVER hides farms — the full list is always
+        // present and freely scrollable.
         // ============================================================
-        const ELEV_BAND = 100; // ± metres around the slider value
-        let elevFilterActive = false;
 
         window.initElevationSlider = () => {
             const slider = document.getElementById('elev-slider');
             if (!slider) return;
             window.refreshElevationRange();
-            slider.oninput = () => { elevFilterActive = true; window.applyElevationFilter(); };
-            const showAll = document.getElementById('elev-show-all');
-            if (showAll) showAll.onclick = () => {
-                elevFilterActive = false;
-                const s = document.getElementById('elev-slider');
-                if (s) s.value = s.max;
-                window.applyElevationFilter();
-            };
+            // The slider SCROLLS the list to the nearest-elevation farm — it never
+            // hides anything. The full list stays vertically scrollable at all times.
+            slider.oninput = () => { window.scrollToElevation(); };
             window.applyElevationFilter();
         };
 
+        // Kept as the slider's value-label updater + scroll trigger. Despite the
+        // legacy name, this no longer filters/hides any cards.
         window.applyElevationFilter = () => {
             const slider = document.getElementById('elev-slider');
             const valEl = document.getElementById('elev-value');
@@ -4949,34 +4947,36 @@
             if (!slider) return;
             const v = parseInt(slider.value, 10);
             if (valEl) valEl.textContent = v + ' m';
+            const total = getAllLocations().filter(l => !hiddenIds.includes(l.id)).length;
+            if (countEl) countEl.textContent = `· ${total} 地点`;
+        };
 
-            const all = getAllLocations().filter(l => !hiddenIds.includes(l.id));
-            let shown = 0;
-            all.forEach(s => {
-                const wrap = document.getElementById(`content-${s.id}`);
-                if (!wrap) return;
-                const card = wrap.closest('.list-item-wrapper') || wrap;
-                let visible = true;
-                if (elevFilterActive && typeof s.elev === 'number') {
-                    visible = Math.abs(s.elev - v) <= ELEV_BAND;
-                } else if (elevFilterActive && typeof s.elev !== 'number') {
-                    // Farms without an elevation only show when filter is off.
-                    visible = false;
-                }
-                card.style.display = visible ? '' : 'none';
-                if (visible) shown++;
+        // Scroll the list so the farm nearest the slider's elevation sits centered
+        // in view. Nothing is hidden — higher farms remain above, lower below.
+        window.scrollToElevation = () => {
+            const slider = document.getElementById('elev-slider');
+            if (!slider) return;
+            const v = parseInt(slider.value, 10);
+            const valEl = document.getElementById('elev-value');
+            if (valEl) valEl.textContent = v + ' m';
+
+            // Find the visible farm whose elevation is closest to the slider value.
+            const farms = getAllLocations().filter(l => !hiddenIds.includes(l.id) && typeof l.elev === 'number');
+            if (!farms.length) return;
+            let best = null, bestDiff = Infinity;
+            farms.forEach(s => {
+                const d = Math.abs(s.elev - v);
+                if (d < bestDiff) { bestDiff = d; best = s; }
             });
+            if (!best) return;
 
-            if (countEl) {
-                if (elevFilterActive) {
-                    countEl.textContent = `· ${v - ELEV_BAND}–${v + ELEV_BAND}m (${shown})`;
-                } else {
-                    countEl.textContent = `· 全部 ${shown}`;
-                }
-            }
-            // Highlight SHOW ALL when a filter is active so the escape hatch is obvious.
-            const showAll = document.getElementById('elev-show-all');
-            if (showAll) showAll.style.opacity = elevFilterActive ? '1' : '0.45';
+            const card = document.getElementById(`content-${best.id}`);
+            const container = document.getElementById('list-west');
+            if (!card || !container) return;
+            // Center the matching card within the scroll container.
+            const cardWrap = card.closest('.list-item-wrapper') || card;
+            const target = cardWrap.offsetTop - (container.clientHeight / 2) + (cardWrap.offsetHeight / 2);
+            container.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
         };
         // ============================================================
 
