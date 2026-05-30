@@ -131,11 +131,18 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: #ffffff;
             margin: 0; padding: 0; height: 100vh; overflow: hidden; color: #000;
+            /* Explicit flex column so the header/main/footer layout never depends
+               on Tailwind's .flex/.flex-col loading. Footer stays on-screen. */
+            display: flex; flex-direction: column;
             -webkit-font-smoothing: antialiased;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
             -webkit-user-select: none;
         }
+        /* Guarantee the three regions size correctly regardless of Tailwind. */
+        body > header { flex: 0 0 auto; }
+        body > main#main-content { flex: 1 1 auto; min-height: 0; }
+        body > footer { flex: 0 0 auto; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -307,6 +314,19 @@
             border: 3px solid #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); margin-top: -7px;
         }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; background: #e2e8f0; border-radius: 4px; }
+        /* Elevation slider — larger thumb + taller track so it's easy to grab and
+           click without precise dragging (gentler on the wrist). */
+        #elev-slider { height: 28px; }
+        #elev-slider::-webkit-slider-thumb {
+            height: 30px; width: 30px; background: #0f766e; margin-top: -11px;
+            box-shadow: 0 2px 8px rgba(15,118,110,0.4);
+        }
+        #elev-slider::-webkit-slider-runnable-track { height: 10px; background: #cbd5e1; }
+        #elev-slider::-moz-range-thumb {
+            height: 30px; width: 30px; background: #0f766e; border: 3px solid #fff;
+            border-radius: 50%; cursor: pointer; box-shadow: 0 2px 8px rgba(15,118,110,0.4);
+        }
+        #elev-slider::-moz-range-track { height: 10px; background: #cbd5e1; border-radius: 5px; }
 
         #infographic-report {
             display: flex; flex-direction: column; background: white; 
@@ -731,11 +751,17 @@
                fixed chrome (header / broadcast bar / footer) that otherwise
                eats most of a ~574px-tall viewport. */
             header { height: calc(78px + var(--safe-top)) !important; }
-            #broadcast-bar { padding-top: 6px !important; padding-bottom: 6px !important; gap: 6px !important; }
+            #broadcast-bar { padding-top: 5px !important; padding-bottom: 5px !important; gap: 5px !important; }
+            /* Compact report/broadcast buttons: single tight line, smaller. */
+            #broadcast-bar button { padding-top: 6px !important; padding-bottom: 6px !important; font-size: 11px !important; line-height: 1.2 !important; }
+            #broadcast-bar button br { display: none !important; }
+            #broadcast-bar button span { font-size: 9px !important; opacity: 0.85; margin-left: 6px; }
             /* Let main fill the space between header and footer via flex, instead
                of a fixed 100vh-based height that can overflow and clip the footer
                (slider) off the bottom of the screen. */
             #main-content { height: auto !important; flex: 1 1 auto !important; min-height: 0 !important; }
+            /* Footer must never be pushed off-screen: keep it shrink-0 and compact. */
+            footer { flex: 0 0 auto !important; }
 
         }
 
@@ -930,7 +956,7 @@
         <input type="range" id="elev-slider" min="1000" max="1700" value="1700" step="10" class="w-full">
         <div class="flex justify-between mt-3 text-[10px] font-black uppercase tracking-widest items-center">
             <span class="text-slate-400 font-black">⬇ 低 LOW</span>
-            <span class="text-slate-300 font-black normal-case tracking-normal">滑动跳到海拔 · slide to jump</span>
+            <span class="text-slate-300 font-black normal-case tracking-normal">点按或方向键跳转 · tap / ← → keys</span>
             <span class="font-black text-slate-400">高 HIGH ⬆</span>
         </div>
     </footer>
@@ -4922,6 +4948,13 @@
 
         // Set the slider min/max from actual visible farm elevations. Safe to call
         // repeatedly; only widens to fit. Preserves the user's current value.
+        // Sorted list of distinct farm elevations (low → high), rebuilt on render.
+        // The slider is INDEX-based: each notch = one farm elevation, so sliding
+        // one step snaps exactly to the next farm (no precise dragging needed),
+        // clicking the track jumps to the nearest farm, and ←/→ arrow keys step
+        // farm-by-farm with no dragging at all (easier on the wrists).
+        let elevStops = [];
+
         window.refreshElevationRange = () => {
             const slider = document.getElementById('elev-slider');
             if (!slider) return;
@@ -4929,17 +4962,22 @@
                 .filter(l => !hiddenIds.includes(l.id) && typeof l.elev === 'number')
                 .map(l => l.elev);
             if (!elevs.length) return;
-            const lo = Math.floor(Math.min(...elevs) / 10) * 10 - 50;
-            const hi = Math.ceil(Math.max(...elevs) / 10) * 10 + 50;
-            const prevVal = parseInt(slider.value, 10);
-            slider.min = lo; slider.max = hi; slider.step = 10;
-            // Keep the handle inside the new range; default to the top (highest farms)
-            // on first run when no valid value is set yet.
-            if (isNaN(prevVal)) {
-                slider.value = hi;
-            } else {
-                slider.value = Math.min(hi, Math.max(lo, prevVal));
+            // Distinct, ascending elevations.
+            elevStops = Array.from(new Set(elevs)).sort((a, b) => a - b);
+            // Index-based slider: 0 .. (stops-1), step 1 → snaps to each farm.
+            const prevElev = parseInt(slider.dataset.elev || '', 10);
+            slider.min = 0;
+            slider.max = Math.max(0, elevStops.length - 1);
+            slider.step = 1;
+            // Preserve the user's current elevation if still present; else start at
+            // the TOP (highest farms) — the last index.
+            let idx = elevStops.length - 1;
+            if (!isNaN(prevElev)) {
+                const found = elevStops.indexOf(prevElev);
+                if (found >= 0) idx = found;
             }
+            slider.value = idx;
+            slider.dataset.elev = elevStops[idx];
         };
 
         // ============================================================
@@ -4966,8 +5004,11 @@
             const valEl = document.getElementById('elev-value');
             const countEl = document.getElementById('elev-band-count');
             if (!slider) return;
-            const v = parseInt(slider.value, 10);
-            if (valEl) valEl.textContent = v + ' m';
+            // Index-based: translate the slider position to a real farm elevation.
+            let idx = parseInt(slider.value, 10);
+            if (isNaN(idx)) idx = elevStops.length - 1;
+            const elev = elevStops[Math.min(elevStops.length - 1, Math.max(0, idx))];
+            if (valEl) valEl.textContent = (typeof elev === 'number' ? elev : '--') + ' m';
             const total = getAllLocations().filter(l => !hiddenIds.includes(l.id)).length;
             if (countEl) countEl.textContent = `· ${total} 地点`;
         };
@@ -4976,25 +5017,30 @@
         // in view. Nothing is hidden — higher farms remain above, lower below.
         window.scrollToElevation = () => {
             const slider = document.getElementById('elev-slider');
-            if (!slider) return;
-            const v = parseInt(slider.value, 10);
-            const valEl = document.getElementById('elev-value');
-            if (valEl) valEl.textContent = v + ' m';
+            if (!slider || !elevStops.length) return;
+            // Index-based: the slider value is the position in elevStops.
+            let idx = parseInt(slider.value, 10);
+            if (isNaN(idx)) idx = elevStops.length - 1;
+            idx = Math.min(elevStops.length - 1, Math.max(0, idx));
+            const targetElev = elevStops[idx];
+            slider.dataset.elev = targetElev;
 
-            // Find the visible farm whose elevation is closest to the slider value.
+            const valEl = document.getElementById('elev-value');
+            if (valEl) valEl.textContent = targetElev + ' m';
+
+            // Find the farm at this exact elevation (slider snaps to real farms).
             const farms = getAllLocations().filter(l => !hiddenIds.includes(l.id) && typeof l.elev === 'number');
-            if (!farms.length) return;
-            let best = null, bestDiff = Infinity;
-            farms.forEach(s => {
-                const d = Math.abs(s.elev - v);
-                if (d < bestDiff) { bestDiff = d; best = s; }
-            });
+            let best = farms.find(s => s.elev === targetElev);
+            if (!best) {
+                // Fallback: nearest, in case of any mismatch.
+                let bd = Infinity;
+                farms.forEach(s => { const d = Math.abs(s.elev - targetElev); if (d < bd) { bd = d; best = s; } });
+            }
             if (!best) return;
 
             const card = document.getElementById(`content-${best.id}`);
             const container = document.getElementById('list-west');
             if (!card || !container) return;
-            // Center the matching card within the scroll container.
             const cardWrap = card.closest('.list-item-wrapper') || card;
             const target = cardWrap.offsetTop - (container.clientHeight / 2) + (cardWrap.offsetHeight / 2);
             container.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
