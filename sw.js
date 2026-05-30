@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.189 — fix: header 近3天实际雨量 now sums same 3 calendar dates as the past strip (was rolling-72h, excluded today wrongly). bump CACHE_VERSION on each release
+// Version 1.0.190 — remove redundant 近3天实际雨量 header chip (past-rain strip above chart covers it). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010710';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010810';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
