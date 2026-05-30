@@ -724,10 +724,24 @@
             #ui-proj-time { font-size: 18px !important; }
             #ui-date-display { font-size: 14px !important; }
 
-            /* When the East column is collapsed (no East-Malaysia farms), the
-               West list spans full width. On a large monitor that's too wide to
-               read comfortably, so center the cards in a capped column. */
-            #col-west[style*="100%"] #list-west { max-width: 720px; margin: 0 auto; width: 100%; }
+        }
+
+        /* DESKTOP: this is a phone-first app. On a wide monitor, rather than
+           stretching the two-column list across the whole screen (which leaves
+           the empty East column as dead space) or letting it float marooned,
+           center the ENTIRE app as one tidy column at a comfortable width.
+           Header, broadcast bars, list and footer all align together. */
+        @media (min-width: 768px) {
+            body {
+                max-width: 760px;
+                margin-left: auto;
+                margin-right: auto;
+                box-shadow: 0 0 0 1px #e2e8f0, 0 8px 40px rgba(15,23,42,0.08);
+                background: #fff;
+            }
+            /* The app fills the centered body; the West list then uses the full
+               centered width when East is hidden. */
+            #main-content { background: #f1f5f9; }
         }
         .w-input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; margin-bottom: 12px; font-size: 16px; outline: none; }
         .w-input:focus { border-color: #2563eb; }
@@ -4815,21 +4829,18 @@
             if(leEl) { leEl.innerHTML = build(true); leEl.scrollTop = sE; } 
 
             // Cameron Highlands has no East-Malaysia farms, so the East column is
-            // normally empty and wastes half the (wide) desktop screen. Collapse it
-            // when empty and let West span full width; restore the split if an
-            // East-Malaysia farm is ever added.
+            // normally empty. Hide it when empty (West then fills the row via flex);
+            // restore the split if an East-Malaysia farm is ever added.
             try {
                 const eastPool = getAllLocations().filter(l => l.em && !hiddenIds.includes(l.id));
-                const colWest = document.getElementById('col-west');
                 const colEast = document.getElementById('col-east');
-                if (colWest && colEast) {
+                const colWest = document.getElementById('col-west');
+                if (colEast && colWest) {
                     if (eastPool.length === 0) {
                         colEast.style.display = 'none';
-                        colWest.classList.remove('w-1/2'); colWest.style.width = '100%';
                         colWest.classList.remove('border-r-2');
                     } else {
                         colEast.style.display = '';
-                        colWest.style.width = ''; colWest.classList.add('w-1/2');
                         colWest.classList.add('border-r-2');
                     }
                 }
