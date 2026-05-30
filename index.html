@@ -2503,15 +2503,6 @@
                     ${m.recentRainMM!=null ? `<span class="ch-chip">🌧️ ${T.recentRain}: <b>${m.recentRainMM}mm</b></span>` : ''}
                 </div>
                 ${accuracyHtml}
-
-                <div class="ch-section-lbl">${T.drivers}</div>
-                <div class="ch-drivers">
-                    <div class="ch-driver"><span>💧 ${T.lw}</span><b>${m.leafWetHrs}${T.hrs}</b></div>
-                    <div class="ch-driver"><span>🌫️ ${T.fog}</span><b>${m.fogHrs}${T.hrs}</b></div>
-                    <div class="ch-driver"><span>🌧️ ${T.rain}</span><b>${m.rainMM}mm</b></div>
-                    <div class="ch-driver"><span>💦 ${T.rh}</span><b>${m.avgRH}%</b></div>
-                    <div class="ch-driver"><span>🌡️ ${T.temp}</span><b>${m.tMean}°C</b></div>
-                </div>
               </div>`;
         };
 

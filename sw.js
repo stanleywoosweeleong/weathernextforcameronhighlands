@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.184 — Phase 2: new Weather Trends section (rain/temp/humidity, past-3d actual + 14d forecast, today divider). bump CACHE_VERSION on each release
+// Version 1.0.185 — microclimate panel is now a pure location header (dropped Key Index drivers; trends below show that data over time). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010210';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010310';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
