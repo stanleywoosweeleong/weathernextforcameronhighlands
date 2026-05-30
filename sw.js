@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.171 — group all readings on the left (no edge-to-edge scanning). bump CACHE_VERSION on each release
+// Version 1.0.172 — disease risk as plain colored reading (no pill); removed redundant WEST header. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605310710';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605310810';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
