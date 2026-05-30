@@ -3,7 +3,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>金马伦农友天气 Cameron WeatherNext</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -723,6 +723,11 @@
             footer { padding: 16px 32px !important; }
             #ui-proj-time { font-size: 18px !important; }
             #ui-date-display { font-size: 14px !important; }
+
+            /* When the East column is collapsed (no East-Malaysia farms), the
+               West list spans full width. On a large monitor that's too wide to
+               read comfortably, so center the cards in a capped column. */
+            #col-west[style*="100%"] #list-west { max-width: 720px; margin: 0 auto; width: 100%; }
         }
         .w-input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; margin-bottom: 12px; font-size: 16px; outline: none; }
         .w-input:focus { border-color: #2563eb; }
@@ -872,11 +877,11 @@
             </button>
         </div>
         <div style="flex: 1; display: flex; overflow: hidden;">
-            <div class="w-1/2 bg-white border-r-2 border-slate-200 flex flex-col overflow-hidden">
+            <div id="col-west" class="w-1/2 bg-white border-r-2 border-slate-200 flex flex-col overflow-hidden">
                 <div class="p-4 bg-slate-50 border-b font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">西马 West</div>
                 <div id="list-west" class="flex-1 overflow-y-auto no-scrollbar scroll-smooth"></div>
             </div>
-            <div class="w-1/2 bg-white flex flex-col overflow-hidden">
+            <div id="col-east" class="w-1/2 bg-white flex flex-col overflow-hidden">
                 <div class="p-4 bg-slate-50 border-b font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">东马 East</div>
                 <div id="list-east" class="flex-1 overflow-y-auto no-scrollbar scroll-smooth"></div>
             </div>
@@ -1978,7 +1983,11 @@
             const dpArr   = slice(pick('dew_point_2m'));
             const rainArr = slice(pick('precipitation'));
             const cloudArr= slice(pick('cloudcover_mid')) ;
+            // Require BOTH temperature and humidity — without RH the fungal model
+            // is meaningless (the light landing payload lacks RH). Bail out so the
+            // caller can show "pending" rather than a bogus all-zones-identical score.
             if (!rhArr.length || !tArr.length) return null;
+            if (rhArr.every(v => v == null)) return null;
 
             const lwProbDaily = dataObj._daily?.leaf_wetness_probability_mean?.[dayIdx];
             const leafWetHrs  = estimateLeafWetHours(rhArr, tArr, dpArr, rainArr, cloudArr, lwProbDaily);
@@ -3709,25 +3718,41 @@
 
                 // --- Cameron Highlands disease-risk badge --------------------
                 // Compute today's headline disease risk from fetched weather and
-                // paint a coloured pill on the card. Falls back to hidden if no
-                // data yet (badge appears once a forecast has loaded).
+                // paint a coloured pill on the card. IMPORTANT: only compute from
+                // the full "detail" payload (which has RH, dew point, leaf wetness).
+                // The light landing payload (weatherData) has ONLY temp + rain%, so
+                // feeding it to the engine yields a bogus identical score for every
+                // zone. If detail data isn't loaded yet, show a subtle pending dot
+                // and wait — the background fetch re-runs syncUI when it lands.
                 const riskEl = document.getElementById(`risk-${s.id}`);
                 if (riskEl && typeof window.computeDiseaseRisk === 'function') {
                     try {
-                        const dObj = (typeof detailData !== 'undefined' && detailData[s.id]) ? detailData[s.id] : weatherData[s.id];
-                        const cropId = (typeof locationCrops !== 'undefined' && locationCrops[s.id]) ? locationCrops[s.id] : (s.crop || 'leafy');
-                        const r = window.computeDiseaseRisk(s, dObj, 0, cropId);
-                        if (r) {
-                            const dk = r.worstKey;
-                            const dz = r.diseases[dk];
-                            const meta = ({botrytis:{icon:'🍄',zh:'灰霉'},downy:{icon:'💧',zh:'霜霉'},blight:{icon:'🥀',zh:'晚疫'}})[dk] || {icon:'🍄',zh:'病害'};
+                        const dObj = (typeof detailData !== 'undefined') ? detailData[s.id] : null;
+                        // Require the humidity field — proof this is the full detail payload.
+                        const model = (typeof activeModel !== 'undefined') ? activeModel : '';
+                        const hasRH = dObj && (dObj[`relative_humidity_2m_${model}`] || dObj['relative_humidity_2m']);
+                        if (!hasRH) {
+                            // Detail data not ready yet — show a quiet pending pill.
                             riskEl.style.display = 'inline-flex';
-                            riskEl.textContent = `${dz.band.emoji} ${meta.zh} ${dz.score}`;
-                            riskEl.style.background = dz.band.color + '1a';
-                            riskEl.style.color = dz.band.color;
-                            riskEl.style.borderColor = dz.band.color + '55';
+                            riskEl.textContent = '…';
+                            riskEl.style.background = '#f1f5f9';
+                            riskEl.style.color = '#94a3b8';
+                            riskEl.style.borderColor = '#e2e8f0';
                         } else {
-                            riskEl.style.display = 'none';
+                            const cropId = (typeof locationCrops !== 'undefined' && locationCrops[s.id]) ? locationCrops[s.id] : (s.crop || 'leafy');
+                            const r = window.computeDiseaseRisk(s, dObj, 0, cropId);
+                            if (r) {
+                                const dk = r.worstKey;
+                                const dz = r.diseases[dk];
+                                const meta = ({botrytis:{icon:'🍄',zh:'灰霉'},downy:{icon:'💧',zh:'霜霉'},blight:{icon:'🥀',zh:'晚疫'}})[dk] || {icon:'🍄',zh:'病害'};
+                                riskEl.style.display = 'inline-flex';
+                                riskEl.textContent = `${dz.band.emoji} ${meta.zh} ${dz.score}`;
+                                riskEl.style.background = dz.band.color + '1a';
+                                riskEl.style.color = dz.band.color;
+                                riskEl.style.borderColor = dz.band.color + '55';
+                            } else {
+                                riskEl.style.display = 'none';
+                            }
                         }
                     } catch (e) { /* badge is best-effort; never break the list */ }
                 }
@@ -4788,6 +4813,27 @@
             if (binCountEl) { if (hiddenIds.length > 0) { binCountEl.innerText = hiddenIds.length; binCountEl.classList.remove('hidden'); } else { binCountEl.classList.add('hidden'); } }
             if(lwEl) { lwEl.innerHTML = build(false); lwEl.scrollTop = sW; } 
             if(leEl) { leEl.innerHTML = build(true); leEl.scrollTop = sE; } 
+
+            // Cameron Highlands has no East-Malaysia farms, so the East column is
+            // normally empty and wastes half the (wide) desktop screen. Collapse it
+            // when empty and let West span full width; restore the split if an
+            // East-Malaysia farm is ever added.
+            try {
+                const eastPool = getAllLocations().filter(l => l.em && !hiddenIds.includes(l.id));
+                const colWest = document.getElementById('col-west');
+                const colEast = document.getElementById('col-east');
+                if (colWest && colEast) {
+                    if (eastPool.length === 0) {
+                        colEast.style.display = 'none';
+                        colWest.classList.remove('w-1/2'); colWest.style.width = '100%';
+                        colWest.classList.remove('border-r-2');
+                    } else {
+                        colEast.style.display = '';
+                        colWest.style.width = ''; colWest.classList.add('w-1/2');
+                        colWest.classList.add('border-r-2');
+                    }
+                }
+            } catch (e) { /* layout tweak is best-effort */ }
         };
 
         // --- Simplified AI Button Logic (no long press toggle anymore) ---
@@ -6381,8 +6427,12 @@
                 // Phone: render content at 92% of screen width.
                 fitScale = (screenW * 0.92) / contentW;
             } else {
-                fitScale = screenW / contentW;
-                if (fitScale > 10.0) fitScale = 10.0;
+                // Desktop/tablet: the 390px report is a raster-scaled design, so
+                // blowing it up to fill a wide monitor (e.g. 1900/390 ≈ 4.9×) makes
+                // everything blurry. Cap the zoom to a crisp, comfortable reading
+                // size and let it sit centered with whitespace either side.
+                fitScale = (screenW * 0.92) / contentW;
+                if (fitScale > 1.7) fitScale = 1.7;   // ~663px wide — sharp & readable
             }
             
             scale = fitScale; 
