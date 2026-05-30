@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.174 — slimmer footer: removed hint row + location count (count still shown in broadcast toast). bump CACHE_VERSION on each release
+// Version 1.0.174 — ELEVATION label centered below slider; report buttons restored to comfortable height. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605311010';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605311110';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

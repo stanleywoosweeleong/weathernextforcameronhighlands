@@ -757,10 +757,10 @@
                eats most of a ~574px-tall viewport. */
             header { height: calc(78px + var(--safe-top)) !important; }
             #broadcast-bar { padding-top: 5px !important; padding-bottom: 5px !important; gap: 5px !important; }
-            /* Compact report/broadcast buttons: single tight line, smaller. */
-            #broadcast-bar button { padding-top: 6px !important; padding-bottom: 6px !important; font-size: 11px !important; line-height: 1.2 !important; }
+            /* Report/broadcast buttons: single line, comfortable (not too slim). */
+            #broadcast-bar button { padding-top: 11px !important; padding-bottom: 11px !important; font-size: 12px !important; line-height: 1.2 !important; }
             #broadcast-bar button br { display: none !important; }
-            #broadcast-bar button span { font-size: 9px !important; opacity: 0.85; margin-left: 6px; }
+            #broadcast-bar button span { font-size: 9.5px !important; opacity: 0.85; margin-left: 6px; }
             /* Let main fill the space between header and footer via flex, instead
                of a fixed 100vh-based height that can overflow and clip the footer
                (slider) off the bottom of the screen. */
@@ -954,12 +954,12 @@
 
     <footer class="bg-white border-t-2 border-slate-100 px-10 flex flex-col justify-center shrink-0 z-50 shadow-inner">
         <div class="flex justify-center mb-2 items-baseline gap-2">
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">海拔 ELEVATION</span>
-            <span id="elev-value" class="text-emerald-700 font-black text-base tabular-nums">-- m</span>
+            <span id="elev-value" class="text-emerald-700 font-black text-lg tabular-nums">-- m</span>
         </div>
         <input type="range" id="elev-slider" min="1000" max="1700" value="1700" step="10" class="w-full">
         <div class="flex justify-between mt-3 text-[10px] font-black uppercase tracking-widest items-center">
             <span class="text-slate-400 font-black">⬇ 低 LOW</span>
+            <span class="text-slate-400 font-black tracking-widest">海拔 ELEVATION</span>
             <span class="font-black text-slate-400">高 HIGH ⬆</span>
         </div>
     </footer>
