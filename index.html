@@ -956,12 +956,10 @@
         <div class="flex justify-center mb-2 items-baseline gap-2">
             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">海拔 ELEVATION</span>
             <span id="elev-value" class="text-emerald-700 font-black text-base tabular-nums">-- m</span>
-            <span id="elev-band-count" class="text-[10px] font-black text-slate-400 tabular-nums"></span>
         </div>
         <input type="range" id="elev-slider" min="1000" max="1700" value="1700" step="10" class="w-full">
         <div class="flex justify-between mt-3 text-[10px] font-black uppercase tracking-widest items-center">
             <span class="text-slate-400 font-black">⬇ 低 LOW</span>
-            <span class="text-slate-300 font-black normal-case tracking-normal">点按或方向键跳转 · tap / ← → keys</span>
             <span class="font-black text-slate-400">高 HIGH ⬆</span>
         </div>
     </footer>
@@ -1315,11 +1313,11 @@
             },
             get shareTitle() {
                 const n = getUserName();
-                return n ? (n + ' 金马伦农友天气') : '金马伦农友天气 Cameron WeatherNext';
+                return n ? (n + ' 农友天气') : '金马伦农友天气 Cameron WeatherNext';
             },
             get shareFallbackText() {
                 const n = getUserName();
-                return n ? (n + ' 金马伦农友天气') : '金马伦农友天气 Cameron WeatherNext';
+                return n ? (n + ' 农友天气') : '金马伦农友天气 Cameron WeatherNext';
             },
             get broadcastBrand() {
                 // Cameron Highlands regional broadcast header.
@@ -1336,10 +1334,13 @@
             // 1. H1 in the header
             const h1 = document.getElementById('app-h1');
             if (h1) {
-                // Preserve the search icon span; only modify the name + "农友天气" text
+                // Preserve the search icon span; only modify the name + "农友天气" text.
+                // Brand is just "农友天气" (the app brand); the username is prepended
+                // separately, so we must NOT bake the name into the brand or it
+                // duplicates (e.g. "金马伦 金马伦农友天气").
                 const searchIconHtml = '<span class="text-[10px] text-slate-300 align-top ml-0.5">🔍</span>';
                 if (name) {
-                    h1.innerHTML = '<span class="text-blue-700">' + escapeHtml(name) + '</span> 金马伦农友天气 ' + searchIconHtml;
+                    h1.innerHTML = '<span class="text-blue-700">' + escapeHtml(name) + '</span> 农友天气 ' + searchIconHtml;
                 } else {
                     h1.innerHTML = '金马伦农友天气 ' + searchIconHtml;
                 }
@@ -5011,15 +5012,12 @@
         window.applyElevationFilter = () => {
             const slider = document.getElementById('elev-slider');
             const valEl = document.getElementById('elev-value');
-            const countEl = document.getElementById('elev-band-count');
             if (!slider) return;
             // Index-based: translate the slider position to a real farm elevation.
             let idx = parseInt(slider.value, 10);
             if (isNaN(idx)) idx = elevStops.length - 1;
             const elev = elevStops[Math.min(elevStops.length - 1, Math.max(0, idx))];
             if (valEl) valEl.textContent = (typeof elev === 'number' ? elev : '--') + ' m';
-            const total = getAllLocations().filter(l => !hiddenIds.includes(l.id)).length;
-            if (countEl) countEl.textContent = `· ${total} 地点`;
         };
 
         // Scroll the list so the farm nearest the slider's elevation sits centered
