@@ -4196,7 +4196,20 @@
                         const r = window.computeDiseaseRisk(loc, dObj, 0, cropId);
                         if (r) {
                             const d = r.diseases, m = r.metrics;
-                            chCtx += `The app's microclimate model for today estimates — Botrytis ${d.botrytis.score}/100, Downy mildew ${d.downy.score}/100, Late blight ${d.blight.score}/100, Powdery mildew ${d.powdery.score}/100, Early blight ${d.earlyblight.score}/100, Anthracnose ${d.anthracnose.score}/100; leaf-wetness ~${m.leafWetHrs}h (${m.leafWetSource === 'model' ? 'native model field' : 'derived from RH/dew/rain/cloud'}), high-RH(≥90%) ~${m.fogHrs}h, rain ${m.rainMM}mm, mean RH ${m.avgRH}%, mean temp ${m.tMean}°C. ${m.pastAvailable ? `Recent 3-day actual weather shows ${m.pastWetDays}/3 wet days (${m.recentRainMM}mm actual rain), giving a ${m.pastFactor>=1.15?'RISING':m.pastFactor<=0.85?'EASING':'steady'} multi-day infection pressure (${m.pastFactor}×).` : ''} Use these figures when judging disease pressure. `;
+                            chCtx += `The app's microclimate model for today estimates — Botrytis ${d.botrytis.score}/100, Downy mildew ${d.downy.score}/100, Late blight ${d.blight.score}/100, Powdery mildew ${d.powdery.score}/100, Early blight ${d.earlyblight.score}/100, Anthracnose ${d.anthracnose.score}/100; leaf-wetness ~${m.leafWetHrs}h (${m.leafWetSource === 'model' ? 'native model field' : 'derived from RH/dew/rain/cloud'}), fog/saturation ~${m.fogHrs}h, rain ${m.rainMM}mm, mean RH ${m.avgRH}%, mean temp ${m.tMean}°C. ${m.pastAvailable ? `Recent 3-day actual weather shows ${m.pastWetDays}/3 wet days (${m.recentRainMM}mm actual rain), giving a ${m.pastFactor>=1.15?'RISING':m.pastFactor<=0.85?'EASING':'steady'} multi-day infection pressure (${m.pastFactor}×).` : ''} Use these figures when judging disease pressure. `;
+                            // Dedicated fog/visibility line — fog is a Cameron-specific
+                            // factor for spraying/drying AND a road-safety hazard, so the
+                            // AI gets the proper fog-engine detail (band, dense hours,
+                            // morning-commute fog, worst visibility), not just an hour count.
+                            try {
+                                const f = (typeof window.computeFog === 'function') ? window.computeFog(loc, dObj, 0) : null;
+                                if (f && f.available) {
+                                    const bandTxt = f.bandKey === 'dense' ? 'DENSE FOG' : f.bandKey === 'fog' ? 'foggy' : f.bandKey === 'patchy' ? 'patchy fog' : 'clear';
+                                    const visTxt = (f.worstVis != null) ? `${f.worstVis < 1000 ? f.worstVis + 'm' : (f.worstVis/1000).toFixed(1) + 'km'}` : 'n/a';
+                                    chCtx += `Fog/visibility today: ${bandTxt} — ${f.fogHours}h fog (${f.denseHours}h dense), ${f.amFogHours}h in the 5–9am window, worst visibility ~${visTxt}. ` +
+                                        `Consider this for spray windows (don't spray into fog/leaf-wetness), drying, harvest timing, and worker/transport safety on the mountain roads. If dense fog is expected at dawn, advise against early-morning field work or travel until it lifts. `;
+                                }
+                            } catch (e) { /* fog context best-effort */ }
                         }
                     }
                 } catch (e) { /* risk context is best-effort */ }
@@ -6168,6 +6181,7 @@
         window.getShortWeatherContext = (id, days) => {
             const h = detailData[id];
             if (!h) return "No data.";
+            const fogLoc = (typeof getAllLocations === 'function') ? getAllLocations().find(l => l.id === id) : null;
             let ctx = ""; const now = new Date();
             
             // Helper: safely read hourly array with model suffix support
@@ -6213,6 +6227,18 @@
                 if (wbMax) line += `, WetBulb ${wbMax}C`;
                 if (leafWet !== null) line += `, LeafWet ${leafWet}%`;
                 if (gdd !== null) line += `, GDD ${gdd}`;
+                // Fog/visibility for the day — matters for spray windows, drying,
+                // harvest timing, and dawn travel safety on the mountain roads.
+                try {
+                    if (fogLoc && typeof window.computeFog === 'function') {
+                        const f = window.computeFog(fogLoc, h, i);
+                        if (f && f.available && f.bandKey !== 'clear') {
+                            const bt = f.bandKey === 'dense' ? 'DENSE FOG' : f.bandKey === 'fog' ? 'foggy' : 'patchy fog';
+                            const vt = (f.worstVis != null) ? (f.worstVis < 1000 ? f.worstVis + 'm' : (f.worstVis/1000).toFixed(1) + 'km') : '';
+                            line += `, Fog: ${bt} ${f.fogHours}h${f.amFogHours ? ` (${f.amFogHours}h AM)` : ''}${vt ? `, vis ${vt}` : ''}`;
+                        }
+                    }
+                } catch (e) { /* fog best-effort */ }
                 line += `] `;
                 
                 ctx += line;

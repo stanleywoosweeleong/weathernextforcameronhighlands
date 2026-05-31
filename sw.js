@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.208 — removed redundant cloud-row FOG badge (now covered by dedicated fog row+banner); kept HAZE badge (separate dry-haze phenomenon). bump CACHE_VERSION on each release
+// Version 1.0.209 — fog now properly passed to ALL AI tools (band, dense/AM hours, worst visibility) for spray/dry/harvest/travel-safety reasoning; fixed old high-RH mislabel. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606012610';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606012710';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
