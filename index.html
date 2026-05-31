@@ -1035,8 +1035,12 @@
                 <input type="text" inputmode="decimal" id="edit-lat" class="w-input flex-1" placeholder="纬度 Lat">
                 <input type="text" inputmode="decimal" id="edit-lng" class="w-input flex-1" placeholder="经度 Lng">
             </div>
-            <p class="text-[10px] text-slate-400 mt-1">小数格式，如 / Decimal format, e.g. 4.04597, 101.96039</p>
-            
+            <p class="text-[10px] text-slate-400 mt-1">小数格式,如 / Decimal format, e.g. 4.04597, 101.96039</p>
+
+            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mt-4 mb-1">海拔 / Elevation (m)</label>
+            <input type="text" inputmode="numeric" id="edit-elev" class="w-input" placeholder="留空用GPS网格值 / Leave blank for GPS grid">
+            <p class="text-[10px] text-slate-400 mt-1">留空将使用GPS网格海拔 / Leave blank to use the GPS grid elevation</p>
+
             <button onclick="window.saveNameEdit()" class="w-btn-primary mt-4 flex items-center justify-center">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </button>
@@ -1683,6 +1687,8 @@
                 nameRequired: "Name required",
                 invalidCoords: "Invalid coordinates",
                 coordsOutOfRange: "Coordinates out of range",
+                elevInvalid: "Invalid elevation value",
+                elevOutOfRange: "That elevation looks wrong — please check (m above sea level)",
                 locationExists: "Location already exists",
                 saved: "Saved! Add another?",
                 outsideMalaysia: "Warning: These coordinates appear to be outside Malaysia.\n\nContinue adding?",
@@ -1694,6 +1700,8 @@
                 nameRequired: "请输入名字",
                 invalidCoords: "坐标无效",
                 coordsOutOfRange: "坐标超出范围",
+                elevInvalid: "海拔数值无效",
+                elevOutOfRange: "海拔数值看起来不对,请检查(米/海平面以上)",
                 locationExists: "地点已存在",
                 saved: "已保存",
                 outsideMalaysia: "警告：此坐标似乎不在马来西亚境内。\n\n是否继续添加？",
@@ -1705,6 +1713,8 @@
                 nameRequired: "Nama diperlukan",
                 invalidCoords: "Koordinat tidak sah",
                 coordsOutOfRange: "Koordinat di luar julat",
+                elevInvalid: "Nilai ketinggian tidak sah",
+                elevOutOfRange: "Ketinggian itu kelihatan salah — sila semak (m atas paras laut)",
                 locationExists: "Lokasi sudah wujud",
                 saved: "Disimpan! Tambah lagi?",
                 outsideMalaysia: "Amaran: Koordinat ini kelihatan di luar Malaysia.\n\nTeruskan menambah?",
@@ -1716,6 +1726,8 @@
                 nameRequired: "பெயர் தேவை",
                 invalidCoords: "தவறான ஆயத்தொலைவுகள்",
                 coordsOutOfRange: "ஆயத்தொலைவுகள் வரம்புக்கு வெளியே",
+                elevInvalid: "தவறான உயரம் மதிப்பு",
+                elevOutOfRange: "அந்த உயரம் தவறாகத் தெரிகிறது — சரிபார்க்கவும் (மீ கடல் மட்டத்திற்கு மேல்)",
                 locationExists: "இடம் ஏற்கனவே உள்ளது",
                 saved: "சேமிக்கப்பட்டது! மற்றொன்று சேர்?",
                 outsideMalaysia: "எச்சரிக்கை: இந்த ஆயத்தொலைவுகள் மலேசியாவிற்கு வெளியே உள்ளன.\n\nதொடரவா?",
@@ -1727,6 +1739,8 @@
                 nameRequired: "အမည် လိုအပ်သည်",
                 invalidCoords: "ကိုသြဒိနိတ်များ မမှန်ပါ",
                 coordsOutOfRange: "ကိုသြဒိနိတ်များ အပိုင်းအခြားပြင်ပ",
+                elevInvalid: "မမှန်ကန်သော အမြင့်တန်ဖိုး",
+                elevOutOfRange: "ထို အမြင့်သည် မှားနေပုံရသည် — စစ်ဆေးပါ (မီတာ ပင်လယ်ရေမျက်နှာပြင်အထက်)",
                 locationExists: "ဤနေရာသည် ရှိပြီးသား",
                 saved: "သိမ်းပြီး! နောက်တစ်ခုထပ်ထည့်မလား?",
                 outsideMalaysia: "သတိ: ဤကိုသြဒိနိတ်များသည် မလေးရှားပြင်ပတွင် ရှိပုံရသည်။\n\nဆက်လက်ထည့်မလား?",
@@ -2827,6 +2841,19 @@
             if (_ge) gpsElevations = JSON.parse(_ge) || {};
         } catch (e) { gpsElevations = {}; }
 
+        // User-entered elevation overrides (per location id). Priority for the
+        // elevation actually used is: manual (farmer-entered) > grid (GPS/Open-Meteo)
+        // > seed default. A blank manual entry falls through to grid, so clearing it
+        // restores the standardized grid value.
+        let manualElevations = {};
+        try {
+            const _me = localStorage.getItem('weathernextforcameron__wnext_manual_elev');
+            if (_me) manualElevations = JSON.parse(_me) || {};
+        } catch (e) { manualElevations = {}; }
+        const saveManualElevations = () => {
+            try { localStorage.setItem('weathernextforcameron__wnext_manual_elev', JSON.stringify(manualElevations)); } catch (e) {}
+        };
+
         function getAllLocations() {
             const stable = STABLE_LOCATIONS.filter(l => !purgedIds.includes(l.id));
             // Ensure customLocations is always an array
@@ -2836,11 +2863,16 @@
             // Instead of relying on the stored 'em' flag, we recalculate it based on Longitude.
             // Longitude > 108.0 puts it in East Malaysia (Borneo), otherwise West (Peninsular).
             return [...stable, ...custom].map(l => {
+                const manualElev = manualElevations[l.id];
                 const gpsElev = gpsElevations[l.id];
+                // Priority: manual > grid > seed.
+                let elev = l.elev;
+                if (typeof gpsElev === 'number') elev = gpsElev;
+                if (typeof manualElev === 'number') elev = manualElev;
                 return {
                     ...l,
-                    // GPS elevation wins when we have it; otherwise keep supplied value.
-                    elev: (typeof gpsElev === 'number') ? gpsElev : l.elev,
+                    elev,
+                    elevSource: (typeof manualElev === 'number') ? 'manual' : (typeof gpsElev === 'number') ? 'grid' : 'seed',
                     em: l.lng > 108.0
                 };
             });
@@ -2881,7 +2913,7 @@
                     localStorage.setItem(NAME_KEY, "金马伦");
                     localStorage.setItem(NAME_ASCII_KEY, "Cameron");
                 }
-                var seedLocs = [{"id": "c_ch-ringlet", "en": "Ringlet", "zh": "冷力", "lat": 4.41453, "lng": 101.38415, "t": 0, "p": 0, "em": false, "elev": 1135, "zone": "valley", "crop": "leafy"}, {"id": "c_ch-bertam-valley", "en": "Bertam Valley", "zh": "伯坦谷", "lat": 4.397, "lng": 101.381, "t": 0, "p": 0, "em": false, "elev": 1100, "zone": "valley", "crop": "leafy"}, {"id": "c_ch-habu", "en": "Habu", "zh": "哈布", "lat": 4.44011, "lng": 101.38921, "t": 0, "p": 0, "em": false, "elev": 1300, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-tanah-rata", "en": "Tanah Rata", "zh": "丹那拉打", "lat": 4.47135, "lng": 101.37565, "t": 0, "p": 0, "em": false, "elev": 1440, "zone": "midslope", "crop": "strawberry"}, {"id": "c_ch-brinchang", "en": "Brinchang", "zh": "碧兰璋", "lat": 4.49223, "lng": 101.38732, "t": 0, "p": 0, "em": false, "elev": 1470, "zone": "midslope", "crop": "strawberry"}, {"id": "c_ch-kea-farm", "en": "Kea Farm", "zh": "吉亚农场", "lat": 4.50436, "lng": 101.40734, "t": 0, "p": 0, "em": false, "elev": 1530, "zone": "ridge", "crop": "leafy"}, {"id": "c_ch-tringkap", "en": "Tringkap", "zh": "丁甲", "lat": 4.51494, "lng": 101.42771, "t": 0, "p": 0, "em": false, "elev": 1450, "zone": "midslope", "crop": "leafy"}, {"id": "c_ch-kuala-terla", "en": "Kuala Terla", "zh": "吉拉烈", "lat": 4.54673, "lng": 101.41608, "t": 0, "p": 0, "em": false, "elev": 1430, "zone": "midslope", "crop": "leafy"}, {"id": "c_ch-kampung-raja", "en": "Kampung Raja", "zh": "甘榜拉惹", "lat": 4.56709, "lng": 101.40968, "t": 0, "p": 0, "em": false, "elev": 1470, "zone": "fog", "crop": "tomato"}, {"id": "c_ch-blue-valley", "en": "Blue Valley", "zh": "蓝谷", "lat": 4.58322, "lng": 101.41243, "t": 0, "p": 0, "em": false, "elev": 1600, "zone": "fog", "crop": "leafy"}, {"id": "c_ch-sungai-palas", "en": "Sungai Palas", "zh": "双溪巴拉斯", "lat": 4.5225, "lng": 101.367, "t": 0, "p": 0, "em": false, "elev": 1550, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-cameron-valley", "en": "Cameron Valley", "zh": "金马伦谷", "lat": 4.4305, "lng": 101.401, "t": 0, "p": 0, "em": false, "elev": 1180, "zone": "valley", "crop": "tea"}, {"id": "c_ch-boh-tea", "en": "Boh Tea Plantation", "zh": "BOH 茶园", "lat": 4.52, "lng": 101.37, "t": 0, "p": 0, "em": false, "elev": 1560, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-kuala-terla-tea", "en": "Kuala Terla Tea Estate", "zh": "吉拉烈茶园", "lat": 4.548, "lng": 101.42, "t": 0, "p": 0, "em": false, "elev": 1440, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-taman-sedia", "en": "Kampung Taman Sedia", "zh": "草莓农场", "lat": 4.458, "lng": 101.384, "t": 0, "p": 0, "em": false, "elev": 1400, "zone": "midslope", "crop": "strawberry"}, {"id": "c_ch-mardi", "en": "MARDI Cameron Highlands", "zh": "MARDI 农业站", "lat": 4.4619, "lng": 101.3838, "t": 0, "p": 0, "em": false, "elev": 1420, "zone": "midslope", "crop": "leafy"}];
+                var seedLocs = [{"id": "c_ch-ringlet", "en": "Ringlet", "zh": "冷力", "lat": 4.41453, "lng": 101.38415, "t": 0, "p": 0, "em": false, "elev": 1135, "zone": "valley", "crop": "leafy"}, {"id": "c_ch-bertam-valley", "en": "Bertam Valley", "zh": "伯坦谷", "lat": 4.397, "lng": 101.381, "t": 0, "p": 0, "em": false, "elev": 1100, "zone": "valley", "crop": "leafy"}, {"id": "c_ch-habu", "en": "Habu", "zh": "哈布", "lat": 4.44011, "lng": 101.38921, "t": 0, "p": 0, "em": false, "elev": 1300, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-tanah-rata", "en": "Tanah Rata", "zh": "丹那拉打", "lat": 4.47135, "lng": 101.37565, "t": 0, "p": 0, "em": false, "elev": 1440, "zone": "midslope", "crop": "strawberry"}, {"id": "c_ch-brinchang", "en": "Brinchang", "zh": "碧兰璋", "lat": 4.49223, "lng": 101.38732, "t": 0, "p": 0, "em": false, "elev": 1470, "zone": "midslope", "crop": "strawberry"}, {"id": "c_ch-kea-farm", "en": "Kea Farm", "zh": "吉亚农场", "lat": 4.50436, "lng": 101.40734, "t": 0, "p": 0, "em": false, "elev": 1610, "zone": "ridge", "crop": "leafy"}, {"id": "c_ch-tringkap", "en": "Tringkap", "zh": "丁甲", "lat": 4.51494, "lng": 101.42771, "t": 0, "p": 0, "em": false, "elev": 1450, "zone": "midslope", "crop": "leafy"}, {"id": "c_ch-kuala-terla", "en": "Kuala Terla", "zh": "吉拉烈", "lat": 4.54673, "lng": 101.41608, "t": 0, "p": 0, "em": false, "elev": 1430, "zone": "midslope", "crop": "leafy"}, {"id": "c_ch-kampung-raja", "en": "Kampung Raja", "zh": "甘榜拉惹", "lat": 4.56709, "lng": 101.40968, "t": 0, "p": 0, "em": false, "elev": 1470, "zone": "fog", "crop": "tomato"}, {"id": "c_ch-blue-valley", "en": "Blue Valley", "zh": "蓝谷", "lat": 4.58322, "lng": 101.41243, "t": 0, "p": 0, "em": false, "elev": 1600, "zone": "fog", "crop": "leafy"}, {"id": "c_ch-sungai-palas", "en": "Sungai Palas", "zh": "双溪巴拉斯", "lat": 4.5225, "lng": 101.367, "t": 0, "p": 0, "em": false, "elev": 1550, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-cameron-valley", "en": "Cameron Valley", "zh": "金马伦谷", "lat": 4.4305, "lng": 101.401, "t": 0, "p": 0, "em": false, "elev": 1180, "zone": "valley", "crop": "tea"}, {"id": "c_ch-boh-tea", "en": "Boh Tea Plantation", "zh": "BOH 茶园", "lat": 4.52, "lng": 101.37, "t": 0, "p": 0, "em": false, "elev": 1560, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-kuala-terla-tea", "en": "Kuala Terla Tea Estate", "zh": "吉拉烈茶园", "lat": 4.548, "lng": 101.42, "t": 0, "p": 0, "em": false, "elev": 1440, "zone": "midslope", "crop": "tea"}, {"id": "c_ch-taman-sedia", "en": "Kampung Taman Sedia", "zh": "草莓农场", "lat": 4.458, "lng": 101.384, "t": 0, "p": 0, "em": false, "elev": 1400, "zone": "midslope", "crop": "strawberry"}, {"id": "c_ch-mardi", "en": "MARDI Cameron Highlands", "zh": "MARDI 农业站", "lat": 4.4619, "lng": 101.3838, "t": 0, "p": 0, "em": false, "elev": 1420, "zone": "midslope", "crop": "leafy"}];
                 // Merge into whatever is already there (e.g. a deep-link
                 // location the user received before first cold start).
                 var existing = [];
@@ -4911,7 +4943,7 @@
         let pendingConfirmAction = null;
         window.showConfirm = (msg, action) => { const el = document.getElementById('confirm-modal'); const msgEl = document.getElementById('confirm-msg'); if(el && msgEl) { msgEl.innerText = msg; pendingConfirmAction = action; el.classList.remove('hidden'); } };
         window.closeConfirm = (isConfirmed) => { document.getElementById('confirm-modal').classList.add('hidden'); if (isConfirmed && pendingConfirmAction) { pendingConfirmAction(); } pendingConfirmAction = null; };
-        window.openEditModal = (id) => { editingId = id; const loc = getAllLocations().find(l => l.id === id); const custom = renamedLocations[id]; document.getElementById('edit-name-en').value = custom ? custom.en : (loc.en || ''); document.getElementById('edit-name-zh').value = custom ? custom.zh : (loc.zh || ''); document.getElementById('edit-lat').value = loc ? String(loc.lat) : ''; document.getElementById('edit-lng').value = loc ? String(loc.lng) : ''; document.getElementById('edit-modal').classList.remove('hidden'); closeCardActions(id); };
+        window.openEditModal = (id) => { editingId = id; const loc = getAllLocations().find(l => l.id === id); const custom = renamedLocations[id]; document.getElementById('edit-name-en').value = custom ? custom.en : (loc.en || ''); document.getElementById('edit-name-zh').value = custom ? custom.zh : (loc.zh || ''); document.getElementById('edit-lat').value = loc ? String(loc.lat) : ''; document.getElementById('edit-lng').value = loc ? String(loc.lng) : ''; const elevField = document.getElementById('edit-elev'); if (elevField) { elevField.value = (typeof manualElevations[id] === 'number') ? String(manualElevations[id]) : ''; elevField.placeholder = (loc && typeof loc.elev === 'number') ? `${loc.elev}m (${loc.elevSource === 'grid' ? 'GPS' : loc.elevSource === 'manual' ? '手动 manual' : '默认 default'})` : '留空用GPS / blank = GPS'; } document.getElementById('edit-modal').classList.remove('hidden'); closeCardActions(id); };
         // saveNameEdit (now: save name + GPS) — handles both the name overlay
         // (renamedLocations) and the actual coordinate mutation on the underlying
         // customLocations entry. GPS edits require cache invalidation and a fresh
@@ -4939,6 +4971,34 @@
             if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
                 window.showToast(T.coordsOutOfRange, true);
                 return;
+            }
+
+            // ----- ELEVATION (manual override) -----
+            // Blank → clear any manual value (falls back to GPS grid).
+            // A sane highland value → accept. An impossible value → reject with a
+            // clear message (farmers won't sabotage their own forecast, so we only
+            // guard against obvious typos / nonsense, not reasonable numbers).
+            const elevStr = (document.getElementById('edit-elev')?.value || '').trim();
+            let elevAction = 'none'; // 'set' | 'clear' | 'none'
+            let elevVal = null;
+            if (elevStr === '') {
+                // Blank: clear manual override if one existed.
+                if (typeof manualElevations[editingId] === 'number') elevAction = 'clear';
+            } else {
+                elevVal = parseFloat(elevStr);
+                if (isNaN(elevVal) || !isFinite(elevVal)) {
+                    window.showToast(T.elevInvalid, true);
+                    return;
+                }
+                // Plausible Earth-surface farm range. Cameron sits ~1100–1700m, but
+                // the app serves all of Malaysia, so accept any realistic land
+                // elevation and only reject the physically impossible.
+                if (elevVal < -50 || elevVal > 4500) {
+                    window.showToast(T.elevOutOfRange, true);
+                    return;
+                }
+                elevVal = Math.round(elevVal);
+                elevAction = 'set';
             }
             
             // Find the customLocations entry to mutate. In the generic build all
@@ -4977,6 +5037,15 @@
                 if (en || zh) {
                     renamedLocations[editingId] = { en, zh };
                     safeSet(RENAME_CACHE_KEY, JSON.stringify(renamedLocations));
+                }
+
+                // Manual elevation override: set, clear, or leave untouched.
+                if (elevAction === 'set') {
+                    manualElevations[editingId] = elevVal;
+                    saveManualElevations();
+                } else if (elevAction === 'clear') {
+                    delete manualElevations[editingId];
+                    saveManualElevations();
                 }
                 
                 // GPS mutation on the customLocations entry. Only re-persist

@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.194 — remove 病害 disease-risk reading from home-screen cards (now lives in detail/AI tools). bump CACHE_VERSION on each release
+// Version 1.0.195 — Kea Farm seed 1530→1610 (official); manual elevation override in Edit (manual>grid>seed; blank=grid; rejects impossible values). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606011210';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606011310';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
