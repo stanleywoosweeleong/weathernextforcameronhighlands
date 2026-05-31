@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.231 — VPD reworked: (1) relabelled 'Spray Signal' to 'Air Dryness' (5 langs) since VPD is fundamentally air dryness/wetness, spray is one derived use; (2) moved row to sit after temp/DeltaT, above wind; (3) added second VPD line at 8AM (faint blue dashed, pairs with DeltaT@8AM) alongside the labelled midday peak line; help card gains a 2-line legend. bump CACHE_VERSION on each release
+// Version 1.0.232 — removed past-3-day TEMPERATURE strip display only (renderer + slot hidden). pdays data kept (still feeds past-rain and past-RH strips); forecast accuracy reads past.temperature_2m independently so is unaffected. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605312147';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605312156';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

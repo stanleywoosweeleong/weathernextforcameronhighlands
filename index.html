@@ -2820,10 +2820,9 @@
             });
 
             // TEMP past strip: hi/lo per day.
-            setStrip(`ch-past-temp-${id}`, () => {
-                const cells = pdays.map(d => `<div class="ch-ps-cell"><div class="ch-ps-temp"><span style="color:#f97316;">${d.tHi != null ? Math.round(d.tHi) + '°' : '—'}</span> <span style="color:#2563eb;">${d.tLo != null ? Math.round(d.tLo) + '°' : '—'}</span></div><div class="ch-ps-dow">${dow(d.ymd)}</div></div>`).join('');
-                return `<div class="ch-ps-row"><div class="ch-ps-tag">${L.past3} · ${L.hi}/${L.lo}</div><div class="ch-ps-cells">${cells}</div></div>`;
-            });
+            // Past-3-day TEMPERATURE strip display removed by request. The pdays data
+            // (incl. tHi/tLo) is kept — it still feeds the past-rain and past-RH strips,
+            // and forecast accuracy reads past.temperature_2m independently.
 
             // HUMIDITY past strip.
             setStrip(`ch-past-rh-${id}`, () => {
@@ -6858,7 +6857,7 @@
 
                 <div class="info-row" id="row-dates-top-${id}"></div>
                 <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" id="hdr-wvet-${id}" style="color: #b45309;">${cH.wvet}<span class="help-icon-btn" id="help-icon-wvet-${id}" onclick="window.toggleHelpCard('${id}', 'wvet')" title="What is WVET?">?</span></div><div id="help-card-wvet-${id}" class="help-card"></div><div class="info-row" id="row-wvet-${id}" style="min-height: 60px; padding-top: 14px;"></div></div>
-                <div id="ch-past-temp-${id}" class="ch-past-strip"></div>
+                <div id="ch-past-temp-${id}" class="ch-past-strip" style="display:none;"></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-temp-${id}"><span style="color:#f97316;">${cH.tHi}</span>/<span style="color:#2563eb;">${cH.tLo}</span> / <span style="color:#06b6d4;">${cH.tDew}</span> <span style="color:#cbd5e1; margin:0 2px;">|</span> <span style="color:#7e22ce;">${cH.tDelta}</span> / <span style="color:#166534;">${cH.tSafe}</span><span class="help-icon-btn" id="help-icon-temp-${id}" onclick="window.toggleHelpCard('${id}', 'temp')" title="What is DeltaT and Safe Hours?">?</span></div><div id="help-card-temp-${id}" class="help-card"></div><div class="info-row" id="row-temp-combined-${id}" style="min-height: 200px; padding-top: 10px;"></div><svg id="trend-layer-temp-${id}" class="trend-layer" height="200"></svg></div>
                 <div class="relative" style="margin-top:-38px;"><div class="row-label-overlay" id="hdr-vpd-${id}" style="color:#b45309">${cH.vpd}<span class="help-icon-btn" id="help-icon-vpd-${id}" onclick="window.toggleHelpCard('${id}', 'vpd')" title="What is VPD?">?</span></div><div id="help-card-vpd-${id}" class="help-card"></div><div class="info-row" id="row-vpd-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-vpd-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="relative bg-slate-50/10" id="wind-row-container-${id}" style="z-index:10;"><div class="row-label-overlay" id="hdr-wind-${id}">${cH.wind}</div><div class="info-row" id="row-wind-${id}" style="min-height:60px;padding-top:14px;"></div></div>
