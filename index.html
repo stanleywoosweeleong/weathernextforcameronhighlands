@@ -499,6 +499,18 @@
         .ch-ps-dow { font-size: 8px; font-weight: 600; color: #94a3b8; }
         .ch-past-empty { font-size: 9px; font-weight: 600; color: #cbd5e1; padding: 4px 8px; background: #f8fafc; border-top: 1px solid #eef2f6; }
         .ch-rh-forecast { padding-top: 4px; }
+        /* ===== Fog forecast row + driving-safety banner ===== */
+        .ch-fog-row { padding: 6px 4px 2px; }
+        .ch-fog-cells { display: flex; gap: 3px; }
+        .ch-fog-cell { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .ch-fog-dot { width: 100%; aspect-ratio: 1; max-width: 26px; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 900; }
+        .ch-fog-dow { font-size: 8px; font-weight: 700; color: #94a3b8; }
+        .ch-fog-empty { font-size: 9px; font-weight: 600; color: #cbd5e1; padding: 6px 4px; }
+        .ch-fog-banner-slot { margin: 0 0 8px; }
+        .ch-fog-banner { background: #fef2f2; border: 2px solid #dc2626; border-radius: 10px; padding: 11px 13px; }
+        .ch-fog-banner-title { font-size: 12px; font-weight: 900; color: #b91c1c; text-transform: uppercase; letter-spacing: 0.02em; }
+        .ch-fog-banner-msg { font-size: 12px; font-weight: 700; color: #7f1d1d; margin-top: 4px; line-height: 1.45; }
+        .ch-fog-banner-disclaimer { font-size: 10px; font-weight: 600; color: #991b1b; margin-top: 6px; padding-top: 6px; border-top: 1px solid #fecaca; line-height: 1.4; opacity: 0.9; }
         .ch-src { margin-top: 10px; padding-top: 8px; border-top: 1px solid #f1f5f9; font-size: 9px; font-weight: 500; color: #94a3b8; line-height: 1.4; }
         .ch-src b { font-weight: 800; color: #64748b; }
         .ch-driver b { font-size: 14px; font-weight: 900; color: #0f172a; }
@@ -2183,6 +2195,144 @@
             return any ? Math.round(mm * 10) / 10 : null;
         };
 
+        // ====================================================================
+        // FOG ENGINE — Cameron Highlands sits in cloud-forest terrain where fog is
+        // both an agronomic factor (prolonged leaf wetness) AND A SAFETY HAZARD:
+        // thick fog on the steep, winding mountain roads kills. So this models fog
+        // properly from real fields (visibility is the direct safety measure),
+        // rather than the old crude "RH≥90% hours" proxy.
+        //
+        // Per hour, fog likelihood rises with: LOW VISIBILITY (weighted most — it
+        // is the safety variable), near-saturation (small dew-point spread / very
+        // high RH), low cloud sitting at the surface, and LIGHT WIND (wind disperses
+        // fog). Higher elevation amplifies it — Cameron's high farms sit inside the
+        // cloud layer far more often. Returns hourly intensity + a daily summary
+        // with explicit driving-safety bands.
+        // ====================================================================
+        const computeFog = (loc, dataObj, dayIdx) => {
+            if (!dataObj) return null;
+            const model = (typeof activeModel !== 'undefined') ? activeModel : '';
+            const pick = (v) => dataObj[`${v}_${model}`] || dataObj[v] || null;
+            const start = dayIdx * 24;
+            const slice = (arr) => arr ? arr.slice(start, start + 24) : [];
+            const times = slice(pick('time'));
+            const vis   = slice(pick('visibility'));            // metres
+            const rh    = slice(pick('relative_humidity_2m'));  // %
+            const t     = slice(pick('temperature_2m'));        // °C
+            const dp    = slice(pick('dew_point_2m'));          // °C
+            const lowCl = slice(pick('cloudcover_low'));        // %
+            const wind  = slice(pick('windspeed_2m')) ;         // km/h (fallback 10m)
+            const wind10 = slice(pick('windspeed_10m'));
+            if (!rh.length) return null;
+
+            const elev = (typeof loc?.elev === 'number') ? loc.elev : 1400;
+            // Elevation amplifier: gentle below ~1500m, stronger toward the mossy-
+            // forest / cloud zone (~1800m+). 1.0 at 1400m → ~1.25 at 1800m+.
+            const elevAmp = Math.max(1.0, Math.min(1.3, 1.0 + (elev - 1400) / 1600));
+
+            const hourly = [];
+            let fogHours = 0, denseHours = 0, worstVis = Infinity;
+            for (let i = 0; i < rh.length; i++) {
+                const v = vis[i];                 // metres (may be null)
+                const r = rh[i];
+                const spread = (t[i] != null && dp[i] != null) ? (t[i] - dp[i]) : null;
+                const lc = lowCl[i];
+                const w = (wind[i] != null) ? wind[i] : wind10[i];
+
+                // --- Component sub-scores, 0..1 ---
+                // VISIBILITY is the direct, dominant signal when present.
+                let visScore = null;
+                if (typeof v === 'number') {
+                    if (v <= 200) visScore = 1.0;          // dense fog
+                    else if (v <= 1000) visScore = 0.85;   // fog
+                    else if (v <= 2000) visScore = 0.6;    // thick mist
+                    else if (v <= 5000) visScore = 0.35;   // mist/haze
+                    else if (v <= 10000) visScore = 0.12;
+                    else visScore = 0;
+                }
+                // Saturation: small dew-spread or very high RH.
+                let satScore = 0;
+                if (spread != null) satScore = Math.max(0, Math.min(1, (1.5 - spread) / 1.5)); // <0.5°→~1, 1.5°→0
+                else if (r != null) satScore = r >= 99 ? 1 : r >= 96 ? 0.7 : r >= 92 ? 0.4 : 0;
+                // Low cloud at surface.
+                const lcScore = (typeof lc === 'number') ? Math.max(0, Math.min(1, (lc - 40) / 60)) : 0; // 40%→0,100%→1
+                // Light wind keeps fog; strong wind clears it.
+                const windScore = (typeof w === 'number') ? Math.max(0, Math.min(1, (12 - w) / 12)) : 0.5; // 0→1, ≥12km/h→0
+
+                // Combine. If we HAVE visibility, let it lead (safety); otherwise
+                // fall back to the saturation/cloud/wind composite.
+                let fog;
+                if (visScore != null) {
+                    fog = visScore * 0.55 + satScore * 0.2 + lcScore * 0.15 + windScore * 0.10;
+                } else {
+                    fog = satScore * 0.45 + lcScore * 0.35 + windScore * 0.20;
+                }
+                fog = Math.max(0, Math.min(1, fog * elevAmp));
+
+                hourly.push({ i, vis: v, fog });
+                if (fog >= 0.5) fogHours++;
+                if (fog >= 0.8 || (typeof v === 'number' && v <= 200)) denseHours++;
+                if (typeof v === 'number' && v < worstVis) worstVis = v;
+            }
+
+            // Morning window (5–9am) — when fog is thickest and people commute.
+            let amFogHours = 0;
+            for (let i = 5; i <= 9 && i < hourly.length; i++) if (hourly[i].fog >= 0.5) amFogHours++;
+
+            // Daily safety band.
+            let band, bandKey;
+            if (denseHours >= 1) { bandKey = 'dense'; }
+            else if (fogHours >= 3) { bandKey = 'fog'; }
+            else if (fogHours >= 1) { bandKey = 'patchy'; }
+            else { bandKey = 'clear'; }
+
+            return {
+                available: true,
+                fogHours, denseHours, amFogHours,
+                worstVis: isFinite(worstVis) ? Math.round(worstVis) : null,
+                hourly, bandKey, elevAmp: Math.round(elevAmp * 100) / 100
+            };
+        };
+        window.computeFog = computeFog;
+
+        // Fog / driving-safety labels in all 5 languages. Visibility distances stay
+        // numeric (universal). Wording kept short and clear — this is safety info.
+        const FOG_T = {
+            en: { title:'Fog & Visibility', clear:'Clear', patchy:'Patchy fog', fog:'Foggy', dense:'DENSE FOG',
+                  amFog:'AM fog', vis:'visibility', hrs:'h', drive:'Drive with care — low visibility on mountain roads',
+                  driveDanger:'⚠️ DANGEROUS DRIVING — dense fog expected. Slow down, headlights on, keep distance.',
+                  disclaimer:'Forecast guidance only — always drive to the actual conditions you see.',
+                  noData:'Fog data loading…', bannerTitle:'Fog Safety Alert' },
+            zh: { title:'雾况与能见度', clear:'晴朗', patchy:'零星雾', fog:'有雾', dense:'浓雾',
+                  amFog:'早晨雾', vis:'能见度', hrs:'小时', drive:'山路能见度低，小心驾驶',
+                  driveDanger:'⚠️ 行车危险 — 预计浓雾。减速、开灯、保持车距。',
+                  disclaimer:'仅供预报参考 — 请始终根据实际路况驾驶。',
+                  noData:'雾况数据载入中…', bannerTitle:'浓雾安全警报' },
+            ms: { title:'Kabus & Jarak Penglihatan', clear:'Cerah', patchy:'Kabus berselerak', fog:'Berkabus', dense:'KABUS TEBAL',
+                  amFog:'Kabus pagi', vis:'jarak penglihatan', hrs:'j', drive:'Pandu berhati-hati — jarak penglihatan rendah di jalan bukit',
+                  driveDanger:'⚠️ BAHAYA MEMANDU — kabus tebal dijangka. Perlahan, lampu buka, jaga jarak.',
+                  disclaimer:'Panduan ramalan sahaja — sentiasa pandu mengikut keadaan sebenar yang anda lihat.',
+                  noData:'Memuatkan data kabus…', bannerTitle:'Amaran Keselamatan Kabus' },
+            ta: { title:'மூடுபனி & பார்வைத்தூரம்', clear:'தெளிவு', patchy:'அங்காங்கே மூடுபனி', fog:'மூடுபனி', dense:'அடர் மூடுபனி',
+                  amFog:'காலை மூடுபனி', vis:'பார்வைத்தூரம்', hrs:'ம', drive:'கவனமாக ஓட்டவும் — மலைச்சாலையில் குறைந்த பார்வை',
+                  driveDanger:'⚠️ ஓட்டுவது ஆபத்து — அடர் மூடுபனி. வேகம் குறைக்க, விளக்கு போட, இடைவெளி விட.',
+                  disclaimer:'முன்னறிவிப்பு வழிகாட்டுதல் மட்டுமே — நீங்கள் காணும் உண்மையான நிலைக்கேற்ப ஓட்டவும்.',
+                  noData:'மூடுபனி தரவு ஏற்றுகிறது…', bannerTitle:'மூடுபனி பாதுகாப்பு எச்சரிக்கை' },
+            my: { title:'မြူနှင့် မြင်ကွင်း', clear:'ကြည်လင်', patchy:'မြူစိပ်စိပ်', fog:'မြူထူ', dense:'မြူအလွန်ထူ',
+                  amFog:'နံနက်မြူ', vis:'မြင်ကွင်း', hrs:'နာရီ', drive:'သတိဖြင့်မောင်းပါ — တောင်လမ်းတွင် မြင်ကွင်းနိမ့်',
+                  driveDanger:'⚠️ မောင်းနှင်ရန် အန္တရာယ် — မြူအလွန်ထူ။ နှေးပါ၊ မီးဖွင့်ပါ၊ အကွာအဝေးထားပါ။',
+                  disclaimer:'ခန့်မှန်းချက် လမ်းညွှန်သာ — သင်တွေ့ရသော အမှန်တကယ်အခြေအနေအတိုင်း မောင်းနှင်ပါ။',
+                  noData:'မြူဒေတာ ဖွင့်နေသည်…', bannerTitle:'မြူ ဘေးကင်းရေး သတိပေးချက်' }
+        };
+        const fogT = (lang) => FOG_T[lang] || FOG_T.en;
+        // Map a fog band to color + label.
+        const FOG_BAND = {
+            clear:  { color:'#16a34a' },
+            patchy: { color:'#ca8a00' },
+            fog:    { color:'#ea580c' },
+            dense:  { color:'#b91c1c' }
+        };
+
         // Compute all disease scores for one location, for a given forecast day
         // index (0 = today). `loc` carries elev + zone; `dataObj` is the hourly
         // weather store entry (detailData[id] preferred, weatherData[id] else).
@@ -2208,7 +2358,14 @@
             const _lw          = estimateLeafWetHours(rhArr, tArr, dpArr, rainArr, cloudArr, lwProbDaily);
             const leafWetHrs   = _lw.hours;
             const leafWetSource = _lw.source; // 'model' | 'computed'
-            const fogHrs      = countHoursRHAbove(rhArr, 90);
+            // Fog hours: prefer the proper fog engine (visibility/dew-spread/low-
+            // cloud/wind/elevation); fall back to the RH≥90% proxy if fog data is
+            // unavailable for this slice.
+            let fogHrs = countHoursRHAbove(rhArr, 90);
+            try {
+                const _fog = computeFog(loc, dataObj, dayIdx);
+                if (_fog && _fog.available) fogHrs = _fog.fogHours;
+            } catch (e) { /* keep RH proxy */ }
             const rainMM      = rainArr.reduce((a, b) => a + (b || 0), 0);
             const avgRH       = rhArr.reduce((a, b) => a + (b || 0), 0) / rhArr.length;
             const tMean       = tArr.reduce((a, b) => a + (b || 0), 0) / tArr.length;
@@ -2690,6 +2847,68 @@
         };
         // back-compat alias (old name) so any stray caller still works
         window.renderWeatherTrends = (id) => { try { window.renderPastStrips(id); } catch(e){} };
+
+        // Render the daily FOG forecast row + a prominent driving-safety banner on
+        // dangerous days. Fog on Cameron's steep roads is a real hazard, so the
+        // banner is treated as a safety warning, not a weather nicety.
+        window.renderFogForecast = (id) => {
+            const data = (typeof detailData !== 'undefined') ? detailData[id] : null;
+            const loc = (typeof getAllLocations === 'function') ? getAllLocations().find(l => l.id === id) : null;
+            const lang = (typeof getLang === 'function') ? getLang(id) : 'zh';
+            const T = fogT(lang);
+            const rowSlot = document.getElementById(`ch-fog-row-${id}`);
+            const bannerSlot = document.getElementById(`ch-fog-banner-${id}`);
+            if (!data || !loc) { if (rowSlot) rowSlot.innerHTML = `<div class="ch-fog-empty">${T.noData}</div>`; return; }
+
+            // Compute fog for up to 14 forecast days.
+            const days = [];
+            for (let d = 0; d < 14; d++) {
+                const f = (typeof computeFog === 'function') ? computeFog(loc, data, d) : null;
+                if (f) days.push(f);
+            }
+            if (!days.length) { if (rowSlot) rowSlot.innerHTML = `<div class="ch-fog-empty">${T.noData}</div>`; return; }
+
+            const dowOf = (d) => { const x = new Date(Date.now() + d * 86400000); return (lang === 'en' ? ['Su','Mo','Tu','We','Th','Fr','Sa'] : ['日','一','二','三','四','五','六'])[x.getDay()]; };
+            const bandLabel = (k) => k === 'dense' ? T.dense : k === 'fog' ? T.fog : k === 'patchy' ? T.patchy : T.clear;
+
+            // Daily row: a colored dot per day (worst band), with worst-visibility tip.
+            if (rowSlot) {
+                const cells = days.map((f, d) => {
+                    const col = (FOG_BAND[f.bandKey] || FOG_BAND.clear).color;
+                    const visTxt = f.worstVis != null ? (f.worstVis >= 1000 ? (f.worstVis/1000).toFixed(f.worstVis>=10000?0:1) + 'km' : f.worstVis + 'm') : '';
+                    const op = d >= 7 ? Math.max(0.45, 1 - (d - 6) * 0.07) : 1; // far-day confidence fade
+                    const sep = d === 7 ? 'margin-left:5px;border-left:1px dashed #e2e8f0;padding-left:5px;' : '';
+                    return `<div class="ch-fog-cell" style="opacity:${op};${sep}" title="${bandLabel(f.bandKey)} · ${T.vis} ${visTxt}">
+                        <div class="ch-fog-dot" style="background:${col};">${f.bandKey==='dense'?'!':''}</div>
+                        <div class="ch-fog-dow">${dowOf(d)}</div>
+                    </div>`;
+                }).join('');
+                rowSlot.innerHTML = `<div class="ch-fog-cells">${cells}</div>`;
+            }
+
+            // Banner: only when a dangerous day is in the near (confident) window.
+            // Today/tomorrow dense fog = urgent; a dense day within 3 days = heads-up.
+            if (bannerSlot) {
+                let danger = -1;
+                for (let d = 0; d < Math.min(3, days.length); d++) {
+                    if (days[d].bandKey === 'dense') { danger = d; break; }
+                }
+                if (danger >= 0) {
+                    const f = days[danger];
+                    const whenTxt = danger === 0 ? (lang==='en'?'today':lang==='zh'?'今天':lang==='ms'?'hari ini':'') : danger === 1 ? (lang==='en'?'tomorrow':lang==='zh'?'明天':lang==='ms'?'esok':'') : dowOf(danger);
+                    const amTxt = f.amFogHours >= 1 ? ` (${T.amFog})` : '';
+                    const visTxt = f.worstVis != null ? ` · ${T.vis} ~${f.worstVis < 1000 ? f.worstVis + 'm' : (f.worstVis/1000).toFixed(1) + 'km'}` : '';
+                    bannerSlot.innerHTML = `
+                      <div class="ch-fog-banner">
+                        <div class="ch-fog-banner-title">🌫️ ${T.bannerTitle} · ${whenTxt}${amTxt}</div>
+                        <div class="ch-fog-banner-msg">${T.driveDanger}${visTxt}</div>
+                        <div class="ch-fog-banner-disclaimer">${T.disclaimer}</div>
+                      </div>`;
+                } else {
+                    bannerSlot.innerHTML = '';
+                }
+            }
+        };
         // ============================================================
         // END MICROCLIMATE DISEASE-RISK ENGINE
         // ============================================================
@@ -4115,8 +4334,10 @@
                 setH(`hdr-rainmm-${id}`, cH.rainMM);
                 setH(`hdr-rh-${id}`, cH.rh);
                 setH(`hdr-et0-${id}`, cH.et0);
+                if (typeof fogT === 'function') setH(`hdr-fog-${id}`, fogT(lang).title);
             }
             try { if (typeof window.renderDiseaseDashboard === 'function') window.renderDiseaseDashboard(id); } catch (e) {}
+            try { if (typeof window.renderFogForecast === 'function') window.renderFogForecast(id); } catch (e) {}
             try { if (typeof window.renderPastStrips === 'function') window.renderPastStrips(id); } catch (e) {}
             // Restore scroll on the next frame (after layout settles from re-render).
             requestAnimationFrame(() => { if (scroller) scroller.scrollTop = savedScroll; });
@@ -6383,6 +6604,8 @@
                     <div id="ch-disease-panel-${id}" class="ch-disease-panel"></div>
                 </div>
 
+                <div id="ch-fog-banner-${id}" class="ch-fog-banner-slot"></div>
+
                 <div class="mt-2 mb-2">
                     <button id="ai-btn-${id}" class="ai-btn semi-bleed" style="margin-bottom:0;" onclick="window.handleSmartBriefClick('${id}')"><div class="ai-btn-progress" id="ai-prog-${id}"></div><span id="ai-btn-text-${id}">${labels.brief}</span><div class="ai-loading-spinner" id="ai-spin-${id}"></div></button>
                     <div id="ai-brief-result-${id}" class="ai-result-box relative" style="display:none; margin-top:12px; margin-bottom:12px;">
@@ -6435,6 +6658,7 @@
                 <div class="relative bg-slate-50/10"><div class="row-label-overlay" id="hdr-rainmm-${id}" style="color:#1e3a8a">${cH.rainMM}</div><div class="info-row" id="row-rain-vv-${id}" style="min-height:52px;padding-top:18px;"></div><svg id="trend-layer-vv-${id}" class="trend-layer" height="52"></svg></div>
                 <div id="ch-past-rh-${id}" class="ch-past-strip"></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-rh-${id}" style="color:#0891b2">${cH.rh}</div><div id="ch-rh-forecast-${id}" class="ch-rh-forecast"></div></div>
+                <div class="relative"><div class="row-label-overlay" id="hdr-fog-${id}" style="color:#475569">${fogT(lang).title}</div><div id="ch-fog-row-${id}" class="ch-fog-row"></div></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-et0-${id}" style="color:#059669">${cH.et0}</div><div class="info-row" id="row-et-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-et-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="info-row" id="row-dates-bottom-${id}"></div>
              </div>`;
@@ -6956,6 +7180,7 @@
             // Cameron Highlands: render the microclimate disease dashboard for this location
             try { if (typeof window.renderDiseaseDashboard === 'function') window.renderDiseaseDashboard(id); } catch (e) { console.warn('[disease] dashboard render skipped', e); }
             try { if (typeof window.renderPastStrips === 'function') window.renderPastStrips(id); } catch (e) { console.warn('[paststrips] render skipped', e); }
+            try { if (typeof window.renderFogForecast === 'function') window.renderFogForecast(id); } catch (e) { console.warn('[fog] render skipped', e); }
 
             requestAnimationFrame(() => setTimeout(() => drawTrends(days, id), 50));
         }
