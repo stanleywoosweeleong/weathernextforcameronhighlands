@@ -1086,7 +1086,7 @@
             </button>
             <h3 class="text-lg font-black text-slate-900 mb-2">API Key</h3>
             <p class="text-xs text-slate-500 mb-4">Paste your free Gemini API Key to enable AI features. Get one at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="text-blue-600 underline">aistudio.google.com</a> → "Create API key". Stored only on this device.</p>
-            <input type="text" id="api-key-input" class="w-input" placeholder="AIzaSy..." onkeydown="if(event.key==='Enter') window.submitApiKey()">
+            <input type="text" id="api-key-input" class="w-input" placeholder="Paste your Gemini API key" onkeydown="if(event.key==='Enter') window.submitApiKey()">
             <button onclick="window.submitApiKey()" class="w-btn-primary mt-2 flex items-center justify-center">
                 <span class="mr-2">Save Key</span>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -6053,7 +6053,7 @@
             
             Format as 4 short labeled sections (label in CAPS, then 1-3 sentences). No markdown formatting (no #, *, -, |). 
             
-            MANDATORY: Reply in ${getLangName(id)} language. Total under 140 words.`;
+            MANDATORY: Write your ENTIRE reply — including every section label/heading (translate SEASONAL CONTEXT, YIELD OUTLOOK, QUALITY & GRADE IMPACT, THIS WEEK'S MARKET STRATEGY into the target language; do NOT leave them in English) — in ${getLangName(id)} language. The ONLY thing that may stay in English is a pest or disease's scientific/common name where no good local term exists. Total under 140 words.`;
 
             try {
                 const payload = { contents: [{ parts: [{ text: prompt }] }] };
@@ -6178,7 +6178,7 @@
             
             Format as 3 short labeled paragraphs (1-2 sentences each). No markdown.
             
-            MANDATORY: Reply in ${getLangName(id)} language. Keep total under 90 words.`;
+            MANDATORY: Write your ENTIRE reply — including every section label/heading (translate the CAPS labels above into the target language; do NOT copy them in English) — in ${getLangName(id)} language. Keep total under 90 words.`;
 
             try {
                 const payload = { contents: [{ parts: [{ text: prompt }] }] };
@@ -6236,7 +6236,7 @@
             
             Format as 3 short labeled lines, each starting with the label (Amount / Timing / Frequency). No markdown, no extra paragraphs.
             
-            MANDATORY: Reply in ${getLangName(id)} language. Keep total under 60 words.`;
+            MANDATORY: Write your ENTIRE reply — including every section label/heading (translate the CAPS labels above into the target language; do NOT copy them in English) — in ${getLangName(id)} language. Keep total under 60 words.`;
 
             try {
                 const payload = { contents: [{ parts: [{ text: prompt }] }] };
@@ -6289,7 +6289,7 @@
             
             Format as 3 short labeled paragraphs (1-2 sentences each). No markdown.
             
-            MANDATORY: Reply in ${getLangName(id)} language. Keep total under 80 words.`;
+            MANDATORY: Write your ENTIRE reply — including every section label/heading (translate the CAPS labels above into the target language; do NOT copy them in English) — in ${getLangName(id)} language. Keep total under 80 words.`;
             
             try {
                 const payload = { contents: [{ parts: [{ text: prompt }] }] };
