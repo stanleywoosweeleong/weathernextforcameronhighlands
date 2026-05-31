@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.228 — removed soil-moisture row entirely (weak fit for humid highland farm + ECMWF carries no soil data, AI model only ~7 days): row, header, help card (5 langs), draw block, setH and SVG wiring all removed. VPD spray-timing row retained. Final data rows: ...RH, leaf-wetness, VPD, fog, ET0. bump CACHE_VERSION on each release
+// Version 1.0.230 — help-card use-case signposting: DeltaT card now says 'best for open-field/outdoor spraying', VPD card says 'best for greenhouse/protected cropping', each pointing the other group to the right row. 5 langs. Turns the DeltaT/VPD overlap into per-environment coverage. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605311508';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605311539';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

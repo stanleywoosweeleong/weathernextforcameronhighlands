@@ -3561,6 +3561,8 @@
                 rule2: "Green ≥ 1 = spray is possible — open the day's detail to see WHICH hours are safe",
                 rule3: "Green = 0 (shown as red) = no safe spray window today, skip",
                 rule4: "Watch the purple trend line — if it rises toward 2.0+, mornings are drying out (better spray days coming)",
+                deltaTUseCaseLabel: "Best for:",
+                deltaTUseCase: "open-field / outdoor spraying — DeltaT tracks whether droplets survive the trip from nozzle to leaf in open air (evaporation, drift). Greenhouse growers: use the VPD row instead.",
                 wvet: {
                     title: "WVET — Crop Stress Risk Index",
                     body: "A combined score of heat, humidity, wind, and soil dryness that estimates how stressed your crop is today. The dot color signals severity.",
@@ -3590,7 +3592,9 @@
                     tooDry: "Too dry — spray evaporates before the leaf absorbs it; skip or spray at cooler hours",
                     rule1: "Green band is your best spray window; blue means wait for the leaf to dry",
                     rule2: "Red band = don't spray midday — move to early morning or late afternoon when VPD drops",
-                    rule3: "Read VPD with wind and Delta-T (temp row): all three need to be in range for a clean spray"
+                    rule3: "Read VPD with wind and Delta-T (temp row): all three need to be in range for a clean spray",
+                    useCaseLabel: "Best for:",
+                    useCase: "greenhouse / protected cropping — VPD governs whether the canopy sits wet, whether the plant is transpiring (so foliar feed absorbs), and disease pressure in still, humid air. Open-field growers: use the DeltaT row (temp row) instead."
                 },
                 cloud: {
                     title: "Cloud (%) & CB Risk",
@@ -3663,6 +3667,8 @@
                 rule2: "绿色 ≥ 1 = 可喷洒 — 打开当日详情查看具体安全时段",
                 rule3: "绿色 = 0（显示红色）= 今日无安全窗口，请跳过",
                 rule4: "观察紫色趋势线 — 若上升接近 2.0+，清晨在变干（接下来几日更适合喷洒）",
+                deltaTUseCaseLabel: "最适合：",
+                deltaTUseCase: "露天 / 户外喷洒 — DeltaT 反映药滴在开放空气中从喷头到叶片是否存活（蒸发、飘移）。温室种植者：请改看 VPD 行。",
                 wvet: {
                     title: "WVET — 作物压力风险指数",
                     body: "综合气温、湿度、风力、土壤干燥度的评分，估算今日作物所承受的压力。圆点颜色显示严重程度。",
@@ -3692,7 +3698,9 @@
                     tooDry: "太干——叶面吸收前药液已蒸发；跳过或选较凉时段喷",
                     rule1: "绿色区是最佳喷药时段；蓝色表示等叶面干了再喷",
                     rule2: "红色区 = 午间勿喷——改在清晨或傍晚 VPD 下降时",
-                    rule3: "VPD 要与风速和 Delta-T（温度行）一起看：三者都在范围内才是干净的喷药条件"
+                    rule3: "VPD 要与风速和 Delta-T（温度行）一起看：三者都在范围内才是干净的喷药条件",
+                    useCaseLabel: "最适合：",
+                    useCase: "温室 / 保护地栽培 — VPD 决定冠层是否潮湿、植株是否在蒸腾（叶面肥能否吸收），以及静止潮湿空气中的病害压力。露天种植者：请改看 DeltaT 行（温度行）。"
                 },
                 cloud: {
                     title: "云量 (%) 与 CB 风险",
@@ -3765,6 +3773,8 @@
                 rule2: "Hijau ≥ 1 = semburan boleh — buka butiran hari untuk lihat jam MANA yang selamat",
                 rule3: "Hijau = 0 (ditunjukkan merah) = tiada tetingkap selamat hari ini, langkau",
                 rule4: "Perhatikan garis tren ungu — jika naik ke 2.0+, pagi semakin kering (hari semburan lebih baik akan datang)",
+                deltaTUseCaseLabel: "Sesuai untuk:",
+                deltaTUseCase: "semburan ladang terbuka / luar — DeltaT menjejak sama ada titisan bertahan dari muncung ke daun di udara terbuka (penyejatan, hanyutan). Penanam rumah hijau: guna baris VPD.",
                 wvet: {
                     title: "WVET — Indeks Risiko Tekanan Tanaman",
                     body: "Skor gabungan haba, kelembapan, angin, dan kekeringan tanah yang menganggar tekanan tanaman hari ini. Warna titik menunjukkan keterukan.",
@@ -3794,7 +3804,9 @@
                     tooDry: "Terlalu kering — semburan tersejat sebelum daun menyerap; langkau atau sembur waktu lebih sejuk",
                     rule1: "Jalur hijau ialah tetingkap semburan terbaik; biru bermaksud tunggu daun kering",
                     rule2: "Jalur merah = jangan sembur tengah hari — beralih ke awal pagi atau lewat petang bila VPD turun",
-                    rule3: "Baca VPD bersama angin dan Delta-T (baris suhu): ketiga-tiganya perlu dalam julat untuk semburan bersih"
+                    rule3: "Baca VPD bersama angin dan Delta-T (baris suhu): ketiga-tiganya perlu dalam julat untuk semburan bersih",
+                    useCaseLabel: "Sesuai untuk:",
+                    useCase: "rumah hijau / tanaman terlindung — VPD menentukan sama ada kanopi basah, sama ada pokok bertranspirasi (baja daun diserap), dan tekanan penyakit dalam udara lembap tenang. Penanam ladang terbuka: guna baris DeltaT (baris suhu)."
                 },
                 cloud: {
                     title: "Awan (%) & Risiko CB",
@@ -3867,6 +3879,8 @@
                 rule2: "பச்சை ≥ 1 = தெளிக்கலாம் — எந்த மணிநேரங்கள் பாதுகாப்பானவை என்று பார்க்க அன்றைய விவரங்களைத் திறக்கவும்",
                 rule3: "பச்சை = 0 (சிவப்பாகக் காட்டப்படும்) = இன்று பாதுகாப்பான சாளரம் இல்லை, தவிர்க்கவும்",
                 rule4: "ஊதா போக்கு கோட்டைப் பாருங்கள் — அது 2.0+ ஆக உயர்ந்தால், காலைகள் வறண்டு வருகின்றன (சிறந்த தெளிப்பு நாட்கள் வருகின்றன)",
+                deltaTUseCaseLabel: "ஏற்றது:",
+                deltaTUseCase: "திறந்தவெளி / வெளிப்புற தெளிப்பு — திறந்த காற்றில் துளிகள் நாஸ்ஸலில் இருந்து இலைக்கு பயணிக்கும்போது தாக்குப்பிடிக்குமா என DeltaT காட்டுகிறது. கிரீன்ஹவுஸ் விவசாயிகள்: VPD வரிசையைப் பயன்படுத்தவும்.",
                 wvet: {
                     title: "WVET — பயிர் அழுத்த ஆபத்து குறியீடு",
                     body: "வெப்பம், ஈரப்பதம், காற்று, மற்றும் மண் வறட்சியின் ஒருங்கிணைந்த மதிப்பெண் — இன்று உங்கள் பயிர் எவ்வளவு அழுத்தத்தில் உள்ளது என்பதை மதிப்பிடுகிறது.",
@@ -3896,7 +3910,9 @@
                     tooDry: "மிக உலர் — இலை உறிஞ்சும் முன் தெளிப்பு ஆவியாகும்; தவிர்க்கவும் அல்லது குளிர்ந்த நேரத்தில் தெளிக்கவும்",
                     rule1: "பச்சை பட்டை சிறந்த தெளிப்பு நேரம்; நீலம் என்றால் இலை உலரும் வரை காத்திருங்கள்",
                     rule2: "சிவப்பு பட்டை = மதியம் தெளிக்க வேண்டாம் — VPD குறையும் அதிகாலை அல்லது மாலையில் செய்யுங்கள்",
-                    rule3: "VPD ஐ காற்று மற்றும் Delta-T (வெப்பநிலை வரிசை) உடன் படியுங்கள்: சுத்தமான தெளிப்புக்கு மூன்றும் வரம்பில் இருக்க வேண்டும்"
+                    rule3: "VPD ஐ காற்று மற்றும் Delta-T (வெப்பநிலை வரிசை) உடன் படியுங்கள்: சுத்தமான தெளிப்புக்கு மூன்றும் வரம்பில் இருக்க வேண்டும்",
+                    useCaseLabel: "ஏற்றது:",
+                    useCase: "கிரீன்ஹவுஸ் / பாதுகாக்கப்பட்ட பயிர் — விதானம் ஈரமாக உள்ளதா, செடி டிரான்ஸ்பிரேஷன் செய்கிறதா (இலை உரம் உறிஞ்சப்படும்), அமைதியான ஈரக் காற்றில் நோய் அழுத்தம் ஆகியவற்றை VPD நிர்ணயிக்கிறது. திறந்தவெளி விவசாயிகள்: DeltaT வரிசையைப் (வெப்பநிலை வரிசை) பயன்படுத்தவும்."
                 },
                 cloud: {
                     title: "மேகம் (%) & CB ஆபத்து",
@@ -3969,6 +3985,8 @@
                 rule2: "အစိမ်း ≥ ၁ = ဆေးပက်နိုင် — မည်သည့်နာရီများ လုံခြုံသည်ကို ကြည့်ရန် ထိုနေ့၏ အသေးစိတ်ကို ဖွင့်ပါ",
                 rule3: "အစိမ်း = ၀ (အနီအဖြစ်ပြ) = ယနေ့ လုံခြုံသော ဝင်းဒိုးမရှိ၊ ကျော်ပါ",
                 rule4: "ခရမ်းရောင် ဦးတည်ချက်လိုင်းကို ကြည့်ပါ — 2.0+ သို့ တက်လာပါက နံနက်များ ပိုခြောက်လာ (ဆေးပက်ရန် ပိုကောင်းသောနေ့များ လာမည်)",
+                deltaTUseCaseLabel: "သင့်တော်ဆုံး:",
+                deltaTUseCase: "လွင်ပြင် / အပြင်ဘက် ဆေးဖျန်းခြင်း — ပွင့်လင်းလေထဲတွင် ဆေးစက်များ ခေါင်းမှ အရွက်သို့ ခရီးရောက်မရောက် DeltaT က ခြေရာခံသည်။ ဖန်လုံအိမ်စိုက်သူများ: VPD အတန်းကို သုံးပါ။",
                 wvet: {
                     title: "WVET — သီးနှံ ဖိစီးမှု အန္တရာယ်အညွှန်း",
                     body: "အပူ၊ စိုထိုင်းဆ၊ လေ၊ နှင့် မြေဆီခြောက်သွေ့မှု၏ ပေါင်းစပ်ရမှတ် — ယနေ့ သင်၏သီးနှံ မည်မျှဖိစီးနေသည်ကို ခန့်မှန်းသည်။",
@@ -3998,7 +4016,9 @@
                     tooDry: "အလွန်ခြောက် — အရွက်မစုပ်မီ ဆေးငွေ့ပျံသွားသည်၊ ကျော်ပါ သို့မဟုတ် အေးသောနာရီတွင်ဖျန်းပါ",
                     rule1: "အစိမ်းအဆင့်သည် အကောင်းဆုံးဖျန်းချိန်၊ အပြာဆိုလျှင် အရွက်ခြောက်သည်အထိစောင့်ပါ",
                     rule2: "အနီအဆင့် = နေ့လယ်မဖျန်းပါနှင့် — VPD ကျဆင်းသော နံနက်စောစော သို့မဟုတ် ညနေပိုင်းသို့ ပြောင်းပါ",
-                    rule3: "VPD ကို လေနှင့် Delta-T (အပူချိန်အတန်း) နှင့်တွဲဖတ်ပါ — သန့်ရှင်းသောဖျန်းမှုအတွက် သုံးခုလုံး အကွာအဝေးအတွင်းရှိရမည်"
+                    rule3: "VPD ကို လေနှင့် Delta-T (အပူချိန်အတန်း) နှင့်တွဲဖတ်ပါ — သန့်ရှင်းသောဖျန်းမှုအတွက် သုံးခုလုံး အကွာအဝေးအတွင်းရှိရမည်",
+                    useCaseLabel: "သင့်တော်ဆုံး:",
+                    useCase: "ဖန်လုံအိမ် / အကာအကွယ်စိုက်ပျိုးရေး — အရွက်ထီးစိုနေသလား၊ အပင်က ရေငွေ့ထုတ်နေသလား (အရွက်မြေသြဇာစုပ်ယူနိုင်)၊ ငြိမ်သက်စိုစွတ်လေထဲ ရောဂါဖိစီးမှုကို VPD က ဆုံးဖြတ်သည်။ လွင်ပြင်စိုက်သူများ: DeltaT အတန်း (အပူချိန်အတန်း) ကို သုံးပါ။"
                 },
                 cloud: {
                     title: "တိမ် (%) နှင့် CB အန္တရာယ်",
@@ -4142,6 +4162,9 @@
                             <div style="margin-bottom:4px;">• ${t.rule3}</div>
                             <div>• ${t.rule4}</div>
                         </div>
+                    </div>
+                    <div class="help-card-section" style="background:#f5f3ff; border-left:3px solid #7e22ce; border-radius:4px; padding:8px 10px;">
+                        <div style="font-size:11px; line-height:1.6; color:#1e293b;"><b style="color:#6d28d9;">${t.deltaTUseCaseLabel || 'Best for:'}</b> ${t.deltaTUseCase || 'open-field / outdoor spraying — DeltaT tracks whether droplets survive the trip from nozzle to leaf in open air. Greenhouse growers: use the VPD row instead.'}</div>
                     </div>
                 `;
             } else if (rowType === 'wvet') {
@@ -4319,6 +4342,9 @@
                             <div style="margin-bottom:4px;">• ${vp.rule2}</div>
                             <div>• ${vp.rule3}</div>
                         </div>
+                    </div>
+                    <div class="help-card-section" style="background:#fffbeb; border-left:3px solid #b45309; border-radius:4px; padding:8px 10px;">
+                        <div style="font-size:11px; line-height:1.6; color:#1e293b;"><b style="color:#b45309;">${vp.useCaseLabel || 'Best for:'}</b> ${vp.useCase || 'greenhouse / protected cropping — VPD governs whether the canopy sits wet, whether the plant is transpiring and will take up foliar feed, and disease pressure in enclosed humid air. Open-field growers: use the DeltaT row (temp row) instead.'}</div>
                     </div>
                 `;
             }
@@ -6905,7 +6931,18 @@
                 const tS = map.temperature_2m?.slice(start, start+24) || [], dpS = map.dew_point_2m?.slice(start, start+24) || [];
                 if (tS.length > 0) {
                     const current8AmT = map.temperature_2m?.[k8], current8AmDP = map.dew_point_2m?.[k8];
-                    const dT8 = (current8AmT!==undefined && current8AmDP!==undefined) ? Math.round((current8AmT - current8AmDP)*10)/10 : null;
+                    // TRUE Delta T = dry-bulb − WET-BULB (the spray-industry standard), not
+                    // dry-bulb − dew point. Dew-point depression always overstates Delta T
+                    // (wet-bulb sits between air temp and dew point), which in humid Cameron
+                    // mornings can falsely push a reading into the 2–8 "safe" band. We already
+                    // fetch wet_bulb_temperature_2m, so use it directly; fall back to the
+                    // dew-point approximation only if wet-bulb is unavailable for this model.
+                    const current8AmWB = map.wet_bulb_temperature_2m?.[k8];
+                    const dT8 = (current8AmT !== undefined && current8AmWB !== undefined)
+                        ? Math.round((current8AmT - current8AmWB) * 10) / 10
+                        : (current8AmT !== undefined && current8AmDP !== undefined)
+                            ? Math.round((current8AmT - current8AmDP) * 10) / 10
+                            : null;
                     const etS = map.et0_fao_evapotranspiration?.slice(start, start+24).reduce((a,b)=>a+b,0) || 0;
                     
                     // ===== HELPER FUNCTIONS =====
@@ -7173,7 +7210,12 @@
                     for(let h=0; h<24; h++){
                         const idx = start + h; if(idx < HOURS_LEN){
                             const w = map.windspeed_2m?.[idx] || map.windspeed_10m?.[idx] || 0, hT = map.temperature_2m?.[idx], hDP = map.dew_point_2m?.[idx];
-                            const hDT = (hT!==undefined && hDP!==undefined) ? (hT - hDP) : null;
+                            // True Delta T = dry-bulb − wet-bulb (matches the displayed dT8);
+                            // fall back to dew-point depression only if wet-bulb is missing.
+                            const hWB = map.wet_bulb_temperature_2m?.[idx];
+                            const hDT = (hT !== undefined && hWB !== undefined) ? (hT - hWB)
+                                      : (hT !== undefined && hDP !== undefined) ? (hT - hDP)
+                                      : null;
                             const res = calculateWVET(w, map.vapour_pressure_deficit?.[idx]||0, etS, map.windgusts_10m?.[idx]||0, crop, hDT);
                             if(res.canSpray) safe++;
                         }
