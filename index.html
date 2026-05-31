@@ -452,6 +452,14 @@
             border: 1px solid #e2e8f0; border-radius: 8px;
             padding: 14px;
         }
+        /* Phase 2: compact one-line microclimate (zone · elev · accuracy) */
+        .ch-mc-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 11px; color: #475569; padding: 2px 0 8px; border-bottom: 1px solid #f1f5f9; }
+        .ch-mc-item { white-space: nowrap; }
+        .ch-mc-item b { color: #0f172a; font-weight: 800; }
+        .ch-mc-acc { white-space: nowrap; }
+        .ch-mc-err { font-size: 10px; color: #94a3b8; white-space: nowrap; }
+        .ch-mc-info { font-size: 12px; color: #94a3b8; cursor: pointer; margin-left: 2px; user-select: none; }
+        .ch-mc-info:active { color: #475569; }
         .ch-disease-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
         .ch-disease-title { font-size: 12px; font-weight: 800; color: #0f172a; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.04em; }
         .ch-disease-sub { font-size: 10px; font-weight: 500; color: #94a3b8; margin-top: 3px; text-transform: none; letter-spacing: 0; }
@@ -2650,7 +2658,7 @@
                   hrs: '小时', advice: '建议', noData: '正在载入天气数据…',
                   pressure3d: '近3天累积', pastWet: '潮湿天数', recentRain: '近3天实际雨量',
                   presUp: '↑ 病压上升(近期持续潮湿)', presDown: '↓ 病压下降(近期转干)', presFlat: '病压平稳',
-                  fcAcc: '预报准确度', fcAccReg: '区域平均', fcDays: '天', fcRainErr: '雨量误差', fcNoData: '准确度累积中(需数天数据)',
+                  fcAcc: '预报准确度', fcAccReg: '区域平均', fcDays: '天', fcRainErr: '雨量误差', fcNoData: '准确度累积中(需数天数据)', fcExplainTitle: '预报准确度如何运作', fcExplain: '本应用会每天把「预报」与「实际发生」做比较,然后在本机累积评分(每部手机各自独立)。刚开始使用时没有历史可比,所以需要几天到几周才能显示稳定的准确度。这不是故障 —— 您用得越久,评分越能真实反映本地预报的可靠度。山区的雨和雾本来就较难预报,因此评分有高有低是正常且诚实的。',
                   fcHigh: '高', fcMed: '中', fcLow: '偏低',
                   srcModel: '数据源', srcLwModel: '叶面湿润: 模型原生', srcLwComputed: '叶面湿润: RH/露点/雨/云 推算',
                   diseaseRisk: '病害风险',
@@ -2664,7 +2672,7 @@
                   hrs: 'h', advice: 'Action', noData: 'Loading weather data…',
                   pressure3d: '3-day buildup', pastWet: 'wet days', recentRain: 'actual rain (3d)',
                   presUp: '↑ Rising (recent wet spell)', presDown: '↓ Easing (recently drier)', presFlat: 'Steady pressure',
-                  fcAcc: 'Forecast accuracy', fcAccReg: 'regional avg', fcDays: 'd', fcRainErr: 'rain error', fcNoData: 'Accuracy building (needs a few days)',
+                  fcAcc: 'Forecast accuracy', fcAccReg: 'regional avg', fcDays: 'd', fcRainErr: 'rain error', fcNoData: 'Accuracy building (needs a few days)', fcExplainTitle: 'How forecast accuracy works', fcExplain: 'Each day the app compares the FORECAST against what ACTUALLY happened and builds a score on THIS device (each phone tracks its own). When you first start there is no history to compare, so it takes a few days to a few weeks to show a stable accuracy. This is not a fault — the longer you use it, the more truthfully the score reflects how reliable the local forecast is. Highland rain and fog are genuinely hard to forecast, so a mix of high and low scores is normal and honest.',
                   fcHigh: 'High', fcMed: 'Fair', fcLow: 'Low',
                   srcModel: 'Source', srcLwModel: 'Leaf wetness: model native', srcLwComputed: 'Leaf wetness: derived (RH/dew/rain/cloud)',
                   diseaseRisk: 'Disease risk',
@@ -2709,40 +2717,29 @@
             const reg = (typeof window.getRegionalAccuracy === 'function') ? window.getRegionalAccuracy() : { available: false };
             const accColor = (s) => s >= 75 ? '#15803d' : s >= 50 ? '#ca8a00' : '#b91c1c';
             const accLabel = (s) => s >= 75 ? T.fcHigh : s >= 50 ? T.fcMed : T.fcLow;
-            let accuracyHtml = '';
+            // Inline accuracy fragment (Option A: one compact line, no box).
+            // A small tappable ⓘ explains how accuracy works + sets the time
+            // expectation (it builds per-device over days/weeks), so a new user
+            // understands the early empty/low state is normal, not a defect.
+            const accInfoBtn = `<span class="ch-mc-info" onclick="window.showAccuracyInfo('${id}')" title="${T.fcExplainTitle || ''}">ⓘ</span>`;
+            let accInline = '';
             if (acc.available) {
                 const c = accColor(acc.score);
-                accuracyHtml = `
-                <div class="ch-acc" style="border-color:${c}33;">
-                    <div class="ch-acc-main">
-                        <span class="ch-acc-label">🎯 ${T.fcAcc}</span>
-                        <span class="ch-acc-score" style="color:${c};">${acc.score}% · ${accLabel(acc.score)}</span>
-                    </div>
-                    <div class="ch-acc-sub">
-                        <span>🌧️ ${T.fcRainErr}: <b>±${acc.avgRainErr}mm</b></span>
-                        <span>🌡️ <b>±${acc.avgTempErr}°</b></span>
-                        <span>💦 <b>±${acc.avgRhErr}%</b></span>
-                        <span>· ${acc.n}${T.fcDays}</span>
-                        ${reg.available ? `<span>· ${T.fcAccReg} <b style="color:${accColor(reg.score)};">${reg.score}%</b></span>` : ''}
-                    </div>
-                </div>`;
+                accInline = `<span class="ch-mc-acc">🎯 <b style="color:${c};">${acc.score}% ${accLabel(acc.score)}</b></span>` +
+                            `<span class="ch-mc-err">±${acc.avgRainErr}mm ±${acc.avgTempErr}° ±${acc.avgRhErr}%${reg.available ? ` · ${T.fcAccReg} ${reg.score}%` : ''}</span>` +
+                            accInfoBtn;
             } else {
-                accuracyHtml = `<div class="ch-acc ch-acc-empty">🎯 ${T.fcAcc}: ${T.fcNoData}</div>`;
+                accInline = `<span class="ch-mc-acc" style="color:#94a3b8;">🎯 ${T.fcNoData}</span>` + accInfoBtn;
             }
 
-            // Slim panel (Phase 1): we keep only the weather-relevant signals —
-            // zone, elevation, past-3-day pressure + rainfall, forecast accuracy,
-            // and the key-index drivers. The disease bars / 14-day strip / advice
-            // were removed from this screen (disease Q&A now lives in AI Tools).
+            // Slim panel (Phase 2 — Option A): a single compact inline row
+            // (zone · elevation · accuracy), no card/box/pills. Frees vertical space
+            // so the fog safety warning can sit higher.
             const m = today.metrics;
 
             slot.innerHTML = `
-              <div class="ch-disease-card">
-                <div class="ch-disease-meta">
-                    <span class="ch-chip">📍 ${T.zone}: <b>${zoneLabel}</b></span>
-                    <span class="ch-chip">⛰️ ${T.elevation}: <b>${loc.elev ? loc.elev + 'm' : '—'}</b> · ${lang==='zh'?elev.zh:elev.en}</span>
-                </div>
-                ${accuracyHtml}
+              <div class="ch-mc-line">
+                ${accInline}
               </div>`;
         };
 
@@ -5240,6 +5237,18 @@
         // ... [Confirm/Edit/Delete/Restore Logic Retained] ...
         let pendingConfirmAction = null;
         window.showConfirm = (msg, action) => { const el = document.getElementById('confirm-modal'); const msgEl = document.getElementById('confirm-msg'); if(el && msgEl) { msgEl.innerText = msg; pendingConfirmAction = action; el.classList.remove('hidden'); } };
+
+        // Explain how forecast accuracy works (it builds per-device over days/weeks).
+        // Sets the right expectation so a new user doesn't abandon the app before
+        // the accuracy feature has had time to accumulate data.
+        window.showAccuracyInfo = (id) => {
+            const lang = (typeof getLang === 'function') ? getLang(id) : 'zh';
+            const T = (lang === 'zh') ? DASH_T.zh : Object.assign({}, DASH_T.en, DASH_T[lang] || {});
+            const title = T.fcExplainTitle || DASH_T.en.fcExplainTitle;
+            const body = T.fcExplain || DASH_T.en.fcExplain;
+            // Reuse the confirm modal as a simple acknowledge-only info popup.
+            window.showConfirm(`${title}\n\n${body}`, null);
+        };
         window.closeConfirm = (isConfirmed) => { document.getElementById('confirm-modal').classList.add('hidden'); if (isConfirmed && pendingConfirmAction) { pendingConfirmAction(); } pendingConfirmAction = null; };
         window.openEditModal = (id) => { editingId = id; const loc = getAllLocations().find(l => l.id === id); const custom = renamedLocations[id]; document.getElementById('edit-name-en').value = custom ? custom.en : (loc.en || ''); document.getElementById('edit-name-zh').value = custom ? custom.zh : (loc.zh || ''); document.getElementById('edit-lat').value = loc ? String(loc.lat) : ''; document.getElementById('edit-lng').value = loc ? String(loc.lng) : ''; const elevField = document.getElementById('edit-elev'); if (elevField) { elevField.value = (typeof manualElevations[id] === 'number') ? String(manualElevations[id]) : ''; elevField.placeholder = (loc && typeof loc.elev === 'number') ? `${loc.elev}m (${loc.elevSource === 'grid' ? 'GPS' : loc.elevSource === 'manual' ? '手动 manual' : '默认 default'})` : '留空用GPS / blank = GPS'; } document.getElementById('edit-modal').classList.remove('hidden'); closeCardActions(id); };
         // saveNameEdit (now: save name + GPS) — handles both the name overlay
@@ -6640,12 +6649,6 @@
                 </div>` : ''}
                 
                 <div class="mt-2 mb-2">
-                    <div id="ch-disease-panel-${id}" class="ch-disease-panel"></div>
-                </div>
-
-                <div id="ch-fog-banner-${id}" class="ch-fog-banner-slot"></div>
-
-                <div class="mt-2 mb-2">
                     <button id="ai-btn-${id}" class="ai-btn semi-bleed" style="margin-bottom:0;" onclick="window.handleSmartBriefClick('${id}')"><div class="ai-btn-progress" id="ai-prog-${id}"></div><span id="ai-btn-text-${id}">${labels.brief}</span><div class="ai-loading-spinner" id="ai-spin-${id}"></div></button>
                     <div id="ai-brief-result-${id}" class="ai-result-box relative" style="display:none; margin-top:12px; margin-bottom:12px;">
                         <div id="ai-content-brief-${id}"></div>
@@ -6683,6 +6686,12 @@
 
                     <!-- Removed Chat UI as integrated into Smart Briefing -->
                 </div>
+
+                <div class="mt-2 mb-2">
+                    <div id="ch-disease-panel-${id}" class="ch-disease-panel"></div>
+                </div>
+
+                <div id="ch-fog-banner-${id}" class="ch-fog-banner-slot"></div>
 
                 <div class="info-row" id="row-dates-top-${id}"></div>
                 <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" id="hdr-wvet-${id}" style="color: #b45309;">${cH.wvet}<span class="help-icon-btn" id="help-icon-wvet-${id}" onclick="window.toggleHelpCard('${id}', 'wvet')" title="What is WVET?">?</span></div><div id="help-card-wvet-${id}" class="help-card"></div><div class="info-row" id="row-wvet-${id}" style="min-height: 60px; padding-top: 14px;"></div></div>

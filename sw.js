@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.209 — fog now properly passed to ALL AI tools (band, dense/AM hours, worst visibility) for spray/dry/harvest/travel-safety reasoning; fixed old high-RH mislabel. bump CACHE_VERSION on each release
+// Version 1.0.213 — added tappable accuracy-explanation note (builds per-device over days/weeks; early empty state is normal) in 5 langs. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606012710';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606013110';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
