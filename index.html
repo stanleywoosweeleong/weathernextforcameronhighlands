@@ -447,35 +447,12 @@
            no shadows, no rounded-pill emoji chrome) — so it reads as an intentional
            part of the report, not a bolted-on widget. */
         .ch-disease-loading { font-size: 12px; font-weight: 600; color: #64748b; padding: 14px; text-align: center; }
-        .ch-disease-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0; border-radius: 8px;
-            padding: 14px;
-        }
         /* Phase 2: compact one-line microclimate (zone · elev · accuracy) */
         .ch-mc-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 11px; color: #475569; padding: 2px 0 8px; border-bottom: 1px solid #f1f5f9; }
         .ch-mc-item { white-space: nowrap; }
         .ch-mc-item b { color: #0f172a; font-weight: 800; }
         .ch-mc-acc { white-space: nowrap; }
         .ch-mc-err { font-size: 10px; color: #94a3b8; white-space: nowrap; }
-        .ch-mc-info { font-size: 12px; color: #94a3b8; cursor: pointer; margin-left: 2px; user-select: none; }
-        .ch-mc-info:active { color: #475569; }
-        .ch-disease-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9; }
-        .ch-disease-title { font-size: 12px; font-weight: 800; color: #0f172a; line-height: 1.2; text-transform: uppercase; letter-spacing: 0.04em; }
-        .ch-disease-sub { font-size: 10px; font-weight: 500; color: #94a3b8; margin-top: 3px; text-transform: none; letter-spacing: 0; }
-        /* Headline risk reads as a plain colored value, not a filled pill. */
-        .ch-disease-badge { font-size: 14px; font-weight: 800; white-space: nowrap; flex-shrink: 0; }
-        .ch-disease-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-        .ch-chip { font-size: 10.5px; font-weight: 500; color: #475569; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 6px; padding: 4px 8px; }
-        .ch-chip b { font-weight: 800; color: #0f172a; }
-        /* Forecast-accuracy badge — flat, matches the data rows. */
-        .ch-acc { border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; margin-bottom: 12px; background: #ffffff; }
-        .ch-acc-main { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-        .ch-acc-label { font-size: 10px; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.06em; }
-        .ch-acc-score { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
-        .ch-acc-sub { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; font-size: 10.5px; font-weight: 500; color: #64748b; }
-        .ch-acc-sub b { font-weight: 800; color: #334155; }
-        .ch-acc-empty { font-size: 10.5px; font-weight: 600; color: #94a3b8; background: #f8fafc; }
         .ch-section-lbl { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #475569; margin: 14px 0 6px; }
         .ch-strip { display: flex; gap: 3px; }
         .ch-day { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; }
@@ -5266,15 +5243,6 @@
         // Explain how forecast accuracy works (it builds per-device over days/weeks).
         // Sets the right expectation so a new user doesn't abandon the app before
         // the accuracy feature has had time to accumulate data.
-        window.showAccuracyInfo = (id) => {
-            const lang = (typeof getLang === 'function') ? getLang(id) : 'zh';
-            const T = (lang === 'zh') ? DASH_T.zh : Object.assign({}, DASH_T.en, DASH_T[lang] || {});
-            const title = T.fcExplainTitle || DASH_T.en.fcExplainTitle;
-            const body = T.fcExplain || DASH_T.en.fcExplain;
-            // Reuse the confirm modal as a simple acknowledge-only info popup, with
-            // the localized title in the header (not the body).
-            window.showConfirm(body, null, title, true);
-        };
         window.closeConfirm = (isConfirmed) => { document.getElementById('confirm-modal').classList.add('hidden'); if (isConfirmed && pendingConfirmAction) { pendingConfirmAction(); } pendingConfirmAction = null; };
         window.openEditModal = (id) => { editingId = id; const loc = getAllLocations().find(l => l.id === id); const custom = renamedLocations[id]; document.getElementById('edit-name-en').value = custom ? custom.en : (loc.en || ''); document.getElementById('edit-name-zh').value = custom ? custom.zh : (loc.zh || ''); document.getElementById('edit-lat').value = loc ? String(loc.lat) : ''; document.getElementById('edit-lng').value = loc ? String(loc.lng) : ''; const elevField = document.getElementById('edit-elev'); if (elevField) { elevField.value = (typeof manualElevations[id] === 'number') ? String(manualElevations[id]) : ''; elevField.placeholder = (loc && typeof loc.elev === 'number') ? `${loc.elev}m (${loc.elevSource === 'grid' ? 'GPS' : loc.elevSource === 'manual' ? '手动 manual' : '默认 default'})` : '留空用GPS / blank = GPS'; } document.getElementById('edit-modal').classList.remove('hidden'); closeCardActions(id); };
         // saveNameEdit (now: save name + GPS) — handles both the name overlay
@@ -6479,10 +6447,6 @@
              }
         };
 
-        window.toggleSoilAdvisor = (id) => {
-             const ui = document.getElementById(`soil-ui-${id}`);
-             if(ui) ui.style.display = ui.style.display === 'none' ? 'block' : 'none';
-        };
         
         // Added missing function to toggle AI Tools panel
         window.toggleAiTools = (id) => {
@@ -6492,158 +6456,10 @@
              }
         };
 
-        window.consultSoil = async (id) => {
-            const input = document.getElementById(`soil-input-${id}`);
-            const result = document.getElementById(`soil-result-${id}`);
-            const btn = document.getElementById(`soil-btn-${id}`);
-            if(!input || !result || !btn || !input.value.trim()) return;
-            const labels = getTrans(id);
 
-            const desc = input.value.trim();
-            // Updated: Spinner on RIGHT side (ml-2)
-            btn.disabled = true; 
-            btn.innerHTML = `✨ ${labels.rec}<div class="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin ml-2 inline-block"></div>`;
-            result.style.display = 'block'; result.innerText = labels.consult;
 
-            // UPDATED: Inject Crop Context
-            const crop = getLocalizedCropName(locationCrops[id] || 'leafy', getLang(id));
-            const ctx = window.getShortWeatherContext(id, 7);
-            
-            const prompt = `${getStrictCropExpertPrefix(id)}
-            
-            You are now also acting as a Soil Scientist and Fertilizer Advisor for ${crop} in Malaysia.
-            
-            User-Reported Soil Condition: "${desc}".
-            Weather Forecast (next 7 days): "${ctx}".
-            
-            TASK: Provide a structured soil & fertilizer recommendation for ${crop} covering exactly these 3 labeled sections:
-            1. SOIL ASSESSMENT: Identify the key soil issue(s) from the user's description (e.g. drainage, pH, leaching tendency, organic matter, compaction) and how it affects ${crop} specifically.
-            2. FERTILIZER RECOMMENDATION: Suggest a specific NPK ratio or fertilizer type appropriate for ${crop} given the soil condition (e.g. "NPK 12-12-17 at 0.5kg/tree" or "compost + slow-release K"). Include amendment if needed (lime, gypsum, organic matter).
-            3. APPLICATION TIMING: Best window to apply within the next 7 days based on the weather forecast — avoid applying before heavy rain (leaching) or during extreme heat. State which day(s) and time-of-day.
-            
-            Format as 3 short labeled paragraphs (1-2 sentences each). No markdown.
-            
-            MANDATORY: Write your ENTIRE reply — including every section label/heading (translate the CAPS labels above into the target language; do NOT copy them in English) — in ${getLangName(id)} language. Keep total under 90 words.`;
 
-            try {
-                const payload = { contents: [{ parts: [{ text: prompt }] }] };
-                const res = await fetchGemini(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`, payload);
-                if(!res.ok) throw new Error("API Error");
-                const data = await res.json();
-                result.innerText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            } catch(e) {
-                result.innerText = "Consultation failed.";
-            } finally {
-                btn.disabled = false; btn.innerText = "✨ " + labels.rec;
-            }
-        };
 
-        window.toggleIrrigation = (id) => {
-            const ui = document.getElementById(`irrig-ui-${id}`);
-            if(ui) ui.style.display = ui.style.display === 'none' ? 'block' : 'none';
-        };
-
-        window.calculateIrrigation = async (id) => {
-            const input = document.getElementById(`irrig-input-${id}`);
-            const result = document.getElementById(`irrig-result-${id}`);
-            const btn = document.getElementById(`irrig-btn-${id}`);
-            if(!input || !result || !btn || !input.value.trim()) return;
-            const labels = getTrans(id);
-
-            const treeInfo = input.value.trim();
-            // Updated: Spinner on RIGHT side (ml-2)
-            btn.disabled = true; 
-            btn.innerHTML = `✨ ${labels.calc}<div class="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin ml-2 inline-block"></div>`;
-            // Added: Ensure result box shows loading state immediately
-            result.style.display = 'block'; result.innerText = labels.consult;
-            
-            const h = detailData[id];
-            let et0 = 0, rain = 0;
-            if(h) {
-                et0 = (h.et0_fao_evapotranspiration?.slice(0, 24).reduce((a,b)=>a+b,0) || 0).toFixed(1);
-                rain = (h.precipitation?.slice(0, 24).reduce((a,b)=>a+b,0) || 0).toFixed(1);
-            }
-            
-            // UPDATED: Inject Crop Context
-            const crop = getLocalizedCropName(locationCrops[id] || 'leafy', getLang(id));
-            
-            const prompt = `${getStrictCropExpertPrefix(id)}
-            
-            You are now also acting as an Irrigation Expert for ${crop} in Malaysia.
-            
-            Today's data: ET0 (reference evapotranspiration) = ${et0}mm. Rainfall = ${rain}mm.
-            User's plant info: "${treeInfo}".
-            
-            TASK: Provide a precise irrigation recommendation for ${crop} covering exactly 3 points:
-            1. AMOUNT: Calculate liters per plant/tree needed today (account for ET0 minus effective rainfall, ${crop} water-use coefficient Kc, plant size from user input)
-            2. TIMING: Best time-of-day window to irrigate (consider Malaysian heat and evaporation losses — typically early morning or late afternoon)
-            3. FREQUENCY: Whether to irrigate today at all, and when to next reassess (e.g. "skip today if rain forecast", "irrigate again in 2 days if dry")
-            
-            Format as 3 short labeled lines, each starting with the label (Amount / Timing / Frequency). No markdown, no extra paragraphs.
-            
-            MANDATORY: Write your ENTIRE reply — including every section label/heading (translate the CAPS labels above into the target language; do NOT copy them in English) — in ${getLangName(id)} language. Keep total under 60 words.`;
-
-            try {
-                const payload = { contents: [{ parts: [{ text: prompt }] }] };
-                const res = await fetchGemini(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`, payload);
-                if(!res.ok) throw new Error("API Error");
-                const data = await res.json();
-                result.innerText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            } catch(e) {
-                result.innerText = "Calc error.";
-            } finally {
-                btn.disabled = false; btn.innerText = "✨ " + labels.calc;
-            }
-        };
-
-        window.toggleHarvest = (id) => {
-            const ui = document.getElementById(`harvest-ui-${id}`);
-            if(ui) ui.style.display = ui.style.display === 'none' ? 'block' : 'none';
-        };
-
-        window.predictHarvest = async (id) => {
-            const input = document.getElementById(`harvest-input-${id}`);
-            const result = document.getElementById(`harvest-result-${id}`);
-            const btn = document.getElementById(`harvest-btn-${id}`);
-            if (!input || !result || !btn) return;
-            const stage = input.value.trim();
-            if(!stage) return;
-            const labels = getTrans(id);
-
-            // Updated: Spinner on RIGHT side (ml-2)
-            btn.disabled = true; 
-            btn.innerHTML = `✨ ${labels.est}<div class="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin ml-2 inline-block"></div>`;
-            // Added: Ensure result box shows loading state immediately
-            result.style.display = 'block'; result.innerText = labels.consult;
-            
-            // UPDATED: Inject Crop Context
-            const crop = getLocalizedCropName(locationCrops[id] || 'leafy', getLang(id));
-            const ctx = window.getShortWeatherContext(id, 14);
-            
-            const prompt = `${getStrictCropExpertPrefix(id)}
-            
-            You are now also acting as a Harvest Expert for ${crop} in Malaysia.
-            
-            User-reported current growth stage / observation: "${stage}".
-            14-day weather forecast: ${ctx}.
-            
-            TASK: Provide a structured harvest assessment for ${crop} with exactly these 3 labeled sections:
-            1. DAYS TO HARVEST: Estimated range (e.g. "12-18 days") based on the user's reported stage and typical ${crop} maturity timing in Malaysia. Briefly state reasoning.
-            2. WEATHER RISKS: 1-2 specific risks within the 14-day window that could affect harvest quality or timing (e.g. heavy rain during fruit ripening, drought stress, fungal-favoring humidity). Tie to ${crop}-specific concerns.
-            3. OPTIMAL HARVEST WINDOW: Best calendar dates (if discernible from the forecast) and time-of-day for ${crop}. Mention any post-harvest weather concerns for transport/drying if relevant.
-            
-            Format as 3 short labeled paragraphs (1-2 sentences each). No markdown.
-            
-            MANDATORY: Write your ENTIRE reply — including every section label/heading (translate the CAPS labels above into the target language; do NOT copy them in English) — in ${getLangName(id)} language. Keep total under 80 words.`;
-            
-            try {
-                const payload = { contents: [{ parts: [{ text: prompt }] }] };
-                const res = await fetchGemini(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`, payload);
-                if(!res.ok) throw new Error("API Error");
-                const data = await res.json();
-                result.innerText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Estimation failed.";
-            } catch(e) { result.innerText = "Error."; } finally { btn.disabled = false; btn.innerText = "✨ " + labels.est; }
-        };
 
         // ... [Negotiator Logic Retained - No changes needed as prompt is user driven, but reply is roleplay] ...
         // ... (rest of code is the same)
@@ -7018,7 +6834,7 @@
                     // VISIBILITY DROP — pre-dawn visibility should be notably worse than midday.
                     // True fog events show a clear diurnal cycle: low vis 4-9 AM, recovers by noon.
                     let visibilityFlag = null;
-                    let minVisDawn = Infinity, minSpreadDawn = Infinity, sumWindDawn = 0, dawnSampleCount = 0;
+                    let minVisDawn = Infinity, minSpreadDawn = Infinity;
                     let maxVisMidday = 0;  // for comparison
                     for (let h = 4; h <= 9; h++) {
                         const idx = start + h;
@@ -7026,10 +6842,8 @@
                         const v = map.visibility?.[idx];
                         const t = map.temperature_2m?.[idx];
                         const dp = map.dew_point_2m?.[idx];
-                        const w = map.windspeed_2m?.[idx] ?? map.windspeed_10m?.[idx];
                         if (v !== undefined) minVisDawn = Math.min(minVisDawn, v);
                         if (t !== undefined && dp !== undefined) minSpreadDawn = Math.min(minSpreadDawn, t - dp);
-                        if (w !== undefined) { sumWindDawn += w; dawnSampleCount++; }
                     }
                     // Sample midday visibility (11 AM - 2 PM) for diurnal comparison
                     for (let h = 11; h <= 14; h++) {
@@ -7038,7 +6852,6 @@
                         const v = map.visibility?.[idx];
                         if (v !== undefined) maxVisMidday = Math.max(maxVisMidday, v);
                     }
-                    const avgWindDawn = dawnSampleCount > 0 ? sumWindDawn / dawnSampleCount : 999;
                     
                     if (minVisDawn < Infinity && maxVisMidday > 0) {
                         // FOG is now handled by the dedicated fog engine (its own

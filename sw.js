@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.215 — accuracy explanation now uses the help-card '?' pattern (UI consistency); fixed 本应用→本应用软件. bump CACHE_VERSION on each release
+// Version 1.0.216 — dead-code cleanup: removed 7 unused functions (irrigation/harvest/soil tools + showAccuracyInfo), dead CSS (ch-disease-card/meta/chip, ch-acc*, ch-mc-info), orphaned fog-wind vars. -187 lines. No behavior change. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606013310';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606013410';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
