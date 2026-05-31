@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.206 — fix fog row: header label was overlapping the dots; added top padding so it sits above. bump CACHE_VERSION on each release
+// Version 1.0.207 — open help cards now refresh language in place on toggle (no need to close // Version 1.0.206 — fix fog row: header label was overlapping the dots; added top padding so it sits above. bump CACHE_VERSION on each release re-tap). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606012410';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606012510';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

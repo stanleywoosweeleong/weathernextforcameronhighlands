@@ -3959,12 +3959,16 @@
             }
         };
         
-        window.toggleHelpCard = (id, rowType = 'temp') => {
+        window.toggleHelpCard = (id, rowType = 'temp', forceRebuild = false) => {
             const card = document.getElementById(`help-card-${rowType}-${id}`);
             const icon = document.getElementById(`help-icon-${rowType}-${id}`);
             if (!card) return;
             const isOpen = card.classList.contains('open');
-            if (isOpen) {
+            // forceRebuild: card is already open and we just want to regenerate its
+            // content in the current language (used when the user switches language
+            // while a help card is open). Skip the toggle + temp-chart show/hide.
+            if (forceRebuild && !isOpen) return; // nothing to refresh if closed
+            if (isOpen && !forceRebuild) {
                 card.classList.remove('open');
                 icon.classList.remove('active');
                 card.innerHTML = '';  // free DOM immediately since no animation
@@ -4147,6 +4151,7 @@
             }
             
             card.innerHTML = `<span class="help-card-close" onclick="window.toggleHelpCard('${id}', '${rowType}')" aria-label="${t.close}">×</span>${bodyHTML}`;
+            if (forceRebuild) return; // content swapped in place; open-state & chart already set
             card.classList.add('open');
             icon.classList.add('active');
             // Temp chart special: hide the chart's info-row + SVG, AND remove the wind
@@ -4338,6 +4343,14 @@
             }
             try { if (typeof window.renderDiseaseDashboard === 'function') window.renderDiseaseDashboard(id); } catch (e) {}
             try { if (typeof window.renderFogForecast === 'function') window.renderFogForecast(id); } catch (e) {}
+            // Refresh any OPEN help card so its text switches language in place,
+            // without the user having to close and re-tap the "?" icon.
+            try {
+                ['temp','wvet','cloud','storm','sky'].forEach(rt => {
+                    const hc = el(`help-card-${rt}-${id}`);
+                    if (hc && hc.classList.contains('open')) window.toggleHelpCard(id, rt, true);
+                });
+            } catch (e) {}
             try { if (typeof window.renderPastStrips === 'function') window.renderPastStrips(id); } catch (e) {}
             // Restore scroll on the next frame (after layout settles from re-render).
             requestAnimationFrame(() => { if (scroller) scroller.scrollTop = savedScroll; });
