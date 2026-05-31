@@ -4135,6 +4135,8 @@
                     </div>
                 `;
             }
+
+            card.innerHTML = `<span class="help-card-close" onclick="window.toggleHelpCard('${id}', '${rowType}')" aria-label="${t.close}">×</span>${bodyHTML}`;
             if (forceRebuild) return; // content swapped in place; open-state & chart already set
             card.classList.add('open');
             icon.classList.add('active');
