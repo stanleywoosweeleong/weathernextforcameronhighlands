@@ -2658,7 +2658,7 @@
                   hrs: '小时', advice: '建议', noData: '正在载入天气数据…',
                   pressure3d: '近3天累积', pastWet: '潮湿天数', recentRain: '近3天实际雨量',
                   presUp: '↑ 病压上升(近期持续潮湿)', presDown: '↓ 病压下降(近期转干)', presFlat: '病压平稳',
-                  fcAcc: '预报准确度', fcAccReg: '区域平均', fcDays: '天', fcRainErr: '雨量误差', fcNoData: '准确度累积中(需数天数据)', fcExplainTitle: '预报准确度如何运作', fcExplain: '本应用会每天把「预报」与「实际发生」做比较,然后在本机累积评分(每部手机各自独立)。刚开始使用时没有历史可比,所以需要几天到几周才能显示稳定的准确度。这不是故障 —— 您用得越久,评分越能真实反映本地预报的可靠度。山区的雨和雾本来就较难预报,因此评分有高有低是正常且诚实的。',
+                  fcAcc: '预报准确度', fcAccReg: '区域平均', fcDays: '天', fcRainErr: '雨量误差', fcNoData: '准确度累积中(需数天数据)', fcExplainTitle: '预报准确度如何运作', fcExplain: '本应用软件会每天把「预报」与「实际发生」做比较,然后在本机累积评分(每部手机各自独立)。刚开始使用时没有历史可比,所以需要几天到几周才能显示稳定的准确度。这不是故障 —— 您用得越久,评分越能真实反映本地预报的可靠度。山区的雨和雾本来就较难预报,因此评分有高有低是正常且诚实的。',
                   fcHigh: '高', fcMed: '中', fcLow: '偏低',
                   srcModel: '数据源', srcLwModel: '叶面湿润: 模型原生', srcLwComputed: '叶面湿润: RH/露点/雨/云 推算',
                   diseaseRisk: '病害风险',
@@ -2721,7 +2721,7 @@
             // A small tappable ⓘ explains how accuracy works + sets the time
             // expectation (it builds per-device over days/weeks), so a new user
             // understands the early empty/low state is normal, not a defect.
-            const accInfoBtn = `<span class="ch-mc-info" onclick="window.showAccuracyInfo('${id}')" title="${T.fcExplainTitle || ''}">ⓘ</span>`;
+            const accInfoBtn = `<span class="help-icon-btn" id="help-icon-accuracy-${id}" onclick="window.toggleHelpCard('${id}', 'accuracy')" title="${T.fcExplainTitle || ''}">?</span>`;
             let accInline = '';
             if (acc.available) {
                 const c = accColor(acc.score);
@@ -2740,7 +2740,8 @@
             slot.innerHTML = `
               <div class="ch-mc-line">
                 ${accInline}
-              </div>`;
+              </div>
+              <div id="help-card-accuracy-${id}" class="help-card"></div>`;
         };
 
         // ============================================================
@@ -4145,9 +4146,18 @@
                         </div>
                     </div>
                 `;
+            } else if (rowType === 'accuracy') {
+                // Forecast-accuracy explanation, shown as a help card for UI
+                // consistency with the chart "?" cards. Pulls from DASH_T (5 langs,
+                // English fallback) rather than HELP_CARD_CONTENT.
+                const aT = (lang === 'zh') ? DASH_T.zh : Object.assign({}, DASH_T.en, DASH_T[lang] || {});
+                bodyHTML = `
+                    <div class="help-card-section">
+                        <div style="font-size:11.5px; font-weight:800; color:#1e293b; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">${aT.fcExplainTitle}</div>
+                        <div style="font-size:11.5px; line-height:1.65; color:#1e293b;">${aT.fcExplain}</div>
+                    </div>
+                `;
             }
-            
-            card.innerHTML = `<span class="help-card-close" onclick="window.toggleHelpCard('${id}', '${rowType}')" aria-label="${t.close}">×</span>${bodyHTML}`;
             if (forceRebuild) return; // content swapped in place; open-state & chart already set
             card.classList.add('open');
             icon.classList.add('active');
@@ -4356,7 +4366,7 @@
             // Refresh any OPEN help card so its text switches language in place,
             // without the user having to close and re-tap the "?" icon.
             try {
-                ['temp','wvet','cloud','storm','sky'].forEach(rt => {
+                ['temp','wvet','cloud','storm','sky','accuracy'].forEach(rt => {
                     const hc = el(`help-card-${rt}-${id}`);
                     if (hc && hc.classList.contains('open')) window.toggleHelpCard(id, rt, true);
                 });
