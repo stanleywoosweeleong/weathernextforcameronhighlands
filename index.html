@@ -499,6 +499,8 @@
         .ch-ps-dow { font-size: 8px; font-weight: 600; color: #94a3b8; }
         .ch-past-empty { font-size: 9px; font-weight: 600; color: #cbd5e1; padding: 4px 8px; background: #f8fafc; border-top: 1px solid #eef2f6; }
         .ch-rh-forecast { padding-top: 4px; }
+        .ch-src { margin-top: 10px; padding-top: 8px; border-top: 1px solid #f1f5f9; font-size: 9px; font-weight: 500; color: #94a3b8; line-height: 1.4; }
+        .ch-src b { font-weight: 800; color: #64748b; }
         .ch-driver b { font-size: 14px; font-weight: 900; color: #0f172a; }
         .ch-advice { font-size: 11.5px; font-weight: 600; color: #334155; padding: 9px 11px; border-radius: 9px; margin-top: 12px; line-height: 1.45; }
         .ch-advice b { font-weight: 900; }
@@ -1999,11 +2001,14 @@
         // Estimate leaf-wetness hours over a 24h hourly slice.
         // Prefers Open-Meteo native leaf_wetness_probability if present; else
         // derives a wetness flag per hour from RH, dew-spread, rain & cloud.
+        // Returns BOTH the hour count and its source ('model' = native field from
+        // the selected weather model, 'computed' = our own derivation) so the UI
+        // can disclose exactly where the number came from.
         const estimateLeafWetHours = (rhArr, tArr, dpArr, rainArr, cloudArr, lwProbDaily) => {
             // If a native daily leaf-wetness probability is available, scale it
             // to an hour count (prob% of 24h roughly approximates wet hours).
             if (lwProbDaily != null && !isNaN(lwProbDaily)) {
-                return Math.round((lwProbDaily / 100) * 24);
+                return { hours: Math.round((lwProbDaily / 100) * 24), source: 'model' };
             }
             let wet = 0;
             const n = Math.min(24, rhArr?.length || 0);
@@ -2018,7 +2023,7 @@
                 // near-saturation (small dew spread) under heavy cloud.
                 if (rh >= 90 || rain > 0.1 || (dewSpread < 2 && cloud > 70)) wet++;
             }
-            return wet;
+            return { hours: wet, source: 'computed' };
         };
 
         // Count hours in slice with RH above a threshold (fog/high-RH persistence).
@@ -2121,18 +2126,41 @@
         // its forecast arrays is not possible (forecast arrays start at "now"), so
         // instead we expose recent actual rainfall totals; the caller can compare
         // against the cached prior forecast it stored. Returns recent actual mm.
+        // Single source of truth for "which past dates does the data actually
+        // contain?" — derived from the API's OWN time array, not the device clock.
+        // Open-Meteo (timezone=auto) returns whole location-local calendar days;
+        // with past_days=3 & forecast_days=1 that's 3 past days + today. We return
+        // the COMPLETE past days (24 hours each), newest-last, excluding today and
+        // any partial day. Both the strip and the header chip use this, so they can
+        // never disagree and never show a truncated day. People comparing our
+        // numbers against their own gauges will always see real, full local days.
+        const pastDatesFromData = (dataObj) => {
+            const t = dataObj && dataObj._past && dataObj._past.time;
+            if (!t || !t.length) return [];
+            // Count hours present for each date in the payload.
+            const hoursByDate = {};
+            for (let i = 0; i < t.length; i++) {
+                const d = (t[i] || '').slice(0, 10);
+                if (!d) continue;
+                hoursByDate[d] = (hoursByDate[d] || 0) + 1;
+            }
+            const allDates = Object.keys(hoursByDate).sort(); // ascending YYYY-MM-DD
+            if (!allDates.length) return [];
+            // The newest date in a past_days+forecast_days payload is "today" (likely
+            // partial as the day is still in progress) — exclude it. Then keep only
+            // COMPLETE (24h) days, and take the most recent 3.
+            const todayInData = allDates[allDates.length - 1];
+            const completePast = allDates.filter(d => d !== todayInData && hoursByDate[d] >= 24);
+            return completePast.slice(-3); // up to 3, oldest → newest
+        };
+
         const recentActualRain = (dataObj) => {
             const past = dataObj && dataObj._past;
             if (!past || !past.precipitation || !past.time) return null;
+            const dates = pastDatesFromData(dataObj);
+            if (!dates.length) return null;
+            const wanted = new Set(dates);
             const rain = past.precipitation, times = past.time;
-            // Sum the SAME 3 calendar dates the past strip shows (yesterday, −2, −3),
-            // by date — not a rolling "last 72 entries" window. The _past fetch
-            // (past_days=3 & forecast_days=1) returns more than 72 hours and isn't
-            // 72-aligned, so a fixed 72-row slice drifts and disagrees with the
-            // per-day strip totals. Matching by date keeps the header chip and the
-            // strip in exact agreement.
-            const ymdOf = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
-            const wanted = new Set([1, 2, 3].map(d => ymdOf(new Date(Date.now() - d * 86400000))));
             let mm = 0, any = false;
             for (let i = 0; i < times.length; i++) {
                 if (wanted.has((times[i] || '').slice(0, 10))) { mm += rain[i] || 0; any = true; }
@@ -2162,7 +2190,9 @@
             if (rhArr.every(v => v == null)) return null;
 
             const lwProbDaily = dataObj._daily?.leaf_wetness_probability_mean?.[dayIdx];
-            const leafWetHrs  = estimateLeafWetHours(rhArr, tArr, dpArr, rainArr, cloudArr, lwProbDaily);
+            const _lw          = estimateLeafWetHours(rhArr, tArr, dpArr, rainArr, cloudArr, lwProbDaily);
+            const leafWetHrs   = _lw.hours;
+            const leafWetSource = _lw.source; // 'model' | 'computed'
             const fogHrs      = countHoursRHAbove(rhArr, 90);
             const rainMM      = rainArr.reduce((a, b) => a + (b || 0), 0);
             const avgRH       = rhArr.reduce((a, b) => a + (b || 0), 0) / rhArr.length;
@@ -2236,6 +2266,7 @@
                 diseases, primaryKey, worstKey,
                 metrics: {
                     leafWetHrs, fogHrs, rainMM: Math.round(rainMM * 10) / 10,
+                    leafWetSource,
                     avgRH: Math.round(avgRH), tMean: Math.round(tMean * 10) / 10,
                     zoneMult, dryRun,
                     // Multi-day pressure (from past actuals) + recent actual rain.
@@ -2431,6 +2462,7 @@
                   presUp: '↑ 病压上升(近期持续潮湿)', presDown: '↓ 病压下降(近期转干)', presFlat: '病压平稳',
                   fcAcc: '预报准确度', fcAccReg: '区域平均', fcDays: '天', fcRainErr: '雨量误差', fcNoData: '准确度累积中(需数天数据)',
                   fcHigh: '高', fcMed: '中', fcLow: '偏低',
+                  srcModel: '数据源', srcLwModel: '叶面湿润: 模型原生', srcLwComputed: '叶面湿润: RH/露点/雨/云 推算',
                   diseaseRisk: '病害风险',
                   mtitle: '微气候概况', msub: '海拔 · 近期天气 · 预报准确度',
                   valley: '山谷(积湿)', fog_z: '雾区(高湿)', midslope: '山坡(主产区)', ridge: '山脊(通风)', unknown: '—',
@@ -2444,6 +2476,7 @@
                   presUp: '↑ Rising (recent wet spell)', presDown: '↓ Easing (recently drier)', presFlat: 'Steady pressure',
                   fcAcc: 'Forecast accuracy', fcAccReg: 'regional avg', fcDays: 'd', fcRainErr: 'rain error', fcNoData: 'Accuracy building (needs a few days)',
                   fcHigh: 'High', fcMed: 'Fair', fcLow: 'Low',
+                  srcModel: 'Source', srcLwModel: 'Leaf wetness: model native', srcLwComputed: 'Leaf wetness: derived (RH/dew/rain/cloud)',
                   diseaseRisk: 'Disease risk',
                   mtitle: 'Microclimate Overview', msub: 'Elevation · recent weather · forecast accuracy',
                   valley: 'Valley (moisture pool)', fog_z: 'Fog zone (high RH)', midslope: 'Mid-slope (main belt)', ridge: 'Ridge (well-aired)', unknown: '—',
@@ -2548,15 +2581,17 @@
             };
             const dow = (ymd) => { const d = new Date(ymd + 'T00:00'); return (lang === 'en' ? ['Su','Mo','Tu','We','Th','Fr','Sa'] : ['日','一','二','三','四','五','六'])[d.getDay()]; };
 
-            // Build the 3 past days (oldest → newest).
+            // Build the past days from the API's OWN dates (timezone-proof, full
+            // days only) via the shared helper — so the strip and the header chip
+            // always agree and never show a partial day.
             const past = data._past || null;
             const pdays = [];
+            const pastDates = (typeof pastDatesFromData === 'function') ? pastDatesFromData(data) : [];
             if (past && past.time) {
-                for (let d = 3; d >= 1; d--) {
-                    const ymd = ymdOf(new Date(Date.now() - d * 86400000));
+                pastDates.forEach(ymd => {
                     const a = aggDate(past.time, ymd, past.precipitation, past.temperature_2m, past.relative_humidity_2m);
                     if (a) pdays.push({ ...a, ymd });
-                }
+                });
             }
 
             const setStrip = (slotId, builder) => {
@@ -3872,7 +3907,7 @@
                         const r = window.computeDiseaseRisk(loc, dObj, 0, cropId);
                         if (r) {
                             const d = r.diseases, m = r.metrics;
-                            chCtx += `The app's microclimate model for today estimates — Botrytis ${d.botrytis.score}/100, Downy mildew ${d.downy.score}/100, Late blight ${d.blight.score}/100, Powdery mildew ${d.powdery.score}/100, Early blight ${d.earlyblight.score}/100, Anthracnose ${d.anthracnose.score}/100; leaf-wetness ~${m.leafWetHrs}h, high-RH(≥90%) ~${m.fogHrs}h, rain ${m.rainMM}mm, mean RH ${m.avgRH}%, mean temp ${m.tMean}°C. ${m.pastAvailable ? `Recent 3-day actual weather shows ${m.pastWetDays}/3 wet days (${m.recentRainMM}mm actual rain), giving a ${m.pastFactor>=1.15?'RISING':m.pastFactor<=0.85?'EASING':'steady'} multi-day infection pressure (${m.pastFactor}×).` : ''} Use these figures when judging disease pressure. `;
+                            chCtx += `The app's microclimate model for today estimates — Botrytis ${d.botrytis.score}/100, Downy mildew ${d.downy.score}/100, Late blight ${d.blight.score}/100, Powdery mildew ${d.powdery.score}/100, Early blight ${d.earlyblight.score}/100, Anthracnose ${d.anthracnose.score}/100; leaf-wetness ~${m.leafWetHrs}h (${m.leafWetSource === 'model' ? 'native model field' : 'derived from RH/dew/rain/cloud'}), high-RH(≥90%) ~${m.fogHrs}h, rain ${m.rainMM}mm, mean RH ${m.avgRH}%, mean temp ${m.tMean}°C. ${m.pastAvailable ? `Recent 3-day actual weather shows ${m.pastWetDays}/3 wet days (${m.recentRainMM}mm actual rain), giving a ${m.pastFactor>=1.15?'RISING':m.pastFactor<=0.85?'EASING':'steady'} multi-day infection pressure (${m.pastFactor}×).` : ''} Use these figures when judging disease pressure. `;
                         }
                     }
                 } catch (e) { /* risk context is best-effort */ }
@@ -4264,50 +4299,11 @@
                 // the full "detail" payload (which has RH, dew point, leaf wetness).
                 // The light landing payload (weatherData) has ONLY temp + rain%, so
                 // feeding it to the engine yields a bogus identical score for every
-                // zone. If detail data isn't loaded yet, show a subtle pending dot
-                // and wait — the background fetch re-runs syncUI when it lands.
-                const riskEl = document.getElementById(`risk-${s.id}`);
-                if (riskEl && typeof window.computeDiseaseRisk === 'function') {
-                    try {
-                        const dObj = (typeof detailData !== 'undefined') ? detailData[s.id] : null;
-                        // Require the humidity field — proof this is the full detail payload.
-                        const model = (typeof activeModel !== 'undefined') ? activeModel : '';
-                        const hasRH = dObj && (dObj[`relative_humidity_2m_${model}`] || dObj['relative_humidity_2m']);
-                        if (!hasRH) {
-                            // Detail data not ready yet — quiet pending marker (plain text).
-                            riskEl.style.display = 'block';
-                            riskEl.textContent = '…';
-                            riskEl.style.color = '#94a3b8';
-                        } else {
-                            const cropId = (typeof locationCrops !== 'undefined' && locationCrops[s.id]) ? locationCrops[s.id] : (s.crop || 'leafy');
-                            const r = window.computeDiseaseRisk(s, dObj, 0, cropId);
-                            if (r) {
-                                const dk = r.worstKey;
-                                const dz = r.diseases[dk];
-                                const lang = (typeof getLang === 'function') ? getLang(s.id) : 'zh';
-                                const metaMap = {
-                                    botrytis: {icon:'🍄', zh:'灰霉', en:'Botrytis'},
-                                    downy:    {icon:'💧', zh:'霜霉', en:'Downy'},
-                                    blight:   {icon:'🥀', zh:'晚疫', en:'Blight'},
-                                    powdery:     {icon:'🌫️', zh:'白粉', en:'Powdery'},
-                                    earlyblight: {icon:'🍂', zh:'早疫', en:'Early Blight'},
-                                    anthracnose: {icon:'🎯', zh:'炭疽', en:'Anthracnose'}
-                                };
-                                const meta = metaMap[dk] || {icon:'🍄', zh:'病害', en:'Disease'};
-                                const dname = (lang === 'en') ? meta.en : meta.zh;
-                                // Plain value styled like temp/rain/elev — colored by risk
-                                // level (no pill background), in the location's language.
-                                riskEl.style.display = 'block';
-                                riskEl.textContent = `${dz.band.emoji} ${dname} ${dz.score}`;
-                                riskEl.style.color = dz.band.color;
-                                riskEl.style.background = 'transparent';
-                                riskEl.style.borderColor = 'transparent';
-                            } else {
-                                riskEl.style.display = 'none';
-                            }
-                        }
-                    } catch (e) { /* badge is best-effort; never break the list */ }
-                }
+                // Disease risk was REMOVED from the home-screen cards (it now lives
+                // in the detail screen's AI Tools, not as a per-card reading). The
+                // #risk-<id> element no longer exists, so there's nothing to paint
+                // here. Left intentionally blank; computeDiseaseRisk still runs on
+                // the detail screen where it's actually shown.
                 // -------------------------------------------------------------
             });
         };
@@ -5364,7 +5360,7 @@
                     const L = (cardLang === 'en')
                         ? { temp:'TEMP', rain:'RAIN', elev:'ELEV', risk:'RISK' }
                         : { temp:'温度', rain:'降雨', elev:'海拔', risk:'病害' };
-                    return `<div class="list-item-wrapper"><div class="swipe-actions"><button class="action-btn btn-share" onclick="window.shareLocation('${s.id}')" aria-label="Share location / 分享地点"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button><button class="action-btn btn-edit" onclick="window.openEditModal('${s.id}')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="action-btn btn-delete" onclick="window.deleteLocation('${s.id}')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button></div><div class="list-item-content ${isFav?'is-favorite':''}" id="content-${s.id}" ontouchstart="window.handleTouchStart(event, '${s.id}')" ontouchmove="window.handleTouchMove(event, '${s.id}')" ontouchend="window.handleTouchEnd(event, '${s.id}')" oncontextmenu="window.handleContextMenu(event, '${s.id}')" onclick="window.handleItemClick('${s.id}')"><button class="pin-btn" onclick="event.stopPropagation(); window.toggleFavorite('${s.id}')"><svg class="pin-icon" width="22" height="22" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button><div class="name-label-en">${nameEn}</div>${nameZh ? `<div class="name-label-zh">${nameZh}</div>` : ''}<div class="flex gap-8 mt-6 items-end"><div class="flex flex-col"><span class="text-[9px] font-black text-slate-400 uppercase mb-2">${L.temp}</span><span id="t-${s.id}" class="text-[17px] font-black tabular-nums transition-colors">--</span></div><div class="flex flex-col"><span class="text-[9px] font-black text-slate-400 uppercase mb-2">${L.rain}</span><span id="p-${s.id}" class="text-[17px] font-black text-blue-900 tabular-nums">--</span></div>${s.elev ? `<div class="flex flex-col"><span class="text-[9px] font-black text-slate-400 uppercase mb-2">${L.elev}</span><span class="text-[17px] font-black text-emerald-700 tabular-nums">${s.elev}m</span></div>` : ''}<div class="flex flex-col"><span class="text-[9px] font-black text-slate-400 uppercase mb-2">${L.risk}</span><span id="risk-${s.id}" class="text-[17px] font-black tabular-nums" style="display:none;"></span></div></div></div></div>`;
+                    return `<div class="list-item-wrapper"><div class="swipe-actions"><button class="action-btn btn-share" onclick="window.shareLocation('${s.id}')" aria-label="Share location / 分享地点"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button><button class="action-btn btn-edit" onclick="window.openEditModal('${s.id}')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="action-btn btn-delete" onclick="window.deleteLocation('${s.id}')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button></div><div class="list-item-content ${isFav?'is-favorite':''}" id="content-${s.id}" ontouchstart="window.handleTouchStart(event, '${s.id}')" ontouchmove="window.handleTouchMove(event, '${s.id}')" ontouchend="window.handleTouchEnd(event, '${s.id}')" oncontextmenu="window.handleContextMenu(event, '${s.id}')" onclick="window.handleItemClick('${s.id}')"><button class="pin-btn" onclick="event.stopPropagation(); window.toggleFavorite('${s.id}')"><svg class="pin-icon" width="22" height="22" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button><div class="name-label-en">${nameEn}</div>${nameZh ? `<div class="name-label-zh">${nameZh}</div>` : ''}<div class="flex gap-8 mt-6 items-end"><div class="flex flex-col"><span class="text-[9px] font-black text-slate-400 uppercase mb-2">${L.temp}</span><span id="t-${s.id}" class="text-[17px] font-black tabular-nums transition-colors">--</span></div><div class="flex flex-col"><span class="text-[9px] font-black text-slate-400 uppercase mb-2">${L.rain}</span><span id="p-${s.id}" class="text-[17px] font-black text-blue-900 tabular-nums">--</span></div>${s.elev ? `<div class="flex flex-col"><span class="text-[9px] font-black text-slate-400 uppercase mb-2">${L.elev}</span><span class="text-[17px] font-black text-emerald-700 tabular-nums">${s.elev}m</span></div>` : ''}</div></div></div></div>`;
                 }).join('');
             };
             const lwEl = document.getElementById('list-west'); const leEl = document.getElementById('list-east'); const binCountEl = document.getElementById('tab-bin-count');
