@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.195 — Kea Farm seed 1530→1610 (official); manual elevation override in Edit (manual>grid>seed; blank=grid; rejects impossible values). bump CACHE_VERSION on each release
+// Version 1.0.196 — Add-location dialog now has the same elevation field + validation as Edit (blank=GPS grid, sane accepted, impossible rejected). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606011310';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606011410';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
