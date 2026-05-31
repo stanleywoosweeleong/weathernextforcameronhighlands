@@ -2496,7 +2496,19 @@
                   mtitle: 'Microclimate Overview', msub: 'Elevation · recent weather · forecast accuracy',
                   valley: 'Valley (moisture pool)', fog_z: 'Fog zone (high RH)', midslope: 'Mid-slope (main belt)', ridge: 'Ridge (well-aired)', unknown: '—',
                   act_low: 'Low risk — manage as usual.', act_mod: 'Moderate — scout fields, improve airflow.',
-                  act_high: 'High — prepare preventive spray, reduce leaf wetness.', act_crit: 'Critical — spray promptly, improve drainage & airflow.' }
+                  act_high: 'High — prepare preventive spray, reduce leaf wetness.', act_crit: 'Critical — spray promptly, improve drainage & airflow.' },
+            ms: { zone: 'Zon', elevation: 'Ketinggian', unknown: '—',
+                  fcAcc: 'Ketepatan ramalan', fcAccReg: 'purata serantau', fcDays: 'h', fcRainErr: 'ralat hujan',
+                  fcHigh: 'Tinggi', fcMed: 'Sederhana', fcLow: 'Rendah', noData: 'Memuatkan data cuaca…',
+                  valley: 'Lembah (lembap)', fog_z: 'Zon berkabus (RH tinggi)', midslope: 'Cerun (kawasan utama)', ridge: 'Rabung (lapang)' },
+            ta: { zone: 'மண்டலம்', elevation: 'உயரம்', unknown: '—',
+                  fcAcc: 'முன்னறிவிப்பு துல்லியம்', fcAccReg: 'பிராந்திய சராசரி', fcDays: 'நா', fcRainErr: 'மழை பிழை',
+                  fcHigh: 'அதிகம்', fcMed: 'நடுத்தரம்', fcLow: 'குறைவு', noData: 'வானிலை தரவு ஏற்றுகிறது…',
+                  valley: 'பள்ளத்தாக்கு (ஈரப்பதம்)', fog_z: 'மூடுபனி மண்டலம் (அதிக RH)', midslope: 'சரிவு (முக்கிய பகுதி)', ridge: 'மலைமுகடு (காற்றோட்டம்)' },
+            my: { zone: 'ဇုန်', elevation: 'အမြင့်', unknown: '—',
+                  fcAcc: 'ခန့်မှန်းမှု တိကျမှု', fcAccReg: 'ဒေသဆိုင်ရာ ပျမ်းမျှ', fcDays: 'ရက်', fcRainErr: 'မိုးအမှား',
+                  fcHigh: 'မြင့်', fcMed: 'အလယ်အလတ်', fcLow: 'နိမ့်', noData: 'ရာသီဥတုဒေတာ ဖွင့်နေသည်…',
+                  valley: 'တောင်ကြား (စိုထိုင်း)', fog_z: 'မြူဇုန် (RH မြင့်)', midslope: 'တောင်စောင်း (အဓိကဇုန်)', ridge: 'တောင်ကြောရိုး (လေဝင်လေထွက်)' }
         };
 
         window.renderDiseaseDashboard = (id) => {
@@ -2505,7 +2517,9 @@
             const loc = getAllLocations().find(l => l.id === id);
             if (!loc) { slot.innerHTML = ''; return; }
             const lang = (typeof getLang === 'function') ? getLang(id) : 'zh';
-            const T = DASH_T[lang === 'en' ? 'en' : 'zh'];
+            // Use the location's actual language; merge over English so any key not
+            // translated for ms/ta/my falls back to English rather than Chinese.
+            const T = (lang === 'zh') ? DASH_T.zh : Object.assign({}, DASH_T.en, DASH_T[lang] || {});
             const cropId = (typeof locationCrops !== 'undefined' && locationCrops[id]) ? locationCrops[id] : (loc.crop || 'leafy');
             const dObj = (typeof detailData !== 'undefined' && detailData[id]) ? detailData[id] : null;
 
@@ -2551,7 +2565,7 @@
               <div class="ch-disease-card">
                 <div class="ch-disease-meta">
                     <span class="ch-chip">📍 ${T.zone}: <b>${zoneLabel}</b></span>
-                    <span class="ch-chip">⛰️ ${T.elevation}: <b>${loc.elev ? loc.elev + 'm' : '—'}</b> · ${lang==='en'?elev.en:elev.zh}</span>
+                    <span class="ch-chip">⛰️ ${T.elevation}: <b>${loc.elev ? loc.elev + 'm' : '—'}</b> · ${lang==='zh'?elev.zh:elev.en}</span>
                 </div>
                 ${accuracyHtml}
               </div>`;
@@ -4061,6 +4075,16 @@
                  const btn = el(`lang-btn-${id}-${c}`);
                  if(btn) btn.classList.toggle('active', c === lang);
             });
+
+            // Re-render the language-dependent sections so they switch immediately
+            // (the microclimate header chips + past-3-day strip labels). We preserve
+            // the scroll position so a bilingual user toggling mid-read stays put.
+            const scroller = document.scrollingElement || document.documentElement;
+            const savedScroll = scroller ? scroller.scrollTop : 0;
+            try { if (typeof window.renderDiseaseDashboard === 'function') window.renderDiseaseDashboard(id); } catch (e) {}
+            try { if (typeof window.renderPastStrips === 'function') window.renderPastStrips(id); } catch (e) {}
+            // Restore scroll on the next frame (after layout settles from re-render).
+            requestAnimationFrame(() => { if (scroller) scroller.scrollTop = savedScroll; });
         };
         
         const getLang = (id) => locationAiLangs[id] || 'zh';
