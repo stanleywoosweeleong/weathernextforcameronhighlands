@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.223 — restored the 14-day RH forecast as a proper LABELLED trend row (row-rh / trend-layer-rh) with per-day %% values, auto-scaled axis, aligned to shared date columns to match temp/ET0/leaf-wetness. RH data still feeds forecast-accuracy calc. bump CACHE_VERSION on each release
+// Version 1.0.224 — new root-zone soil-moisture trend row (soil_moisture_9_to_27cm) after ET0: labelled trend, auto-scaled axis, per-day drying(amber)/wetting(blue) direction coloring, 5-lang header + help card framing it as a model trend (not a sensor read). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605311430';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605311445';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

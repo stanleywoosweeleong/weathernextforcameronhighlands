@@ -2641,15 +2641,15 @@
         // are kept as-is across languages — like pH or NPK, they're standard terms —
         // while the descriptive words around them are translated.
         const CHART_HDR = {
-            en: { wvet:'WVET Crop Stress (Risk)', wind:'Wind 2m / Dir 10m / Gusts (km/h)', cloud:'Cloud (%) & CB Risk', storm:'Storm Risk (CAPE/CIN)', sky:'Sky Tint (AM/PM)', rainPP:'Rain Prob (%)', rainMM:'Rainfall (mm)', rh:'Humidity (RH %)', leafwet:'Leaf Wetness (hrs)', et0:'ET0 (mm)',
+            en: { wvet:'WVET Crop Stress (Risk)', wind:'Wind 2m / Dir 10m / Gusts (km/h)', cloud:'Cloud (%) & CB Risk', storm:'Storm Risk (CAPE/CIN)', sky:'Sky Tint (AM/PM)', rainPP:'Rain Prob (%)', rainMM:'Rainfall (mm)', rh:'Humidity (RH %)', leafwet:'Leaf Wetness (hrs)', et0:'ET0 (mm)', soil:'Root Soil Moisture (trend)',
                    tHi:'Hi', tLo:'Lo', tDew:'DewPt', tDelta:'DeltaT (8AM)', tSafe:'Safe Hours' },
-            zh: { wvet:'作物湿热胁迫 (风险)', wind:'风速2m / 风向10m / 阵风 (km/h)', cloud:'云量 (%) 与积雨云风险', storm:'风暴风险 (CAPE/CIN)', sky:'天色 (早/晚)', rainPP:'降雨概率 (%)', rainMM:'雨量 (mm)', rh:'湿度 (RH %)', leafwet:'叶面湿润 (小时)', et0:'ET0 蒸散 (mm)',
+            zh: { wvet:'作物湿热胁迫 (风险)', wind:'风速2m / 风向10m / 阵风 (km/h)', cloud:'云量 (%) 与积雨云风险', storm:'风暴风险 (CAPE/CIN)', sky:'天色 (早/晚)', rainPP:'降雨概率 (%)', rainMM:'雨量 (mm)', rh:'湿度 (RH %)', leafwet:'叶面湿润 (小时)', et0:'ET0 蒸散 (mm)', soil:'根区土壤湿度 (趋势)',
                    tHi:'高温', tLo:'低温', tDew:'露点', tDelta:'DeltaT (早8点)', tSafe:'安全时段' },
-            ms: { wvet:'Tekanan Tanaman WVET (Risiko)', wind:'Angin 2m / Arah 10m / Pirau (km/h)', cloud:'Awan (%) & Risiko CB', storm:'Risiko Ribut (CAPE/CIN)', sky:'Warna Langit (Pagi/Petang)', rainPP:'Kebarangkalian Hujan (%)', rainMM:'Hujan (mm)', rh:'Kelembapan (RH %)', leafwet:'Daun Basah (jam)', et0:'ET0 (mm)',
+            ms: { wvet:'Tekanan Tanaman WVET (Risiko)', wind:'Angin 2m / Arah 10m / Pirau (km/h)', cloud:'Awan (%) & Risiko CB', storm:'Risiko Ribut (CAPE/CIN)', sky:'Warna Langit (Pagi/Petang)', rainPP:'Kebarangkalian Hujan (%)', rainMM:'Hujan (mm)', rh:'Kelembapan (RH %)', leafwet:'Daun Basah (jam)', et0:'ET0 (mm)', soil:'Lembapan Tanah Akar (trend)',
                    tHi:'Tinggi', tLo:'Rendah', tDew:'Titik Embun', tDelta:'DeltaT (8AM)', tSafe:'Jam Selamat' },
-            ta: { wvet:'பயிர் அழுத்தம் WVET (ஆபத்து)', wind:'காற்று 2m / திசை 10m / பலத்த காற்று (km/h)', cloud:'மேகம் (%) & CB ஆபத்து', storm:'புயல் ஆபத்து (CAPE/CIN)', sky:'வான நிறம் (காலை/மாலை)', rainPP:'மழை வாய்ப்பு (%)', rainMM:'மழை (mm)', rh:'ஈரப்பதம் (RH %)', leafwet:'இலை ஈரம் (மணி)', et0:'ET0 (mm)',
+            ta: { wvet:'பயிர் அழுத்தம் WVET (ஆபத்து)', wind:'காற்று 2m / திசை 10m / பலத்த காற்று (km/h)', cloud:'மேகம் (%) & CB ஆபத்து', storm:'புயல் ஆபத்து (CAPE/CIN)', sky:'வான நிறம் (காலை/மாலை)', rainPP:'மழை வாய்ப்பு (%)', rainMM:'மழை (mm)', rh:'ஈரப்பதம் (RH %)', leafwet:'இலை ஈரம் (மணி)', et0:'ET0 (mm)', soil:'வேர் மண் ஈரப்பதம் (போக்கு)',
                    tHi:'அதிக', tLo:'குறை', tDew:'பனிப்புள்ளி', tDelta:'DeltaT (காலை8)', tSafe:'பாதுகாப்பு நேரம்' },
-            my: { wvet:'သီးနှံဖိစီးမှု WVET (အန္တရာယ်)', wind:'လေ 2m / ဦးတည်ရာ 10m / လေပြင်း (km/h)', cloud:'တိမ် (%) & CB အန္တရာယ်', storm:'မုန်တိုင်းအန္တရာယ် (CAPE/CIN)', sky:'ကောင်းကင်အရောင် (နံနက်/ညနေ)', rainPP:'မိုးရွာနိုင်ခြေ (%)', rainMM:'မိုးရေချိန် (mm)', rh:'စိုထိုင်းဆ (RH %)', leafwet:'အရွက်စိုစွတ်မှု (နာရီ)', et0:'ET0 (mm)',
+            my: { wvet:'သီးနှံဖိစီးမှု WVET (အန္တရာယ်)', wind:'လေ 2m / ဦးတည်ရာ 10m / လေပြင်း (km/h)', cloud:'တိမ် (%) & CB အန္တရာယ်', storm:'မုန်တိုင်းအန္တရာယ် (CAPE/CIN)', sky:'ကောင်းကင်အရောင် (နံနက်/ညနေ)', rainPP:'မိုးရွာနိုင်ခြေ (%)', rainMM:'မိုးရေချိန် (mm)', rh:'စိုထိုင်းဆ (RH %)', leafwet:'အရွက်စိုစွတ်မှု (နာရီ)', et0:'ET0 (mm)', soil:'အမြစ်ဇုန်မြေဆီစို (လမ်းကြောင်း)',
                    tHi:'အမြင့်', tLo:'အနိမ့်', tDew:'နှင်းမှတ်', tDelta:'DeltaT (နံနက်8)', tSafe:'လုံခြုံချိန်' }
         };
         const chartHdr = (lang) => CHART_HDR[lang] || CHART_HDR.en;
@@ -3581,6 +3581,15 @@
                     rule2: "This is a grid-model estimate, NOT your field's leaf-wetness sensor — your sheltered or exposed beds will differ",
                     rule3: "Watch the trend: several high-wetness days in a row build disease pressure faster than one wet day"
                 },
+                soil: {
+                    title: "Root-Zone Soil Moisture (9–27cm)",
+                    body: "Estimated water stored in the root zone, shown as a trend over 14 days. Read it as the direction your soil is heading — drying out or wetting up — paired with ET0 above (ET0 = water leaving, soil moisture = water remaining).",
+                    wetting: "Blue point = wetter than the day before (rain or low evaporation recharging the soil).",
+                    drying: "Amber point = drier than the day before (ET0 and drainage pulling water out).",
+                    rule1: "A steady multi-day DRYING run is your cue to plan irrigation before the crop feels stress",
+                    rule2: "This is a grid-model estimate, NOT your bed's moisture sensor — sandy or terraced beds drain faster than the model assumes",
+                    rule3: "Cross-check with ET0 and rainfall: high ET0 + no rain + falling line = soil drying quickly"
+                },
                 cloud: {
                     title: "Cloud (%) & CB Risk",
                     body: "Three rows show cloud cover at three altitudes. The number is percentage, the bars below it show fill level. The amount and altitude matter for spray timing and storm risk.",
@@ -3671,6 +3680,15 @@
                     rule1: "约 10 小时以上/天 = 高侵染压力——优先安排预防性喷药与通风",
                     rule2: "这是网格模型估算，并非你田里的叶面湿润传感器——遮蔽或暴露的畦面会有差异",
                     rule3: "看趋势：连续几天高湿润比单独一个湿润日更快累积病害压力"
+                },
+                soil: {
+                    title: "根区土壤湿度 (9–27cm)",
+                    body: "根区储水的估算，以 14 天趋势呈现。请看土壤走向——正在变干还是变湿——并与上方的 ET0 搭配理解（ET0 = 水分流失，土壤湿度 = 剩余水分）。",
+                    wetting: "蓝点 = 比前一天更湿（降雨或蒸发少，土壤补水）。",
+                    drying: "琥珀点 = 比前一天更干（ET0 与排水把水分带走）。",
+                    rule1: "连续多天变干的走势，是在作物受旱前规划灌溉的信号",
+                    rule2: "这是网格模型估算，并非你田里的湿度传感器——沙质或梯田畦排水比模型假设更快",
+                    rule3: "与 ET0 和雨量交叉对照：高 ET0 + 无雨 + 下降线 = 土壤快速变干"
                 },
                 cloud: {
                     title: "云量 (%) 与 CB 风险",
@@ -3763,6 +3781,15 @@
                     rule2: "Ini anggaran model grid, BUKAN sensor daun-basah ladang anda — batas terlindung atau terdedah akan berbeza",
                     rule3: "Perhatikan trend: beberapa hari basah tinggi berturut-turut membina tekanan penyakit lebih cepat daripada satu hari basah"
                 },
+                soil: {
+                    title: "Lembapan Tanah Zon Akar (9–27cm)",
+                    body: "Anggaran air tersimpan di zon akar, ditunjukkan sebagai trend 14 hari. Baca sebagai arah tanah anda — semakin kering atau semakin lembap — bersama ET0 di atas (ET0 = air keluar, lembapan tanah = air berbaki).",
+                    wetting: "Titik biru = lebih lembap daripada semalam (hujan atau penyejatan rendah mengisi semula tanah).",
+                    drying: "Titik kuning = lebih kering daripada semalam (ET0 dan saliran menarik air keluar).",
+                    rule1: "Trend KERING beberapa hari berturut-turut ialah isyarat untuk rancang pengairan sebelum tanaman tertekan",
+                    rule2: "Ini anggaran model grid, BUKAN sensor lembapan batas anda — tanah berpasir atau berteres mengalir lebih cepat",
+                    rule3: "Semak silang dengan ET0 dan hujan: ET0 tinggi + tiada hujan + garis menurun = tanah cepat kering"
+                },
                 cloud: {
                     title: "Awan (%) & Risiko CB",
                     body: "Tiga baris menunjukkan litupan awan pada tiga altitud. Nombor itu peratusan, bar di bawah menunjukkan tahap pengisian. Jumlah dan altitud penting untuk masa semburan dan risiko ribut.",
@@ -3854,6 +3881,15 @@
                     rule2: "இது கட்டக மாதிரி மதிப்பீடு, உங்கள் வயலின் இலை-ஈர சென்சார் அல்ல — மறைவான அல்லது வெளிப்படும் படுக்கைகள் வேறுபடும்",
                     rule3: "போக்கைக் கவனியுங்கள்: தொடர்ச்சியான பல அதிக ஈர நாட்கள் ஒரு ஈர நாளை விட நோய் அழுத்தத்தை வேகமாக உருவாக்கும்"
                 },
+                soil: {
+                    title: "வேர் மண் ஈரப்பதம் (9–27cm)",
+                    body: "வேர் மண்டலத்தில் சேமிக்கப்பட்ட நீரின் மதிப்பீடு, 14 நாள் போக்காகக் காட்டப்படுகிறது. மண் எந்தத் திசையில் செல்கிறது — உலர்கிறதா அல்லது ஈரமாகிறதா — என்பதை மேலே உள்ள ET0 உடன் இணைத்துப் படியுங்கள் (ET0 = வெளியேறும் நீர், மண் ஈரப்பதம் = மீதமுள்ள நீர்).",
+                    wetting: "நீலப் புள்ளி = முந்தைய நாளை விட ஈரமானது (மழை அல்லது குறைந்த ஆவியாதல் மண்ணை நிரப்புகிறது).",
+                    drying: "ஆம்பர் புள்ளி = முந்தைய நாளை விட உலர்ந்தது (ET0 மற்றும் வடிகால் நீரை வெளியேற்றுகிறது).",
+                    rule1: "தொடர்ச்சியான பல நாள் உலரும் போக்கு, பயிர் அழுத்தம் அடைவதற்கு முன் நீர்ப்பாசனத்தைத் திட்டமிட சமிக்ஞை",
+                    rule2: "இது கட்டக மாதிரி மதிப்பீடு, உங்கள் படுக்கையின் ஈரப்பதம் சென்சார் அல்ல — மணல் அல்லது மொட்டை மாடி படுக்கைகள் வேகமாக வடிகின்றன",
+                    rule3: "ET0 மற்றும் மழையுடன் ஒப்பிடுங்கள்: அதிக ET0 + மழையில்லை + இறங்கும் கோடு = மண் வேகமாக உலர்கிறது"
+                },
                 cloud: {
                     title: "மேகம் (%) & CB ஆபத்து",
                     body: "மூன்று வரிசைகள் மூன்று உயரங்களில் மேக மூடியைக் காட்டுகின்றன. எண் சதவீதம், கீழே உள்ள பட்டிகள் நிரப்பு அளவைக் காட்டுகின்றன. அளவு மற்றும் உயரம் தெளிப்பு நேரம் மற்றும் புயல் ஆபத்திற்கு முக்கியம்.",
@@ -3944,6 +3980,15 @@
                     rule1: "ခန့်မှန်းခြေ ၁၀+ စိုစွတ်နာရီ/နေ့ = ကူးစက်ဖိစီးမှုမြင့် — ကာကွယ်ဆေးဖျန်းချိန်နှင့် လေဝင်လေထွက်ကို ဦးစားပေးပါ",
                     rule2: "ဤသည်မှာ ဂရစ်မော်ဒယ်ခန့်မှန်းချက်ဖြစ်ပြီး သင့်လယ်၏ အရွက်စိုစွတ်ဆင်ဆာ မဟုတ်ပါ — ကာကွယ်ထား/ဖွင့်ထားသော ခင်းများ ကွဲပြားမည်",
                     rule3: "လမ်းကြောင်းကို စောင့်ကြည့်ပါ — စိုစွတ်မှုမြင့်နေ့များ တစ်ဆက်တည်းသည် တစ်နေ့တည်းထက် ရောဂါဖိစီးမှုကို ပိုမြန်စုဆောင်းသည်"
+                },
+                soil: {
+                    title: "အမြစ်ဇုန် မြေဆီစိုထိုင်းဆ (9–27cm)",
+                    body: "အမြစ်ဇုန်တွင် သိုလှောင်ထားသော ရေ၏ ခန့်မှန်းချက်ကို ၁၄ ရက် လမ်းကြောင်းအဖြစ် ပြသည်။ မြေ ဘယ်ဘက်သို့ ဦးတည်နေသည် — ခြောက်သွေ့လာသည် သို့မဟုတ် စိုစွတ်လာသည် — ကို အပေါ်ရှိ ET0 နှင့်တွဲဖတ်ပါ (ET0 = ထွက်သွားသောရေ၊ မြေဆီစို = ကျန်ရှိသောရေ)။",
+                    wetting: "အပြာအစက် = မနေ့ကထက် ပိုစိုသည် (မိုး သို့မဟုတ် အငွေ့ပျံနည်းခြင်းက မြေကို ပြန်ဖြည့်သည်)။",
+                    drying: "ပယင်းရောင်အစက် = မနေ့ကထက် ပိုခြောက်သည် (ET0 နှင့် ရေစိမ့်ထွက်မှုက ရေကို ဆွဲထုတ်သည်)။",
+                    rule1: "ရက်များစွာ ဆက်တိုက် ခြောက်သွေ့လာသော လမ်းကြောင်းသည် သီးနှံဖိစီးခံရမီ ရေသွင်းရန် စီစဉ်သင့်သည့် အချက်ပြ",
+                    rule2: "ဤသည်မှာ ဂရစ်မော်ဒယ်ခန့်မှန်းချက်ဖြစ်ပြီး သင့်ခင်း၏ စိုထိုင်းဆဆင်ဆာ မဟုတ်ပါ — သဲ သို့မဟုတ် လှေကားထစ်ခင်းများ ပိုမြန်စိမ့်ထွက်သည်",
+                    rule3: "ET0 နှင့် မိုးရေချိန်နှင့် တိုက်ဆိုင်စစ်ဆေးပါ — ET0 မြင့် + မိုးမရွာ + ကျဆင်းသောမျဉ်း = မြေ မြန်မြန်ခြောက်သွေ့နေသည်"
                 },
                 cloud: {
                     title: "တိမ် (%) နှင့် CB အန္တရာယ်",
@@ -4244,6 +4289,26 @@
                         </div>
                     </div>
                 `;
+            } else if (rowType === 'soil') {
+                const sm = t.soil || HELP_CARD_CONTENT.en.soil;
+                bodyHTML = `
+                    <div class="help-card-section">
+                        <div style="font-size:11.5px; font-weight:800; color:#1e293b; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">${sm.title}</div>
+                        <div style="color:#1e293b; margin-bottom:8px;">${sm.body}</div>
+                        <div style="font-size:11.5px; line-height:1.7;">
+                            <div style="margin-bottom:3px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#2563eb;vertical-align:middle;margin-right:5px;"></span>${sm.wetting}</div>
+                            <div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#d97706;vertical-align:middle;margin-right:5px;"></span>${sm.drying}</div>
+                        </div>
+                    </div>
+                    <div class="help-card-section" style="background:#fff; border:1px solid #fcd34d; border-radius:6px; padding:10px;">
+                        <div style="font-size:11.5px; font-weight:800; color:#1e293b; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">${t.howToUse}</div>
+                        <div style="font-size:11.5px; line-height:1.65; color:#1e293b;">
+                            <div style="margin-bottom:4px;">• ${sm.rule1}</div>
+                            <div style="margin-bottom:4px;">• ${sm.rule2}</div>
+                            <div>• ${sm.rule3}</div>
+                        </div>
+                    </div>
+                `;
             }
 
             card.innerHTML = `<span class="help-card-close" onclick="window.toggleHelpCard('${id}', '${rowType}')" aria-label="${t.close}">×</span>${bodyHTML}`;
@@ -4450,6 +4515,7 @@
                 setH(`hdr-leafwet-${id}`, `${cH.leafwet} <span id="lwsrc-${id}" class="lw-src-tag"></span>${help('leafwet','What is Leaf Wetness?')}`);
                 if (typeof window.applyLeafWetSource === 'function') window.applyLeafWetSource(id);
                 setH(`hdr-et0-${id}`, cH.et0);
+                setH(`hdr-soil-${id}`, `${cH.soil}${help('soil','What is Soil Moisture?')}`);
                 if (typeof fogT === 'function') setH(`hdr-fog-${id}`, fogT(lang).title);
             }
             try { if (typeof window.renderDiseaseDashboard === 'function') window.renderDiseaseDashboard(id); } catch (e) {}
@@ -4457,7 +4523,7 @@
             // Refresh any OPEN help card so its text switches language in place,
             // without the user having to close and re-tap the "?" icon.
             try {
-                ['temp','wvet','cloud','storm','sky','accuracy','leafwet'].forEach(rt => {
+                ['temp','wvet','cloud','storm','sky','accuracy','leafwet','soil'].forEach(rt => {
                     const hc = el(`help-card-${rt}-${id}`);
                     if (hc && hc.classList.contains('open')) window.toggleHelpCard(id, rt, true);
                 });
@@ -6754,6 +6820,7 @@
                 <div class="relative"><div class="row-label-overlay" id="hdr-leafwet-${id}" style="color:#0d9488">${cH.leafwet} <span id="lwsrc-${id}" class="lw-src-tag"></span><span class="help-icon-btn" id="help-icon-leafwet-${id}" onclick="window.toggleHelpCard('${id}', 'leafwet')" title="What is Leaf Wetness?">?</span></div><div id="help-card-leafwet-${id}" class="help-card"></div><div class="info-row" id="row-leafwet-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-leafwet-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-fog-${id}" style="color:#475569">${fogT(lang).title}</div><div id="ch-fog-row-${id}" class="ch-fog-row"></div></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-et0-${id}" style="color:#059669">${cH.et0}</div><div class="info-row" id="row-et-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-et-${id}" class="trend-layer" height="42"></svg></div>
+                <div class="relative"><div class="row-label-overlay" id="hdr-soil-${id}" style="color:#92400e">${cH.soil}<span class="help-icon-btn" id="help-icon-soil-${id}" onclick="window.toggleHelpCard('${id}', 'soil')" title="What is Soil Moisture?">?</span></div><div id="help-card-soil-${id}" class="help-card"></div><div class="info-row" id="row-soil-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-soil-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="info-row" id="row-dates-bottom-${id}"></div>
              </div>`;
         }
@@ -7291,6 +7358,8 @@
             document.getElementById(`row-et-${id}`).innerHTML = days.map(() => `<div class="info-data-cell"></div>`).join('');
             const _rhRow = document.getElementById(`row-rh-${id}`);
             if (_rhRow) _rhRow.innerHTML = days.map(() => `<div class="info-data-cell"></div>`).join('');
+            const _soilRow = document.getElementById(`row-soil-${id}`);
+            if (_soilRow) _soilRow.innerHTML = days.map(() => `<div class="info-data-cell"></div>`).join('');
             const _lwRow = document.getElementById(`row-leafwet-${id}`);
             if (_lwRow) _lwRow.innerHTML = days.map(() => `<div class="info-data-cell"></div>`).join('');
             // Stash the dominant leaf-wet source for this location, then paint the
@@ -7317,6 +7386,7 @@
             const svgT = document.getElementById(`trend-layer-temp-${suffix}`), svgPP = document.getElementById(`trend-layer-pp-${suffix}`), svgVV = document.getElementById(`trend-layer-vv-${suffix}`), svgET = document.getElementById(`trend-layer-et-${suffix}`);
             const svgLW = document.getElementById(`trend-layer-leafwet-${suffix}`);
             const svgRH = document.getElementById(`trend-layer-rh-${suffix}`);
+            const svgSoil = document.getElementById(`trend-layer-soil-${suffix}`);
             if (!svgT) return; 
             
             const dateRow = document.getElementById(`row-dates-top-${suffix}`);
@@ -7340,17 +7410,17 @@
             }
             const s = w / 14; // used for bar widths in rain volume chart
             
-            svgT.innerHTML = ''; svgPP.innerHTML = ''; svgVV.innerHTML = ''; if (svgET) svgET.innerHTML = ''; if (svgLW) svgLW.innerHTML = ''; if (svgRH) svgRH.innerHTML = '';
-            svgT.setAttribute('width', w); svgPP.setAttribute('width', w); svgVV.setAttribute('width', w); if (svgET) svgET.setAttribute('width', w); if (svgLW) svgLW.setAttribute('width', w); if (svgRH) svgRH.setAttribute('width', w);
+            svgT.innerHTML = ''; svgPP.innerHTML = ''; svgVV.innerHTML = ''; if (svgET) svgET.innerHTML = ''; if (svgLW) svgLW.innerHTML = ''; if (svgRH) svgRH.innerHTML = ''; if (svgSoil) svgSoil.innerHTML = '';
+            svgT.setAttribute('width', w); svgPP.setAttribute('width', w); svgVV.setAttribute('width', w); if (svgET) svgET.setAttribute('width', w); if (svgLW) svgLW.setAttribute('width', w); if (svgRH) svgRH.setAttribute('width', w); if (svgSoil) svgSoil.setAttribute('width', w);
             // Critical: force SVG element style.width to match attribute width exactly,
             // overriding CSS `width: 100%`. This prevents the SVG from rendering at
             // svgParent's width (which may differ from dateRow's width by a few px)
             // and then auto-scaling its content, which would shift x-coordinates.
-            svgT.style.width = w + 'px'; svgPP.style.width = w + 'px'; svgVV.style.width = w + 'px'; if (svgET) svgET.style.width = w + 'px'; if (svgLW) svgLW.style.width = w + 'px'; if (svgRH) svgRH.style.width = w + 'px';
+            svgT.style.width = w + 'px'; svgPP.style.width = w + 'px'; svgVV.style.width = w + 'px'; if (svgET) svgET.style.width = w + 'px'; if (svgLW) svgLW.style.width = w + 'px'; if (svgRH) svgRH.style.width = w + 'px'; if (svgSoil) svgSoil.style.width = w + 'px';
             // Also align horizontal position: SVG is absolute-positioned, so shift it
             // to match dateRow's left edge (in case svgParent has different left).
             const svgLeft = (dateRow ? dateRow.offsetLeft - svgT.parentElement.offsetLeft : 0);
-            svgT.style.left = svgLeft + 'px'; svgPP.style.left = svgLeft + 'px'; svgVV.style.left = svgLeft + 'px'; if (svgET) svgET.style.left = svgLeft + 'px'; if (svgLW) svgLW.style.left = svgLeft + 'px'; if (svgRH) svgRH.style.left = svgLeft + 'px';
+            svgT.style.left = svgLeft + 'px'; svgPP.style.left = svgLeft + 'px'; svgVV.style.left = svgLeft + 'px'; if (svgET) svgET.style.left = svgLeft + 'px'; if (svgLW) svgLW.style.left = svgLeft + 'px'; if (svgRH) svgRH.style.left = svgLeft + 'px'; if (svgSoil) svgSoil.style.left = svgLeft + 'px';
             // Y-axis range INCLUDES dT (defaulted to 15 when missing) so the temp lines stay
             // compressed near the top, leaving room at the bottom for DeltaT and SafeHours
             // numbers. This matches the original design — anchored to the dT band position.
@@ -7549,6 +7619,52 @@
                     rhl.setAttribute("d", rhP); rhl.setAttribute("stroke", "#0891b2");
                     rhl.setAttribute("stroke-width", "2.5"); rhl.setAttribute("fill", "none");
                     rhl.setAttribute("opacity", "0.75"); svgRH.appendChild(rhl);
+                }
+            }
+
+            // ROOT-ZONE SOIL MOISTURE (9–27cm), m³/m³ — labelled trend row (height=42).
+            // Framed as a DRYING vs WETTING trend, not an absolute sensor reading: this is
+            // an Open-Meteo grid-cell model estimate, not the farmer's actual terraced bed.
+            // Values are small-magnitude (~0.20–0.45 in moist highland soil), so the axis
+            // auto-scales to the data range to make movement visible. Each point is colored
+            // by direction vs the previous day — amber = drying, blue = wetting — and the
+            // line itself is a neutral brown.
+            if (svgSoil) {
+                const smVals = days.map(d => (d.soilM && typeof d.soilM.d4 === 'number') ? d.soilM.d4 : null);
+                const present = smVals.filter(v => v !== null);
+                if (present.length >= 2) {
+                    let smMin = Math.min(...present), smMax = Math.max(...present);
+                    // Minimum visible span so a near-flat moisture line isn't pure noise.
+                    if (smMax - smMin < 0.04) { const mid = (smMax + smMin) / 2; smMin = mid - 0.02; smMax = mid + 0.02; }
+                    const smPad = (smMax - smMin) * 0.15;
+                    smMin = Math.max(0, smMin - smPad); smMax = smMax + smPad;
+                    const smRng = (smMax - smMin) || 1;
+                    const SM_TOP = 22, SM_BOTTOM = 36;
+                    const sy = (v) => SM_TOP + (1 - (v - smMin) / smRng) * (SM_BOTTOM - SM_TOP);
+                    let smP = ""; let prev = null;
+                    days.forEach((d, i) => {
+                        const v = smVals[i];
+                        if (v === null) return;
+                        const x = columnCenters[i], y = sy(v);
+                        smP += (smP === "" ? "M " : " L ") + x + " " + y;
+                        // Direction vs previous present day: drying (amber) / wetting (blue) / flat (brown)
+                        let dotColor = "#92400e";
+                        if (prev !== null) dotColor = (v < prev - 0.002) ? "#d97706" : (v > prev + 0.002) ? "#2563eb" : "#92400e";
+                        const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", "2.2");
+                        c.setAttribute("fill", dotColor); svgSoil.appendChild(c);
+                        const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        txt.setAttribute("x", x);
+                        txt.setAttribute("y", y < 29 ? y + 9 : y - 4);
+                        txt.setAttribute("text-anchor", "middle"); txt.setAttribute("font-size", "8.5");
+                        txt.setAttribute("font-weight", "950"); txt.setAttribute("fill", dotColor);
+                        txt.textContent = v.toFixed(2); svgSoil.appendChild(txt);
+                        prev = v;
+                    });
+                    const sml = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    sml.setAttribute("d", smP); sml.setAttribute("stroke", "#92400e");
+                    sml.setAttribute("stroke-width", "2.5"); sml.setAttribute("fill", "none");
+                    sml.setAttribute("opacity", "0.6"); svgSoil.appendChild(sml);
                 }
             }
         }
