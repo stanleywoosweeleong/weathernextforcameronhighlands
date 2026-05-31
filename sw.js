@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.224 — new root-zone soil-moisture trend row (soil_moisture_9_to_27cm) after ET0: labelled trend, auto-scaled axis, per-day drying(amber)/wetting(blue) direction coloring, 5-lang header + help card framing it as a model trend (not a sensor read). bump CACHE_VERSION on each release
+// Version 1.0.228 — removed soil-moisture row entirely (weak fit for humid highland farm + ECMWF carries no soil data, AI model only ~7 days): row, header, help card (5 langs), draw block, setH and SVG wiring all removed. VPD spray-timing row retained. Final data rows: ...RH, leaf-wetness, VPD, fog, ET0. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605311445';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605311508';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
