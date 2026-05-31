@@ -4045,15 +4045,6 @@
             if(el(`pest-btn-${id}`)) el(`pest-btn-${id}`).innerHTML = labels.pest;
             if(el(`tools-btn-${id}`)) el(`tools-btn-${id}`).innerText = labels.tools;
             
-            if(el(`irrig-btn-main-${id}`)) el(`irrig-btn-main-${id}`).innerText = labels.irrig;
-            if(el(`irrig-btn-${id}`)) el(`irrig-btn-${id}`).innerText = "✨ " + labels.calc;
-            
-            if(el(`harvest-btn-main-${id}`)) el(`harvest-btn-main-${id}`).innerText = labels.harvest;
-            if(el(`harvest-btn-${id}`)) el(`harvest-btn-${id}`).innerText = "✨ " + labels.est;
-            
-            if(el(`soil-btn-main-${id}`)) el(`soil-btn-main-${id}`).innerText = labels.soil;
-            if(el(`soil-btn-${id}`)) el(`soil-btn-${id}`).innerText = "✨ " + labels.rec;
-            
             if(el(`plan-btn-${id}`)) el(`plan-btn-${id}`).innerText = labels.plan;
             if(el(`sop-btn-${id}`)) el(`sop-btn-${id}`).innerText = labels.sop;
             if(el(`yield-btn-${id}`)) el(`yield-btn-${id}`).innerText = labels.yield;
@@ -6351,29 +6342,8 @@
                 </div>
                 
                 <div id="ai-tools-panel-${id}" class="ai-tools-panel">
-                    
-                    <button id="irrig-btn-main-${id}" onclick="window.toggleIrrigation('${id}')" class="ai-btn w-full justify-center" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); font-size:12px;">${labels.irrig}</button>
-                    <div id="irrig-ui-${id}" style="display:none; margin-top:8px;">
-                         <input type="text" id="irrig-input-${id}" class="w-input" placeholder="e.g. 5 year old tree, big canopy">
-                         <button id="irrig-btn-${id}" onclick="window.calculateIrrigation('${id}')" class="w-btn-primary" style="margin-top:0; font-size:12px;">✨ ${labels.calc}</button>
-                         <div id="irrig-result-${id}" class="ai-result-box" style="display:none; margin-top:8px; border-color:#22d3ee; background:#ecfeff; color:#155e75;"></div>
-                    </div>
 
-                    <button id="harvest-btn-main-${id}" onclick="window.toggleHarvest('${id}')" class="ai-btn w-full justify-center" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); font-size:12px; margin-top:8px;">${labels.harvest}</button>
-                    <div id="harvest-ui-${id}" style="display:none; margin-top:8px;">
-                        <input type="text" id="harvest-input-${id}" class="w-input" placeholder="e.g. strawberry just flowered / 草莓刚开花">
-                        <button id="harvest-btn-${id}" onclick="window.predictHarvest('${id}')" class="w-btn-primary" style="margin-top:0; font-size:12px;">✨ ${labels.est}</button>
-                        <div id="harvest-result-${id}" class="ai-result-box" style="display:none; margin-top:8px; border-color:#fcd34d; background:#fffbeb; color:#92400e;"></div>
-                    </div>
-
-                    <button id="soil-btn-main-${id}" onclick="window.toggleSoilAdvisor('${id}')" class="ai-btn w-full justify-center" style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%); font-size:12px; margin-top:8px;">${labels.soil}</button>
-                    <div id="soil-ui-${id}" style="display:none; margin-top:8px;">
-                         <input type="text" id="soil-input-${id}" class="w-input" placeholder="e.g. Sandy soil, prone to leaching...">
-                         <button id="soil-btn-${id}" onclick="window.consultSoil('${id}')" class="w-btn-primary" style="margin-top:0; font-size:12px;">✨ ${labels.rec}</button>
-                         <div id="soil-result-${id}" class="ai-result-box" style="display:none; margin-top:8px; border-color:#fcd34d; background:#fffbeb; color:#92400e;"></div>
-                    </div>
-
-                    <button id="plan-btn-${id}" onclick="window.generateWorkPlan('${id}')" class="ai-btn w-full justify-center" style="background:#4f46e5;font-size:12px; margin-top:8px;">${labels.plan}</button>
+                    <button id="plan-btn-${id}" onclick="window.generateWorkPlan('${id}')" class="ai-btn w-full justify-center" style="background:#4f46e5;font-size:12px;">${labels.plan}</button>
                     <div id="plan-grid-${id}" class="plan-grid"></div>
 
                     <button id="sop-btn-${id}" onclick="window.generateSOP('${id}')" class="ai-btn w-full justify-center" style="background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%); font-size:12px; margin-top:8px;">${labels.sop}</button>

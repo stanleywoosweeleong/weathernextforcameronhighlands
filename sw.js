@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.200 — API key input placeholder made format-neutral (Google now issues AQ.Ab... keys alongside AIza...; app accepts both, no validation). bump CACHE_VERSION on each release
+// Version 1.0.201 — removed Irrigation/Harvest/Soil AI tools (experienced Cameron farmers know these); kept Work Plan, SOP, Yield. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606011810';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606011910';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
