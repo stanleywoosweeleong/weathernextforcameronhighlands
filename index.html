@@ -989,7 +989,7 @@
         <div class="flex justify-center mb-2 items-baseline gap-2">
             <span id="elev-value" class="text-emerald-700 font-black text-lg tabular-nums">-- m</span>
         </div>
-        <input type="range" id="elev-slider" min="1000" max="1700" value="1700" step="10" class="w-full">
+        <input type="range" id="elev-slider" min="0" max="1" value="0" step="1" class="w-full">
     </footer>
 
     <!-- Forecast Modal -->
@@ -5484,6 +5484,7 @@
         // clicking the track jumps to the nearest farm, and ←/→ arrow keys step
         // farm-by-farm with no dragging at all (easier on the wrists).
         let elevStops = [];
+        const ELEV_SLIDER_KEY = 'weathernextforcameron__wnext_slider_elev';
 
         window.refreshElevationRange = () => {
             const slider = document.getElementById('elev-slider');
@@ -5495,16 +5496,25 @@
             // Distinct, ascending elevations.
             elevStops = Array.from(new Set(elevs)).sort((a, b) => a - b);
             // Index-based slider: 0 .. (stops-1), step 1 → snaps to each farm.
-            const prevElev = parseInt(slider.dataset.elev || '', 10);
             slider.min = 0;
             slider.max = Math.max(0, elevStops.length - 1);
             slider.step = 1;
-            // Preserve the user's current elevation if still present; else start at
-            // the TOP (highest farms) — the last index.
-            let idx = elevStops.length - 1;
-            if (!isNaN(prevElev)) {
-                const found = elevStops.indexOf(prevElev);
-                if (found >= 0) idx = found;
+            // Choose the starting index, in priority order:
+            //   1. The elevation the user left it on THIS session (dataset.elev).
+            //   2. The elevation saved from a PREVIOUS launch (localStorage).
+            //   3. Default to the MIDDLE elevation stop (most representative).
+            const midIdx = Math.floor((elevStops.length - 1) / 2);
+            let idx = midIdx;
+            const prevElev = parseInt(slider.dataset.elev || '', 10);
+            const savedElev = parseInt(localStorage.getItem(ELEV_SLIDER_KEY) || '', 10);
+            if (!isNaN(prevElev) && elevStops.indexOf(prevElev) >= 0) {
+                idx = elevStops.indexOf(prevElev);
+            } else if (!isNaN(savedElev)) {
+                // Snap the saved elevation to the nearest available stop (farms may
+                // have changed since it was saved).
+                let nearest = 0, best = Infinity;
+                elevStops.forEach((e, i) => { const d = Math.abs(e - savedElev); if (d < best) { best = d; nearest = i; } });
+                idx = nearest;
             }
             slider.value = idx;
             slider.dataset.elev = elevStops[idx];
@@ -5551,6 +5561,8 @@
             idx = Math.min(elevStops.length - 1, Math.max(0, idx));
             const targetElev = elevStops[idx];
             slider.dataset.elev = targetElev;
+            // Remember this choice for next launch.
+            try { localStorage.setItem(ELEV_SLIDER_KEY, String(targetElev)); } catch (e) {}
 
             const valEl = document.getElementById('elev-value');
             if (valEl) valEl.textContent = targetElev + ' m';
