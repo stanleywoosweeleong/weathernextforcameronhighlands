@@ -1248,7 +1248,7 @@
     <!-- Generic Confirm Modal -->
     <div id="confirm-modal" class="w-modal-overlay hidden" style="z-index: 5000;">
         <div class="w-modal-card">
-            <h3 class="text-lg font-black text-slate-900 mb-2">Confirm</h3>
+            <h3 id="confirm-title" class="text-lg font-black text-slate-900 mb-2">Confirm</h3>
             <p id="confirm-msg" class="text-sm text-slate-600 mb-6 whitespace-pre-line font-medium"></p>
             <div class="flex gap-4 mt-4">
                 <button onclick="window.closeConfirm(false)" class="flex-1 h-12 flex items-center justify-center rounded-2xl bg-slate-100 text-slate-400 hover:bg-slate-200 transition-colors">
@@ -5236,7 +5236,22 @@
 
         // ... [Confirm/Edit/Delete/Restore Logic Retained] ...
         let pendingConfirmAction = null;
-        window.showConfirm = (msg, action) => { const el = document.getElementById('confirm-modal'); const msgEl = document.getElementById('confirm-msg'); if(el && msgEl) { msgEl.innerText = msg; pendingConfirmAction = action; el.classList.remove('hidden'); } };
+        window.showConfirm = (msg, action, title, helpStyle) => {
+            const el = document.getElementById('confirm-modal');
+            const msgEl = document.getElementById('confirm-msg');
+            const titleEl = document.getElementById('confirm-title');
+            if (titleEl) {
+                titleEl.innerText = title || 'Confirm';
+                // Match the help-card title sizing when this is an info note;
+                // otherwise restore the default confirm-title look.
+                titleEl.style.cssText = helpStyle ? 'font-size:12px;font-weight:800;color:#1e293b;margin-bottom:8px;' : '';
+            }
+            if (msgEl) {
+                msgEl.style.cssText = helpStyle ? 'font-size:11.5px;line-height:1.65;color:#1e293b;font-weight:500;margin-bottom:24px;white-space:pre-line;' : '';
+                msgEl.innerText = msg;
+            }
+            if(el && msgEl) { pendingConfirmAction = action; el.classList.remove('hidden'); }
+        };
 
         // Explain how forecast accuracy works (it builds per-device over days/weeks).
         // Sets the right expectation so a new user doesn't abandon the app before
@@ -5246,8 +5261,9 @@
             const T = (lang === 'zh') ? DASH_T.zh : Object.assign({}, DASH_T.en, DASH_T[lang] || {});
             const title = T.fcExplainTitle || DASH_T.en.fcExplainTitle;
             const body = T.fcExplain || DASH_T.en.fcExplain;
-            // Reuse the confirm modal as a simple acknowledge-only info popup.
-            window.showConfirm(`${title}\n\n${body}`, null);
+            // Reuse the confirm modal as a simple acknowledge-only info popup, with
+            // the localized title in the header (not the body).
+            window.showConfirm(body, null, title, true);
         };
         window.closeConfirm = (isConfirmed) => { document.getElementById('confirm-modal').classList.add('hidden'); if (isConfirmed && pendingConfirmAction) { pendingConfirmAction(); } pendingConfirmAction = null; };
         window.openEditModal = (id) => { editingId = id; const loc = getAllLocations().find(l => l.id === id); const custom = renamedLocations[id]; document.getElementById('edit-name-en').value = custom ? custom.en : (loc.en || ''); document.getElementById('edit-name-zh').value = custom ? custom.zh : (loc.zh || ''); document.getElementById('edit-lat').value = loc ? String(loc.lat) : ''; document.getElementById('edit-lng').value = loc ? String(loc.lng) : ''; const elevField = document.getElementById('edit-elev'); if (elevField) { elevField.value = (typeof manualElevations[id] === 'number') ? String(manualElevations[id]) : ''; elevField.placeholder = (loc && typeof loc.elev === 'number') ? `${loc.elev}m (${loc.elevSource === 'grid' ? 'GPS' : loc.elevSource === 'manual' ? '手动 manual' : '默认 default'})` : '留空用GPS / blank = GPS'; } document.getElementById('edit-modal').classList.remove('hidden'); closeCardActions(id); };

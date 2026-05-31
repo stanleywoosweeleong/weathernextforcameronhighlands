@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.213 — added tappable accuracy-explanation note (builds per-device over days/weeks; early empty state is normal) in 5 langs. bump CACHE_VERSION on each release
+// Version 1.0.214 — accuracy info popup: localized header + help-card font sizing (was hardcoded 'Confirm' + generic font). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606013110';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606013210';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
