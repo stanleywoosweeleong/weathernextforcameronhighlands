@@ -708,9 +708,25 @@
         .w-modal-card { background: white; width: 85%; max-width: 320px; border-radius: 20px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); animation: modal-in 0.2s ease-out; }
         @keyframes modal-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        /* Crop picker: bigger fonts, padding and a 2-column grid on desktop
-           so the full crop list is visible at a glance instead of a tall,
-           narrow, hard-to-click column. */
+        /* Crop picker: tile grid at ALL sizes. Mobile gets 2 compact columns
+           (instead of a tall vertical list); desktop scales up the fonts/padding
+           and goes to 3 columns on wide screens. */
+        #crop-picker-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            padding: 10px;
+            align-content: start;
+        }
+        #crop-picker-list button {
+            width: 100% !important;
+            border: 1.5px solid #e2e8f0 !important;
+            border-radius: 10px !important;
+            padding: 12px 10px !important;
+            background: #fff;
+            font-size: 13px;
+        }
+        #crop-picker-list button span { font-size: 13px; }
         @media (min-width: 600px) {
             .crop-picker-card { width: 90% !important; max-width: 680px !important; max-height: 82vh !important; }
             .crop-picker-card .crop-picker-title { font-size: 19px !important; }
@@ -2659,14 +2675,17 @@
                   act_high: 'High — prepare preventive spray, reduce leaf wetness.', act_crit: 'Critical — spray promptly, improve drainage & airflow.' },
             ms: { zone: 'Zon', elevation: 'Ketinggian', unknown: '—',
                   fcAcc: 'Ketepatan ramalan', fcAccReg: 'purata serantau', fcDays: 'h', fcRainErr: 'ralat hujan',
+                  fcNoData: 'Ketepatan sedang dikumpul (perlu beberapa hari)', fcExplainTitle: 'Cara ketepatan ramalan berfungsi', fcExplain: 'Setiap hari apl membandingkan RAMALAN dengan apa yang BENAR-BENAR berlaku dan membina skor pada peranti INI (setiap telefon menjejak sendiri). Pada mulanya tiada sejarah untuk dibandingkan, jadi ia mengambil beberapa hari hingga beberapa minggu untuk menunjukkan ketepatan yang stabil. Ini bukan kerosakan — lebih lama anda guna, lebih jujur skor mencerminkan kebolehpercayaan ramalan tempatan. Hujan dan kabus tanah tinggi memang sukar diramal, jadi skor tinggi-rendah adalah normal dan jujur.',
                   fcHigh: 'Tinggi', fcMed: 'Sederhana', fcLow: 'Rendah', noData: 'Memuatkan data cuaca…',
                   valley: 'Lembah (lembap)', fog_z: 'Zon berkabus (RH tinggi)', midslope: 'Cerun (kawasan utama)', ridge: 'Rabung (lapang)' },
             ta: { zone: 'மண்டலம்', elevation: 'உயரம்', unknown: '—',
                   fcAcc: 'முன்னறிவிப்பு துல்லியம்', fcAccReg: 'பிராந்திய சராசரி', fcDays: 'நா', fcRainErr: 'மழை பிழை',
+                  fcNoData: 'துல்லியம் சேகரிக்கப்படுகிறது (சில நாட்கள் தேவை)', fcExplainTitle: 'முன்னறிவிப்பு துல்லியம் எப்படி வேலை செய்கிறது', fcExplain: 'ஒவ்வொரு நாளும் செயலி முன்னறிவிப்பை உண்மையில் நடந்ததுடன் ஒப்பிட்டு, இந்த சாதனத்தில் மதிப்பெண்ணை உருவாக்குகிறது (ஒவ்வொரு தொலைபேசியும் தனித்தனியாக). தொடக்கத்தில் ஒப்பிட வரலாறு இல்லை, எனவே நிலையான துல்லியத்தைக் காட்ட சில நாட்கள் முதல் சில வாரங்கள் ஆகும். இது குறைபாடு அல்ல — நீங்கள் அதிகம் பயன்படுத்தும்போது மதிப்பெண் உண்மையாக இருக்கும். மலை மழையும் மூடுபனியும் கணிக்க கடினம், எனவே உயர்வு-தாழ்வு இயல்பானது.',
                   fcHigh: 'அதிகம்', fcMed: 'நடுத்தரம்', fcLow: 'குறைவு', noData: 'வானிலை தரவு ஏற்றுகிறது…',
                   valley: 'பள்ளத்தாக்கு (ஈரப்பதம்)', fog_z: 'மூடுபனி மண்டலம் (அதிக RH)', midslope: 'சரிவு (முக்கிய பகுதி)', ridge: 'மலைமுகடு (காற்றோட்டம்)' },
             my: { zone: 'ဇုန်', elevation: 'အမြင့်', unknown: '—',
                   fcAcc: 'ခန့်မှန်းမှု တိကျမှု', fcAccReg: 'ဒေသဆိုင်ရာ ပျမ်းမျှ', fcDays: 'ရက်', fcRainErr: 'မိုးအမှား',
+                  fcNoData: 'တိကျမှု စုဆောင်းနေသည် (ရက်အနည်းငယ်လို)', fcExplainTitle: 'ခန့်မှန်းတိကျမှု အလုပ်လုပ်ပုံ', fcExplain: 'နေ့စဉ် အက်ပ်သည် ခန့်မှန်းချက်ကို အမှန်တကယ်ဖြစ်ပျက်သည့်အရာနှင့် နှိုင်းယှဉ်ပြီး ဤစက်ပစ္စည်းတွင် ရမှတ်တည်ဆောက်သည် (ဖုန်းတစ်လုံးစီ သီးခြားမှတ်တမ်းတင်)။ စတင်ချိန်တွင် နှိုင်းယှဉ်ရန်မှတ်တမ်းမရှိသဖြင့် တည်ငြိမ်သောတိကျမှုပြရန် ရက်အနည်းငယ်မှ ရက်သတ္တပတ်အနည်းငယ်ကြာသည်။ ၎င်းသည် ချွတ်ယွင်းချက်မဟုတ်ပါ — အသုံးပြုလေလေ ရမှတ်က ပိုမှန်ကန်စွာ ဖော်ပြလေဖြစ်သည်။ တောင်ပေါ်မိုးနှင့်မြူသည် ခန့်မှန်းရခက်သဖြင့် ရမှတ်အနိမ့်အမြင့်ရှိခြင်းသည် ပုံမှန်ဖြစ်သည်။',
                   fcHigh: 'မြင့်', fcMed: 'အလယ်အလတ်', fcLow: 'နိမ့်', noData: 'ရာသီဥတုဒေတာ ဖွင့်နေသည်…',
                   valley: 'တောင်ကြား (စိုထိုင်း)', fog_z: 'မြူဇုန် (RH မြင့်)', midslope: 'တောင်စောင်း (အဓိကဇုန်)', ridge: 'တောင်ကြောရိုး (လေဝင်လေထွက်)' }
         };
@@ -2870,7 +2889,15 @@
                 }
                 if (danger >= 0) {
                     const f = days[danger];
-                    const whenTxt = danger === 0 ? (lang==='en'?'today':lang==='zh'?'今天':lang==='ms'?'hari ini':'') : danger === 1 ? (lang==='en'?'tomorrow':lang==='zh'?'明天':lang==='ms'?'esok':'') : dowOf(danger);
+                    // Day reference for the banner. today/tomorrow in all 5 langs;
+                    // for 2+ days out use the actual DATE (e.g. 3/6) — unambiguous in
+                    // every language, unlike a cryptic weekday abbreviation.
+                    const TODAY = { en:'today', zh:'今天', ms:'hari ini', ta:'இன்று', my:'ယနေ့' };
+                    const TOMORROW = { en:'tomorrow', zh:'明天', ms:'esok', ta:'நாளை', my:'မနက်ဖြန်' };
+                    let whenTxt;
+                    if (danger === 0) whenTxt = TODAY[lang] || TODAY.en;
+                    else if (danger === 1) whenTxt = TOMORROW[lang] || TOMORROW.en;
+                    else { const dt = new Date(Date.now() + danger * 86400000); whenTxt = `${dt.getDate()}/${dt.getMonth() + 1}`; }
                     const amTxt = f.amFogHours >= 1 ? ` (${T.amFog})` : '';
                     const visTxt = f.worstVis != null ? ` · ${T.vis} ~${f.worstVis < 1000 ? f.worstVis + 'm' : (f.worstVis/1000).toFixed(1) + 'km'}` : '';
                     bannerSlot.innerHTML = `
@@ -4130,8 +4157,8 @@
                 const aT = (lang === 'zh') ? DASH_T.zh : Object.assign({}, DASH_T.en, DASH_T[lang] || {});
                 bodyHTML = `
                     <div class="help-card-section">
-                        <div style="font-size:11.5px; font-weight:800; color:#1e293b; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">${aT.fcExplainTitle}</div>
-                        <div style="font-size:11.5px; line-height:1.65; color:#1e293b;">${aT.fcExplain}</div>
+                        <div style="font-weight:800; color:#9333ea; margin-bottom:6px; display:flex; align-items:center; gap:6px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#9333ea;"></span>${aT.fcExplainTitle}</div>
+                        <div style="color:#1e293b; line-height:1.65; padding-left:14px;">${aT.fcExplain}</div>
                     </div>
                 `;
             }

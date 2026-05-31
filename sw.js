@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.217 — FIX: help cards opened empty (the card.innerHTML fill line was accidentally dropped when the accuracy case was added); restored so all help cards render content again. bump CACHE_VERSION on each release
+// Version 1.0.218 — fixes: accuracy note font matches help cards; BM/TA/MY accuracy strings translated; fog banner day shows today/tomorrow or date (not cryptic weekday); crop picker is tiles on mobile too. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606013510';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606013610';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
