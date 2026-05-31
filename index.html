@@ -2641,15 +2641,15 @@
         // are kept as-is across languages — like pH or NPK, they're standard terms —
         // while the descriptive words around them are translated.
         const CHART_HDR = {
-            en: { wvet:'WVET Crop Stress (Risk)', wind:'Wind 2m / Dir 10m / Gusts (km/h)', cloud:'Cloud (%) & CB Risk', storm:'Storm Risk (CAPE/CIN)', sky:'Sky Tint (AM/PM)', rainPP:'Rain Prob (%)', rainMM:'Rainfall (mm)', rh:'Humidity (RH %)', leafwet:'Leaf Wetness (hrs)', et0:'ET0 (mm)', vpd:'VPD Spray Signal (kPa)',
+            en: { wvet:'WVET Crop Stress (Risk)', wind:'Wind 2m / Dir 10m / Gusts (km/h)', cloud:'Cloud (%) & CB Risk', storm:'Storm Risk (CAPE/CIN)', sky:'Sky Tint (AM/PM)', rainPP:'Rain Prob (%)', rainMM:'Rainfall (mm)', rh:'Humidity (RH %)', leafwet:'Leaf Wetness (hrs)', et0:'ET0 (mm)', vpd:'VPD Air Dryness (kPa)',
                    tHi:'Hi', tLo:'Lo', tDew:'DewPt', tDelta:'DeltaT (8AM)', tSafe:'Safe Hours' },
-            zh: { wvet:'作物湿热胁迫 (风险)', wind:'风速2m / 风向10m / 阵风 (km/h)', cloud:'云量 (%) 与积雨云风险', storm:'风暴风险 (CAPE/CIN)', sky:'天色 (早/晚)', rainPP:'降雨概率 (%)', rainMM:'雨量 (mm)', rh:'湿度 (RH %)', leafwet:'叶面湿润 (小时)', et0:'ET0 蒸散 (mm)', vpd:'VPD 喷药信号 (kPa)',
+            zh: { wvet:'作物湿热胁迫 (风险)', wind:'风速2m / 风向10m / 阵风 (km/h)', cloud:'云量 (%) 与积雨云风险', storm:'风暴风险 (CAPE/CIN)', sky:'天色 (早/晚)', rainPP:'降雨概率 (%)', rainMM:'雨量 (mm)', rh:'湿度 (RH %)', leafwet:'叶面湿润 (小时)', et0:'ET0 蒸散 (mm)', vpd:'VPD 空气干湿 (kPa)',
                    tHi:'高温', tLo:'低温', tDew:'露点', tDelta:'DeltaT (早8点)', tSafe:'安全时段' },
-            ms: { wvet:'Tekanan Tanaman WVET (Risiko)', wind:'Angin 2m / Arah 10m / Pirau (km/h)', cloud:'Awan (%) & Risiko CB', storm:'Risiko Ribut (CAPE/CIN)', sky:'Warna Langit (Pagi/Petang)', rainPP:'Kebarangkalian Hujan (%)', rainMM:'Hujan (mm)', rh:'Kelembapan (RH %)', leafwet:'Daun Basah (jam)', et0:'ET0 (mm)', vpd:'Isyarat Semburan VPD (kPa)',
+            ms: { wvet:'Tekanan Tanaman WVET (Risiko)', wind:'Angin 2m / Arah 10m / Pirau (km/h)', cloud:'Awan (%) & Risiko CB', storm:'Risiko Ribut (CAPE/CIN)', sky:'Warna Langit (Pagi/Petang)', rainPP:'Kebarangkalian Hujan (%)', rainMM:'Hujan (mm)', rh:'Kelembapan (RH %)', leafwet:'Daun Basah (jam)', et0:'ET0 (mm)', vpd:'Kekeringan Udara VPD (kPa)',
                    tHi:'Tinggi', tLo:'Rendah', tDew:'Titik Embun', tDelta:'DeltaT (8AM)', tSafe:'Jam Selamat' },
-            ta: { wvet:'பயிர் அழுத்தம் WVET (ஆபத்து)', wind:'காற்று 2m / திசை 10m / பலத்த காற்று (km/h)', cloud:'மேகம் (%) & CB ஆபத்து', storm:'புயல் ஆபத்து (CAPE/CIN)', sky:'வான நிறம் (காலை/மாலை)', rainPP:'மழை வாய்ப்பு (%)', rainMM:'மழை (mm)', rh:'ஈரப்பதம் (RH %)', leafwet:'இலை ஈரம் (மணி)', et0:'ET0 (mm)', vpd:'VPD தெளிப்பு சமிக்ஞை (kPa)',
+            ta: { wvet:'பயிர் அழுத்தம் WVET (ஆபத்து)', wind:'காற்று 2m / திசை 10m / பலத்த காற்று (km/h)', cloud:'மேகம் (%) & CB ஆபத்து', storm:'புயல் ஆபத்து (CAPE/CIN)', sky:'வான நிறம் (காலை/மாலை)', rainPP:'மழை வாய்ப்பு (%)', rainMM:'மழை (mm)', rh:'ஈரப்பதம் (RH %)', leafwet:'இலை ஈரம் (மணி)', et0:'ET0 (mm)', vpd:'VPD காற்று வறட்சி (kPa)',
                    tHi:'அதிக', tLo:'குறை', tDew:'பனிப்புள்ளி', tDelta:'DeltaT (காலை8)', tSafe:'பாதுகாப்பு நேரம்' },
-            my: { wvet:'သီးနှံဖိစီးမှု WVET (အန္တရာယ်)', wind:'လေ 2m / ဦးတည်ရာ 10m / လေပြင်း (km/h)', cloud:'တိမ် (%) & CB အန္တရာယ်', storm:'မုန်တိုင်းအန္တရာယ် (CAPE/CIN)', sky:'ကောင်းကင်အရောင် (နံနက်/ညနေ)', rainPP:'မိုးရွာနိုင်ခြေ (%)', rainMM:'မိုးရေချိန် (mm)', rh:'စိုထိုင်းဆ (RH %)', leafwet:'အရွက်စိုစွတ်မှု (နာရီ)', et0:'ET0 (mm)', vpd:'VPD ဆေးဖျန်းအချက်ပြ (kPa)',
+            my: { wvet:'သီးနှံဖိစီးမှု WVET (အန္တရာယ်)', wind:'လေ 2m / ဦးတည်ရာ 10m / လေပြင်း (km/h)', cloud:'တိမ် (%) & CB အန္တရာယ်', storm:'မုန်တိုင်းအန္တရာယ် (CAPE/CIN)', sky:'ကောင်းကင်အရောင် (နံနက်/ညနေ)', rainPP:'မိုးရွာနိုင်ခြေ (%)', rainMM:'မိုးရေချိန် (mm)', rh:'စိုထိုင်းဆ (RH %)', leafwet:'အရွက်စိုစွတ်မှု (နာရီ)', et0:'ET0 (mm)', vpd:'VPD လေခြောက်သွေ့မှု (kPa)',
                    tHi:'အမြင့်', tLo:'အနိမ့်', tDew:'နှင်းမှတ်', tDelta:'DeltaT (နံနက်8)', tSafe:'လုံခြုံချိန်' }
         };
         const chartHdr = (lang) => CHART_HDR[lang] || CHART_HDR.en;
@@ -3593,6 +3593,8 @@
                     rule1: "Green band is your best spray window; blue means wait for the leaf to dry",
                     rule2: "Red band = don't spray midday — move to early morning or late afternoon when VPD drops",
                     rule3: "Read VPD with wind and Delta-T (temp row): all three need to be in range for a clean spray",
+                    lineAM: "8AM dashed blue line — morning air dryness (reads with DeltaT above).",
+                    lineMidday: "Midday solid line — afternoon peak, the labelled coloured numbers.",
                     useCaseLabel: "Best for:",
                     useCase: "greenhouse / protected cropping — VPD governs whether the canopy sits wet, whether the plant is transpiring (so foliar feed absorbs), and disease pressure in still, humid air. Open-field growers: use the DeltaT row (temp row) instead."
                 },
@@ -3699,6 +3701,8 @@
                     rule1: "绿色区是最佳喷药时段；蓝色表示等叶面干了再喷",
                     rule2: "红色区 = 午间勿喷——改在清晨或傍晚 VPD 下降时",
                     rule3: "VPD 要与风速和 Delta-T（温度行）一起看：三者都在范围内才是干净的喷药条件",
+                    lineAM: "早上8点蓝色虚线 — 早晨空气干湿（与上方 DeltaT 一起看）。",
+                    lineMidday: "午间实线 — 午后峰值，即标注的彩色数字。",
                     useCaseLabel: "最适合：",
                     useCase: "温室 / 保护地栽培 — VPD 决定冠层是否潮湿、植株是否在蒸腾（叶面肥能否吸收），以及静止潮湿空气中的病害压力。露天种植者：请改看 DeltaT 行（温度行）。"
                 },
@@ -3805,6 +3809,8 @@
                     rule1: "Jalur hijau ialah tetingkap semburan terbaik; biru bermaksud tunggu daun kering",
                     rule2: "Jalur merah = jangan sembur tengah hari — beralih ke awal pagi atau lewat petang bila VPD turun",
                     rule3: "Baca VPD bersama angin dan Delta-T (baris suhu): ketiga-tiganya perlu dalam julat untuk semburan bersih",
+                    lineAM: "Garis putus biru 8AM — kekeringan udara pagi (baca dengan DeltaT di atas).",
+                    lineMidday: "Garis pejal tengah hari — puncak petang, nombor berwarna berlabel.",
                     useCaseLabel: "Sesuai untuk:",
                     useCase: "rumah hijau / tanaman terlindung — VPD menentukan sama ada kanopi basah, sama ada pokok bertranspirasi (baja daun diserap), dan tekanan penyakit dalam udara lembap tenang. Penanam ladang terbuka: guna baris DeltaT (baris suhu)."
                 },
@@ -3911,6 +3917,8 @@
                     rule1: "பச்சை பட்டை சிறந்த தெளிப்பு நேரம்; நீலம் என்றால் இலை உலரும் வரை காத்திருங்கள்",
                     rule2: "சிவப்பு பட்டை = மதியம் தெளிக்க வேண்டாம் — VPD குறையும் அதிகாலை அல்லது மாலையில் செய்யுங்கள்",
                     rule3: "VPD ஐ காற்று மற்றும் Delta-T (வெப்பநிலை வரிசை) உடன் படியுங்கள்: சுத்தமான தெளிப்புக்கு மூன்றும் வரம்பில் இருக்க வேண்டும்",
+                    lineAM: "காலை 8 மணி நீல புள்ளிக்கோடு — காலை காற்று வறட்சி (மேலே DeltaT உடன் படியுங்கள்).",
+                    lineMidday: "மதிய திட கோடு — பிற்பகல் உச்சம், லேபிளிடப்பட்ட வண்ண எண்கள்.",
                     useCaseLabel: "ஏற்றது:",
                     useCase: "கிரீன்ஹவுஸ் / பாதுகாக்கப்பட்ட பயிர் — விதானம் ஈரமாக உள்ளதா, செடி டிரான்ஸ்பிரேஷன் செய்கிறதா (இலை உரம் உறிஞ்சப்படும்), அமைதியான ஈரக் காற்றில் நோய் அழுத்தம் ஆகியவற்றை VPD நிர்ணயிக்கிறது. திறந்தவெளி விவசாயிகள்: DeltaT வரிசையைப் (வெப்பநிலை வரிசை) பயன்படுத்தவும்."
                 },
@@ -4017,6 +4025,8 @@
                     rule1: "အစိမ်းအဆင့်သည် အကောင်းဆုံးဖျန်းချိန်၊ အပြာဆိုလျှင် အရွက်ခြောက်သည်အထိစောင့်ပါ",
                     rule2: "အနီအဆင့် = နေ့လယ်မဖျန်းပါနှင့် — VPD ကျဆင်းသော နံနက်စောစော သို့မဟုတ် ညနေပိုင်းသို့ ပြောင်းပါ",
                     rule3: "VPD ကို လေနှင့် Delta-T (အပူချိန်အတန်း) နှင့်တွဲဖတ်ပါ — သန့်ရှင်းသောဖျန်းမှုအတွက် သုံးခုလုံး အကွာအဝေးအတွင်းရှိရမည်",
+                    lineAM: "နံနက် ၈ နာရီ အပြာစက်ဝိုင်းမျဉ်း — နံနက်လေခြောက်သွေ့မှု (အပေါ်က DeltaT နှင့်ဖတ်ပါ)။",
+                    lineMidday: "နေ့လယ်မျဉ်းတန်း — နေ့လယ်အမြင့်ဆုံး၊ အညွှန်းပါ အရောင်ဂဏန်းများ။",
                     useCaseLabel: "သင့်တော်ဆုံး:",
                     useCase: "ဖန်လုံအိမ် / အကာအကွယ်စိုက်ပျိုးရေး — အရွက်ထီးစိုနေသလား၊ အပင်က ရေငွေ့ထုတ်နေသလား (အရွက်မြေသြဇာစုပ်ယူနိုင်)၊ ငြိမ်သက်စိုစွတ်လေထဲ ရောဂါဖိစီးမှုကို VPD က ဆုံးဖြတ်သည်။ လွင်ပြင်စိုက်သူများ: DeltaT အတန်း (အပူချိန်အတန်း) ကို သုံးပါ။"
                 },
@@ -4328,6 +4338,10 @@
                     <div class="help-card-section">
                         <div style="font-size:11.5px; font-weight:800; color:#1e293b; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">${vp.title}</div>
                         <div style="color:#1e293b; margin-bottom:8px;">${vp.body}</div>
+                        <div style="font-size:11px; line-height:1.6; color:#1e293b; margin-bottom:8px; background:#f8fafc; border-radius:4px; padding:6px 8px;">
+                            <div style="margin-bottom:2px;"><span style="display:inline-block;width:14px;border-top:2px dashed #60a5fa;vertical-align:middle;margin-right:5px;"></span>${vp.lineAM || '8AM — morning air (pairs with DeltaT above)'}</div>
+                            <div><span style="display:inline-block;width:14px;border-top:2px solid #94a3b8;vertical-align:middle;margin-right:5px;"></span>${vp.lineMidday || 'Midday — afternoon peak (the labelled numbers)'}</div>
+                        </div>
                         <div style="font-size:11.5px; line-height:1.7;">
                             <div>${dot('#2563eb')}<b>&lt; 0.4</b> — ${vp.tooHumid}</div>
                             <div>${dot('#16a34a')}<b>0.4 – 1.2</b> — ${vp.ideal}</div>
@@ -6846,8 +6860,8 @@
                 <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" id="hdr-wvet-${id}" style="color: #b45309;">${cH.wvet}<span class="help-icon-btn" id="help-icon-wvet-${id}" onclick="window.toggleHelpCard('${id}', 'wvet')" title="What is WVET?">?</span></div><div id="help-card-wvet-${id}" class="help-card"></div><div class="info-row" id="row-wvet-${id}" style="min-height: 60px; padding-top: 14px;"></div></div>
                 <div id="ch-past-temp-${id}" class="ch-past-strip"></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-temp-${id}"><span style="color:#f97316;">${cH.tHi}</span>/<span style="color:#2563eb;">${cH.tLo}</span> / <span style="color:#06b6d4;">${cH.tDew}</span> <span style="color:#cbd5e1; margin:0 2px;">|</span> <span style="color:#7e22ce;">${cH.tDelta}</span> / <span style="color:#166534;">${cH.tSafe}</span><span class="help-icon-btn" id="help-icon-temp-${id}" onclick="window.toggleHelpCard('${id}', 'temp')" title="What is DeltaT and Safe Hours?">?</span></div><div id="help-card-temp-${id}" class="help-card"></div><div class="info-row" id="row-temp-combined-${id}" style="min-height: 200px; padding-top: 10px;"></div><svg id="trend-layer-temp-${id}" class="trend-layer" height="200"></svg></div>
-                <div class="relative bg-slate-50/10" id="wind-row-container-${id}" style="margin-top:-38px;z-index:10;"><div class="row-label-overlay" id="hdr-wind-${id}">${cH.wind}</div><div class="info-row" id="row-wind-${id}" style="min-height:60px;padding-top:14px;"></div></div>
-                <div class="relative"><div class="row-label-overlay" id="hdr-vpd-${id}" style="color:#b45309">${cH.vpd}<span class="help-icon-btn" id="help-icon-vpd-${id}" onclick="window.toggleHelpCard('${id}', 'vpd')" title="What is VPD?">?</span></div><div id="help-card-vpd-${id}" class="help-card"></div><div class="info-row" id="row-vpd-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-vpd-${id}" class="trend-layer" height="42"></svg></div>
+                <div class="relative" style="margin-top:-38px;"><div class="row-label-overlay" id="hdr-vpd-${id}" style="color:#b45309">${cH.vpd}<span class="help-icon-btn" id="help-icon-vpd-${id}" onclick="window.toggleHelpCard('${id}', 'vpd')" title="What is VPD?">?</span></div><div id="help-card-vpd-${id}" class="help-card"></div><div class="info-row" id="row-vpd-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-vpd-${id}" class="trend-layer" height="42"></svg></div>
+                <div class="relative bg-slate-50/10" id="wind-row-container-${id}" style="z-index:10;"><div class="row-label-overlay" id="hdr-wind-${id}">${cH.wind}</div><div class="info-row" id="row-wind-${id}" style="min-height:60px;padding-top:14px;"></div></div>
                 <div class="relative bg-slate-50/10"><div class="row-label-overlay" id="hdr-cloud-${id}">${cH.cloud}<span class="help-icon-btn" id="help-icon-cloud-${id}" onclick="window.toggleHelpCard('${id}', 'cloud')" title="What is Cloud % and CB Risk?">?</span></div><div id="help-card-cloud-${id}" class="help-card"></div><div class="info-row" id="row-cl-high-${id}" style="min-height:42px;padding-top:14px;"></div><div class="info-row" id="row-cl-mid-${id}" style="min-height:28px;"></div><div class="info-row" id="row-cl-low-${id}" style="min-height:28px;"></div></div>
                 <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" id="hdr-storm-${id}" style="color:#7c2d12;">${cH.storm}<span class="help-icon-btn" id="help-icon-storm-${id}" onclick="window.toggleHelpCard('${id}', 'storm')" title="What is Storm Risk?">?</span></div><div id="help-card-storm-${id}" class="help-card"></div><div class="info-row" id="row-storm-${id}" style="min-height: 70px; padding-top: 14px;"></div></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-sky-${id}">${cH.sky}<span class="help-icon-btn" id="help-icon-sky-${id}" onclick="window.toggleHelpCard('${id}', 'sky')" title="What is Sky Tint?">?</span></div><div id="help-card-sky-${id}" class="help-card"></div><div class="info-row" id="row-sky-${id}" style="min-height: 42px; padding-top: 14px;"></div></div>
@@ -7097,6 +7111,9 @@
                     
                     // VPD: peak afternoon (12-16) is when atmospheric demand is highest — used for WVET
                     const dailyVPD = max0(win('vapour_pressure_deficit', 12, 16));
+                    // 8AM VPD — pairs with DeltaT@8AM as the morning air-dryness reading.
+                    // map.vapour_pressure_deficit[k8] is the 8AM hour (k8 defined above).
+                    const vpd8 = map.vapour_pressure_deficit?.[k8];
                     
                     // ===== NEW AGRONOMIC AGGREGATIONS (v1.0.52) =====
                     // Soil moisture: mean over the full day at each depth (root-zone water availability is a slow signal)
@@ -7251,6 +7268,7 @@
                         lwHrs, lwSrc,
                         rh: rhMean,
                         vpd: (typeof dailyVPD === 'number' && isFinite(dailyVPD)) ? Math.round(dailyVPD * 100) / 100 : null,
+                        vpdAM: (typeof vpd8 === 'number' && isFinite(vpd8)) ? Math.round(vpd8 * 100) / 100 : null,
                         gdd: gdd !== null ? Math.round(gdd * 10) / 10 : null,
                         skyAM, skyPM
                     });
@@ -7677,20 +7695,46 @@
                 }
             }
 
-            // VPD (vapour pressure deficit, kPa) — spray-timing signal, height=42.
+            // VPD (vapour pressure deficit, kPa) — AIR DRYNESS, two timepoints, height=42.
             // FIXED scale (0–2.5 kPa), not auto-scaled, because the absolute band a value
-            // sits in IS the message: too humid → spray sits wet; ideal → dries & absorbs;
-            // too dry → spray evaporates before the leaf takes it up. Bands mirror the
-            // thresholds already used in calculateWVET so the row agrees with WVET/Safe-Hours:
-            //   < 0.4  too humid (blue)   0.4–1.2 ideal (green)
-            //   1.2–1.8 marginal (amber)  > 1.8  too dry (red)
+            // sits in IS the message (dry vs humid air; also drives spray timing). Bands
+            // mirror calculateWVET so the row agrees with WVET/Safe-Hours:
+            //   < 0.4 humid (blue)  0.4–1.2 ideal (green)  1.2–1.8 marginal (amber)  >1.8 dry (red)
+            // TWO LINES:
+            //   • 8AM line  — faint blue, small dots, no labels — the morning air state,
+            //     pairs with DeltaT@8AM in the temp row directly above.
+            //   • Midday line — band-colored + labelled — the afternoon peak (prominent).
+            // The gap between the two shows how much the air dries out through the day.
             if (svgVPD) {
                 const vpdVals = days.map(d => (typeof d.vpd === 'number') ? d.vpd : null);
-                if (vpdVals.some(v => v !== null)) {
+                const vpdAMVals = days.map(d => (typeof d.vpdAM === 'number') ? d.vpdAM : null);
+                if (vpdVals.some(v => v !== null) || vpdAMVals.some(v => v !== null)) {
                     const VPD_FULL = 2.5;             // top of fixed scale
                     const VPD_TOP = 22, VPD_BOTTOM = 36;
                     const vy = (v) => VPD_TOP + (1 - Math.min(v, VPD_FULL) / VPD_FULL) * (VPD_BOTTOM - VPD_TOP);
                     const vpdColor = (v) => v < 0.4 ? "#2563eb" : v <= 1.2 ? "#16a34a" : v <= 1.8 ? "#d97706" : "#dc2626";
+
+                    // ---- 8AM line first (drawn underneath): faint blue, small dots, no labels ----
+                    let amP = "";
+                    days.forEach((d, i) => {
+                        const v = vpdAMVals[i];
+                        if (v === null) return;
+                        const x = columnCenters[i], y = vy(v);
+                        amP += (amP === "" ? "M " : " L ") + x + " " + y;
+                        const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", "1.8");
+                        c.setAttribute("fill", "#60a5fa"); c.setAttribute("opacity", "0.7");
+                        svgVPD.appendChild(c);
+                    });
+                    if (amP) {
+                        const aml = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        aml.setAttribute("d", amP); aml.setAttribute("stroke", "#60a5fa");
+                        aml.setAttribute("stroke-width", "1.5"); aml.setAttribute("fill", "none");
+                        aml.setAttribute("stroke-dasharray", "3 2"); aml.setAttribute("opacity", "0.6");
+                        svgVPD.appendChild(aml);
+                    }
+
+                    // ---- Midday line on top: band-colored dots + labels (the prominent read) ----
                     let vpdP = "";
                     days.forEach((d, i) => {
                         const v = vpdVals[i];
@@ -7708,7 +7752,6 @@
                         txt.setAttribute("font-weight", "950"); txt.setAttribute("fill", col);
                         txt.textContent = v.toFixed(1); svgVPD.appendChild(txt);
                     });
-                    // Neutral grey connecting line; the colored dots carry the band meaning.
                     const vpdl = document.createElementNS("http://www.w3.org/2000/svg", "path");
                     vpdl.setAttribute("d", vpdP); vpdl.setAttribute("stroke", "#94a3b8");
                     vpdl.setAttribute("stroke-width", "2"); vpdl.setAttribute("fill", "none");
