@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.202 — language toggle now re-renders microclimate panel + past strips instantly (5 langs, EN fallback) and preserves scroll position. bump CACHE_VERSION on each release
+// Version 1.0.203 — localized all 10 chart row headers (5 langs; sci abbreviations kept); update live on language toggle. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606012010';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606012110';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

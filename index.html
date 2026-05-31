@@ -2468,6 +2468,24 @@
         // disease, today's full 3-disease breakdown, and the driving metrics
         // (leaf-wetness hours, fog/high-RH hours, rain, mean RH/temp).
         // ------------------------------------------------------------
+        // Chart row-header labels in all 5 languages. Universal scientific /
+        // meteorological abbreviations (CAPE, CIN, ET0, DeltaT, RH, mm, km/h, AM/PM)
+        // are kept as-is across languages — like pH or NPK, they're standard terms —
+        // while the descriptive words around them are translated.
+        const CHART_HDR = {
+            en: { wvet:'WVET Crop Stress (Risk)', wind:'Wind 2m / Dir 10m / Gusts (km/h)', cloud:'Cloud (%) & CB Risk', storm:'Storm Risk (CAPE/CIN)', sky:'Sky Tint (AM/PM)', rainPP:'Rain Prob (%)', rainMM:'Rainfall (mm)', rh:'Humidity (RH %)', et0:'ET0 (mm)',
+                   tHi:'Hi', tLo:'Lo', tDew:'DewPt', tDelta:'DeltaT (8AM)', tSafe:'Safe Hours' },
+            zh: { wvet:'作物湿热胁迫 (风险)', wind:'风速2m / 风向10m / 阵风 (km/h)', cloud:'云量 (%) 与积雨云风险', storm:'风暴风险 (CAPE/CIN)', sky:'天色 (早/晚)', rainPP:'降雨概率 (%)', rainMM:'雨量 (mm)', rh:'湿度 (RH %)', et0:'ET0 蒸散 (mm)',
+                   tHi:'高温', tLo:'低温', tDew:'露点', tDelta:'DeltaT (早8点)', tSafe:'安全时段' },
+            ms: { wvet:'Tekanan Tanaman WVET (Risiko)', wind:'Angin 2m / Arah 10m / Pirau (km/h)', cloud:'Awan (%) & Risiko CB', storm:'Risiko Ribut (CAPE/CIN)', sky:'Warna Langit (Pagi/Petang)', rainPP:'Kebarangkalian Hujan (%)', rainMM:'Hujan (mm)', rh:'Kelembapan (RH %)', et0:'ET0 (mm)',
+                   tHi:'Tinggi', tLo:'Rendah', tDew:'Titik Embun', tDelta:'DeltaT (8AM)', tSafe:'Jam Selamat' },
+            ta: { wvet:'பயிர் அழுத்தம் WVET (ஆபத்து)', wind:'காற்று 2m / திசை 10m / பலத்த காற்று (km/h)', cloud:'மேகம் (%) & CB ஆபத்து', storm:'புயல் ஆபத்து (CAPE/CIN)', sky:'வான நிறம் (காலை/மாலை)', rainPP:'மழை வாய்ப்பு (%)', rainMM:'மழை (mm)', rh:'ஈரப்பதம் (RH %)', et0:'ET0 (mm)',
+                   tHi:'அதிக', tLo:'குறை', tDew:'பனிப்புள்ளி', tDelta:'DeltaT (காலை8)', tSafe:'பாதுகாப்பு நேரம்' },
+            my: { wvet:'သီးနှံဖိစီးမှု WVET (အန္တရာယ်)', wind:'လေ 2m / ဦးတည်ရာ 10m / လေပြင်း (km/h)', cloud:'တိမ် (%) & CB အန္တရာယ်', storm:'မုန်တိုင်းအန္တရာယ် (CAPE/CIN)', sky:'ကောင်းကင်အရောင် (နံနက်/ညနေ)', rainPP:'မိုးရွာနိုင်ခြေ (%)', rainMM:'မိုးရေချိန် (mm)', rh:'စိုထိုင်းဆ (RH %)', et0:'ET0 (mm)',
+                   tHi:'အမြင့်', tLo:'အနိမ့်', tDew:'နှင်းမှတ်', tDelta:'DeltaT (နံနက်8)', tSafe:'လုံခြုံချိန်' }
+        };
+        const chartHdr = (lang) => CHART_HDR[lang] || CHART_HDR.en;
+
         const DASH_T = {
             zh: { title: '微气候病害预警', sub: '基于海拔与天气的真菌病害风险',
                   zone: '微气候区', elevation: '海拔', today: '今日风险', outlook: '7天展望',
@@ -4081,6 +4099,23 @@
             // the scroll position so a bilingual user toggling mid-read stays put.
             const scroller = document.scrollingElement || document.documentElement;
             const savedScroll = scroller ? scroller.scrollTop : 0;
+            // Chart row headers (technical labels) — update in place.
+            const cH = (typeof chartHdr === 'function') ? chartHdr(lang) : null;
+            if (cH) {
+                const setH = (sel, html) => { const e = el(sel); if (e) e.innerHTML = html; };
+                // Re-append the help "?" button where one exists.
+                const help = (key, title) => `<span class="help-icon-btn" id="help-icon-${key}-${id}" onclick="window.toggleHelpCard('${id}', '${key}')" title="${title}">?</span>`;
+                setH(`hdr-wvet-${id}`, `${cH.wvet}${help('wvet','What is WVET?')}`);
+                setH(`hdr-temp-${id}`, `<span style="color:#f97316;">${cH.tHi}</span>/<span style="color:#2563eb;">${cH.tLo}</span> / <span style="color:#06b6d4;">${cH.tDew}</span> <span style="color:#cbd5e1; margin:0 2px;">|</span> <span style="color:#7e22ce;">${cH.tDelta}</span> / <span style="color:#166534;">${cH.tSafe}</span>${help('temp','What is DeltaT and Safe Hours?')}`);
+                setH(`hdr-wind-${id}`, cH.wind);
+                setH(`hdr-cloud-${id}`, `${cH.cloud}${help('cloud','What is Cloud % and CB Risk?')}`);
+                setH(`hdr-storm-${id}`, `${cH.storm}${help('storm','What is Storm Risk?')}`);
+                setH(`hdr-sky-${id}`, `${cH.sky}${help('sky','What is Sky Tint?')}`);
+                setH(`hdr-rainpp-${id}`, cH.rainPP);
+                setH(`hdr-rainmm-${id}`, cH.rainMM);
+                setH(`hdr-rh-${id}`, cH.rh);
+                setH(`hdr-et0-${id}`, cH.et0);
+            }
             try { if (typeof window.renderDiseaseDashboard === 'function') window.renderDiseaseDashboard(id); } catch (e) {}
             try { if (typeof window.renderPastStrips === 'function') window.renderPastStrips(id); } catch (e) {}
             // Restore scroll on the next frame (after layout settles from re-render).
@@ -6320,6 +6355,7 @@
 
         function createReportHTML(id, loc) {
              const lang = getLang(id);
+             const cH = chartHdr(lang);
              // Updated: Use helper for crop label
              const crop = getLocalizedCropName(locationCrops[id] || 'leafy', lang);
              
@@ -6387,19 +6423,19 @@
                 </div>
 
                 <div class="info-row" id="row-dates-top-${id}"></div>
-                <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" style="color: #b45309;">WVET Crop Stress (Risk)<span class="help-icon-btn" id="help-icon-wvet-${id}" onclick="window.toggleHelpCard('${id}', 'wvet')" title="What is WVET?">?</span></div><div id="help-card-wvet-${id}" class="help-card"></div><div class="info-row" id="row-wvet-${id}" style="min-height: 60px; padding-top: 14px;"></div></div>
+                <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" id="hdr-wvet-${id}" style="color: #b45309;">${cH.wvet}<span class="help-icon-btn" id="help-icon-wvet-${id}" onclick="window.toggleHelpCard('${id}', 'wvet')" title="What is WVET?">?</span></div><div id="help-card-wvet-${id}" class="help-card"></div><div class="info-row" id="row-wvet-${id}" style="min-height: 60px; padding-top: 14px;"></div></div>
                 <div id="ch-past-temp-${id}" class="ch-past-strip"></div>
-                <div class="relative"><div class="row-label-overlay"><span style="color:#f97316;">Hi</span>/<span style="color:#2563eb;">Lo</span> / <span style="color:#06b6d4;">DewPt</span> <span style="color:#cbd5e1; margin:0 2px;">|</span> <span style="color:#7e22ce;">DeltaT (8AM)</span> / <span style="color:#166534;">Safe Hours</span><span class="help-icon-btn" id="help-icon-temp-${id}" onclick="window.toggleHelpCard('${id}', 'temp')" title="What is DeltaT and Safe Hours?">?</span></div><div id="help-card-temp-${id}" class="help-card"></div><div class="info-row" id="row-temp-combined-${id}" style="min-height: 200px; padding-top: 10px;"></div><svg id="trend-layer-temp-${id}" class="trend-layer" height="200"></svg></div>
-                <div class="relative bg-slate-50/10" id="wind-row-container-${id}" style="margin-top:-38px;z-index:10;"><div class="row-label-overlay">Wind 2m / Dir 10m / Gusts (km/h)</div><div class="info-row" id="row-wind-${id}" style="min-height:60px;padding-top:14px;"></div></div>
-                <div class="relative bg-slate-50/10"><div class="row-label-overlay">Cloud (%) & CB Risk<span class="help-icon-btn" id="help-icon-cloud-${id}" onclick="window.toggleHelpCard('${id}', 'cloud')" title="What is Cloud % and CB Risk?">?</span></div><div id="help-card-cloud-${id}" class="help-card"></div><div class="info-row" id="row-cl-high-${id}" style="min-height:42px;padding-top:14px;"></div><div class="info-row" id="row-cl-mid-${id}" style="min-height:28px;"></div><div class="info-row" id="row-cl-low-${id}" style="min-height:28px;"></div></div>
-                <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" style="color:#7c2d12;">Storm Risk (CAPE/CIN)<span class="help-icon-btn" id="help-icon-storm-${id}" onclick="window.toggleHelpCard('${id}', 'storm')" title="What is Storm Risk?">?</span></div><div id="help-card-storm-${id}" class="help-card"></div><div class="info-row" id="row-storm-${id}" style="min-height: 70px; padding-top: 14px;"></div></div>
-                <div class="relative"><div class="row-label-overlay">Sky Tint (AM/PM)<span class="help-icon-btn" id="help-icon-sky-${id}" onclick="window.toggleHelpCard('${id}', 'sky')" title="What is Sky Tint?">?</span></div><div id="help-card-sky-${id}" class="help-card"></div><div class="info-row" id="row-sky-${id}" style="min-height: 42px; padding-top: 14px;"></div></div>
-                <div class="relative"><div class="row-label-overlay">Rain Prob (%)</div><div class="info-row" id="row-rain-pp-${id}" style="min-height:70px;padding-top:18px;"></div><svg id="trend-layer-pp-${id}" class="trend-layer" height="70"></svg></div>
+                <div class="relative"><div class="row-label-overlay" id="hdr-temp-${id}"><span style="color:#f97316;">${cH.tHi}</span>/<span style="color:#2563eb;">${cH.tLo}</span> / <span style="color:#06b6d4;">${cH.tDew}</span> <span style="color:#cbd5e1; margin:0 2px;">|</span> <span style="color:#7e22ce;">${cH.tDelta}</span> / <span style="color:#166534;">${cH.tSafe}</span><span class="help-icon-btn" id="help-icon-temp-${id}" onclick="window.toggleHelpCard('${id}', 'temp')" title="What is DeltaT and Safe Hours?">?</span></div><div id="help-card-temp-${id}" class="help-card"></div><div class="info-row" id="row-temp-combined-${id}" style="min-height: 200px; padding-top: 10px;"></div><svg id="trend-layer-temp-${id}" class="trend-layer" height="200"></svg></div>
+                <div class="relative bg-slate-50/10" id="wind-row-container-${id}" style="margin-top:-38px;z-index:10;"><div class="row-label-overlay" id="hdr-wind-${id}">${cH.wind}</div><div class="info-row" id="row-wind-${id}" style="min-height:60px;padding-top:14px;"></div></div>
+                <div class="relative bg-slate-50/10"><div class="row-label-overlay" id="hdr-cloud-${id}">${cH.cloud}<span class="help-icon-btn" id="help-icon-cloud-${id}" onclick="window.toggleHelpCard('${id}', 'cloud')" title="What is Cloud % and CB Risk?">?</span></div><div id="help-card-cloud-${id}" class="help-card"></div><div class="info-row" id="row-cl-high-${id}" style="min-height:42px;padding-top:14px;"></div><div class="info-row" id="row-cl-mid-${id}" style="min-height:28px;"></div><div class="info-row" id="row-cl-low-${id}" style="min-height:28px;"></div></div>
+                <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" id="hdr-storm-${id}" style="color:#7c2d12;">${cH.storm}<span class="help-icon-btn" id="help-icon-storm-${id}" onclick="window.toggleHelpCard('${id}', 'storm')" title="What is Storm Risk?">?</span></div><div id="help-card-storm-${id}" class="help-card"></div><div class="info-row" id="row-storm-${id}" style="min-height: 70px; padding-top: 14px;"></div></div>
+                <div class="relative"><div class="row-label-overlay" id="hdr-sky-${id}">${cH.sky}<span class="help-icon-btn" id="help-icon-sky-${id}" onclick="window.toggleHelpCard('${id}', 'sky')" title="What is Sky Tint?">?</span></div><div id="help-card-sky-${id}" class="help-card"></div><div class="info-row" id="row-sky-${id}" style="min-height: 42px; padding-top: 14px;"></div></div>
+                <div class="relative"><div class="row-label-overlay" id="hdr-rainpp-${id}">${cH.rainPP}</div><div class="info-row" id="row-rain-pp-${id}" style="min-height:70px;padding-top:18px;"></div><svg id="trend-layer-pp-${id}" class="trend-layer" height="70"></svg></div>
                 <div id="ch-past-rain-${id}" class="ch-past-strip"></div>
-                <div class="relative bg-slate-50/10"><div class="row-label-overlay" style="color:#1e3a8a">Rainfall (mm)</div><div class="info-row" id="row-rain-vv-${id}" style="min-height:52px;padding-top:18px;"></div><svg id="trend-layer-vv-${id}" class="trend-layer" height="52"></svg></div>
+                <div class="relative bg-slate-50/10"><div class="row-label-overlay" id="hdr-rainmm-${id}" style="color:#1e3a8a">${cH.rainMM}</div><div class="info-row" id="row-rain-vv-${id}" style="min-height:52px;padding-top:18px;"></div><svg id="trend-layer-vv-${id}" class="trend-layer" height="52"></svg></div>
                 <div id="ch-past-rh-${id}" class="ch-past-strip"></div>
-                <div class="relative"><div class="row-label-overlay" style="color:#0891b2">Humidity (RH %)</div><div id="ch-rh-forecast-${id}" class="ch-rh-forecast"></div></div>
-                <div class="relative"><div class="row-label-overlay" style="color:#059669">ET0 (mm)</div><div class="info-row" id="row-et-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-et-${id}" class="trend-layer" height="42"></svg></div>
+                <div class="relative"><div class="row-label-overlay" id="hdr-rh-${id}" style="color:#0891b2">${cH.rh}</div><div id="ch-rh-forecast-${id}" class="ch-rh-forecast"></div></div>
+                <div class="relative"><div class="row-label-overlay" id="hdr-et0-${id}" style="color:#059669">${cH.et0}</div><div class="info-row" id="row-et-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-et-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="info-row" id="row-dates-bottom-${id}"></div>
              </div>`;
         }
