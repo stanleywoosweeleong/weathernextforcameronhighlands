@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.232 — removed past-3-day TEMPERATURE strip display only (renderer + slot hidden). pdays data kept (still feeds past-rain and past-RH strips); forecast accuracy reads past.temperature_2m independently so is unaffected. bump CACHE_VERSION on each release
+// Version 1.0.233 — accuracy bugfix: forecast verification now only scores days STRICTLY BEFORE today. Previously the in-progress current day (present in the _past payload) could be scored against its own partial actuals at near-zero lead time, which inflated the accuracy score and made it climb on same-day relaunches. Pre-existing inflated records self-correct as they age out of the 30-day window. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605312156';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605312236';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

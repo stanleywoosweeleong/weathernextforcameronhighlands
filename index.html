@@ -2557,8 +2557,16 @@
 
             // For each elapsed date present in the actuals, see if we have a stored
             // forecast to compare against.
+            // GUARD: only score days STRICTLY BEFORE today. The _past payload (and
+            // Open-Meteo's forecast/past overlap) includes the current in-progress day;
+            // scoring that would (a) compare a forecast against a partial day's actuals
+            // that changes every hour, and (b) score near-zero-lead-time predictions,
+            // both of which falsely inflate and destabilise the score on same-day
+            // relaunches. A forecast is only honestly verifiable once its day is over.
+            const _todayYmd = _ymd(new Date());
             const seenDates = new Set((past.time || []).map(t => (t || '').slice(0, 10)));
             seenDates.forEach(ymd => {
+                if (ymd >= _todayYmd) return; // skip today + any future date
                 const key = `${id}|${ymd}`;
                 const fc = fcStore[key];
                 if (!fc || alreadyDates.has(ymd)) return; // need a forecast + not done yet
