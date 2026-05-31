@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.220 — slider sync fixes: (1) cached card positions + debounced persist to remove scroll stickiness; (2) scroll-extreme detection so slider reaches BOTH ends (was stuck mid-range at list bottom). bump CACHE_VERSION on each release
+// Version 1.0.223 — restored the 14-day RH forecast as a proper LABELLED trend row (row-rh / trend-layer-rh) with per-day %% values, auto-scaled axis, aligned to shared date columns to match temp/ET0/leaf-wetness. RH data still feeds forecast-accuracy calc. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606013810';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605311430';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

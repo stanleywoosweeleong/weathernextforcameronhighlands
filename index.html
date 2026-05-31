@@ -394,6 +394,17 @@
         }
         .help-icon-btn:hover { background: #7e22ce; color: white; }
         .help-icon-btn.active { background: #7e22ce; color: white; }
+        /* Provenance tag on the leaf-wetness row label — tells the farmer whether the
+           number is the native model field or our own derived estimate, so it's never
+           mistaken for a hardware leaf-wetness sensor reading. */
+        .lw-src-tag {
+            display: inline-block; vertical-align: middle;
+            font-size: 8.5px; font-weight: 800; letter-spacing: 0.02em;
+            line-height: 1; padding: 2px 5px; border-radius: 4px;
+            margin-left: 2px; position: relative; top: -1px;
+        }
+        .lw-src-tag.model { background: #ccfbf1; color: #0f766e; }
+        .lw-src-tag.computed { background: #fef3c7; color: #92400e; }
         
         /* Help card — appears inline below the row label when icon is tapped.
            When closed, `display: none` removes it from layout entirely.
@@ -483,7 +494,6 @@
         .ch-ps-temp { font-size: 11px; font-weight: 800; }
         .ch-ps-dow { font-size: 8px; font-weight: 600; color: #94a3b8; }
         .ch-past-empty { font-size: 9px; font-weight: 600; color: #cbd5e1; padding: 4px 8px; background: #f8fafc; border-top: 1px solid #eef2f6; }
-        .ch-rh-forecast { padding-top: 4px; }
         /* ===== Fog forecast row + driving-safety banner ===== */
         .ch-fog-row { padding: 20px 4px 2px; }
         .ch-fog-cells { display: flex; gap: 3px; }
@@ -2631,15 +2641,15 @@
         // are kept as-is across languages — like pH or NPK, they're standard terms —
         // while the descriptive words around them are translated.
         const CHART_HDR = {
-            en: { wvet:'WVET Crop Stress (Risk)', wind:'Wind 2m / Dir 10m / Gusts (km/h)', cloud:'Cloud (%) & CB Risk', storm:'Storm Risk (CAPE/CIN)', sky:'Sky Tint (AM/PM)', rainPP:'Rain Prob (%)', rainMM:'Rainfall (mm)', rh:'Humidity (RH %)', et0:'ET0 (mm)',
+            en: { wvet:'WVET Crop Stress (Risk)', wind:'Wind 2m / Dir 10m / Gusts (km/h)', cloud:'Cloud (%) & CB Risk', storm:'Storm Risk (CAPE/CIN)', sky:'Sky Tint (AM/PM)', rainPP:'Rain Prob (%)', rainMM:'Rainfall (mm)', rh:'Humidity (RH %)', leafwet:'Leaf Wetness (hrs)', et0:'ET0 (mm)',
                    tHi:'Hi', tLo:'Lo', tDew:'DewPt', tDelta:'DeltaT (8AM)', tSafe:'Safe Hours' },
-            zh: { wvet:'作物湿热胁迫 (风险)', wind:'风速2m / 风向10m / 阵风 (km/h)', cloud:'云量 (%) 与积雨云风险', storm:'风暴风险 (CAPE/CIN)', sky:'天色 (早/晚)', rainPP:'降雨概率 (%)', rainMM:'雨量 (mm)', rh:'湿度 (RH %)', et0:'ET0 蒸散 (mm)',
+            zh: { wvet:'作物湿热胁迫 (风险)', wind:'风速2m / 风向10m / 阵风 (km/h)', cloud:'云量 (%) 与积雨云风险', storm:'风暴风险 (CAPE/CIN)', sky:'天色 (早/晚)', rainPP:'降雨概率 (%)', rainMM:'雨量 (mm)', rh:'湿度 (RH %)', leafwet:'叶面湿润 (小时)', et0:'ET0 蒸散 (mm)',
                    tHi:'高温', tLo:'低温', tDew:'露点', tDelta:'DeltaT (早8点)', tSafe:'安全时段' },
-            ms: { wvet:'Tekanan Tanaman WVET (Risiko)', wind:'Angin 2m / Arah 10m / Pirau (km/h)', cloud:'Awan (%) & Risiko CB', storm:'Risiko Ribut (CAPE/CIN)', sky:'Warna Langit (Pagi/Petang)', rainPP:'Kebarangkalian Hujan (%)', rainMM:'Hujan (mm)', rh:'Kelembapan (RH %)', et0:'ET0 (mm)',
+            ms: { wvet:'Tekanan Tanaman WVET (Risiko)', wind:'Angin 2m / Arah 10m / Pirau (km/h)', cloud:'Awan (%) & Risiko CB', storm:'Risiko Ribut (CAPE/CIN)', sky:'Warna Langit (Pagi/Petang)', rainPP:'Kebarangkalian Hujan (%)', rainMM:'Hujan (mm)', rh:'Kelembapan (RH %)', leafwet:'Daun Basah (jam)', et0:'ET0 (mm)',
                    tHi:'Tinggi', tLo:'Rendah', tDew:'Titik Embun', tDelta:'DeltaT (8AM)', tSafe:'Jam Selamat' },
-            ta: { wvet:'பயிர் அழுத்தம் WVET (ஆபத்து)', wind:'காற்று 2m / திசை 10m / பலத்த காற்று (km/h)', cloud:'மேகம் (%) & CB ஆபத்து', storm:'புயல் ஆபத்து (CAPE/CIN)', sky:'வான நிறம் (காலை/மாலை)', rainPP:'மழை வாய்ப்பு (%)', rainMM:'மழை (mm)', rh:'ஈரப்பதம் (RH %)', et0:'ET0 (mm)',
+            ta: { wvet:'பயிர் அழுத்தம் WVET (ஆபத்து)', wind:'காற்று 2m / திசை 10m / பலத்த காற்று (km/h)', cloud:'மேகம் (%) & CB ஆபத்து', storm:'புயல் ஆபத்து (CAPE/CIN)', sky:'வான நிறம் (காலை/மாலை)', rainPP:'மழை வாய்ப்பு (%)', rainMM:'மழை (mm)', rh:'ஈரப்பதம் (RH %)', leafwet:'இலை ஈரம் (மணி)', et0:'ET0 (mm)',
                    tHi:'அதிக', tLo:'குறை', tDew:'பனிப்புள்ளி', tDelta:'DeltaT (காலை8)', tSafe:'பாதுகாப்பு நேரம்' },
-            my: { wvet:'သီးနှံဖိစီးမှု WVET (အန္တရာယ်)', wind:'လေ 2m / ဦးတည်ရာ 10m / လေပြင်း (km/h)', cloud:'တိမ် (%) & CB အန္တရာယ်', storm:'မုန်တိုင်းအန္တရာယ် (CAPE/CIN)', sky:'ကောင်းကင်အရောင် (နံနက်/ညနေ)', rainPP:'မိုးရွာနိုင်ခြေ (%)', rainMM:'မိုးရေချိန် (mm)', rh:'စိုထိုင်းဆ (RH %)', et0:'ET0 (mm)',
+            my: { wvet:'သီးနှံဖိစီးမှု WVET (အန္တရာယ်)', wind:'လေ 2m / ဦးတည်ရာ 10m / လေပြင်း (km/h)', cloud:'တိမ် (%) & CB အန္တရာယ်', storm:'မုန်တိုင်းအန္တရာယ် (CAPE/CIN)', sky:'ကောင်းကင်အရောင် (နံနက်/ညနေ)', rainPP:'မိုးရွာနိုင်ခြေ (%)', rainMM:'မိုးရေချိန် (mm)', rh:'စိုထိုင်းဆ (RH %)', leafwet:'အရွက်စိုစွတ်မှု (နာရီ)', et0:'ET0 (mm)',
                    tHi:'အမြင့်', tLo:'အနိမ့်', tDew:'နှင်းမှတ်', tDelta:'DeltaT (နံနက်8)', tSafe:'လုံခြုံချိန်' }
         };
         const chartHdr = (lang) => CHART_HDR[lang] || CHART_HDR.en;
@@ -2821,23 +2831,10 @@
                 return `<div class="ch-ps-row"><div class="ch-ps-tag">${L.past3} · ${L.rh}</div><div class="ch-ps-cells">${cells}</div></div>`;
             });
 
-            // HUMIDITY 14-DAY FORECAST line (new — humidity had no forecast chart).
-            const rhSlot = document.getElementById(`ch-rh-forecast-${id}`);
-            if (rhSlot) {
-                const fTime = fPick('time') || data.time, fRH = fPick('relative_humidity_2m');
-                const fdays = [];
-                for (let d = 0; d < 14; d++) {
-                    const ymd = ymdOf(new Date(Date.now() + d * 86400000));
-                    const a = aggDate(fTime, ymd, null, null, fRH);
-                    if (a) fdays.push(a.rh);
-                }
-                if (fdays.length >= 2) {
-                    const W = 360, H = 46, padL = 4, stepF = (W - 8) / fdays.length;
-                    const hy = (v) => 6 + (1 - v / 100) * (H - 14);
-                    const path = fdays.map((v, i) => `${i === 0 ? 'M' : 'L'}${(padL + i * stepF + stepF / 2).toFixed(1)},${hy(v).toFixed(1)}`).join(' ');
-                    rhSlot.innerHTML = `<svg width="100%" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" height="${H}" style="display:block;padding-top:4px;"><path d="${path}" fill="none" stroke="#0891b2" stroke-width="2" stroke-linejoin="round"/></svg>`;
-                }
-            }
+            // The 14-day RH FORECAST is now rendered as a standard labelled trend row
+            // (row-rh / trend-layer-rh, drawn in drawTrends) so it matches temp/ET0 and
+            // aligns to the shared date columns. The RH data still feeds the forecast
+            // accuracy calc independently (see _accuracyFromErrors).
         };
         // back-compat alias (old name) so any stray caller still works
         window.renderWeatherTrends = (id) => { try { window.renderPastStrips(id); } catch(e){} };
@@ -2945,6 +2942,7 @@
         let user = null, weatherData = {}, detailData = {}, favoriteIds = [], hiddenIds = [], renamedLocations = {}, customLocations = [], purgedIds = [];
         let activeModel = 'ecmwf_ifs', currentDisplayedIds = [];
         let locationCrops = {}; 
+        let leafWetSourceById = {}; // id -> 'model' | 'computed' (dominant leaf-wet provenance for the row tag)
         let landingAbortController = null;
         
         const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -3574,6 +3572,15 @@
                     rule2: "On orange/red days, give the crop water and shade — don't add chemical or mechanical stress",
                     rule3: "Several red days in a row = drought-like stress, plan irrigation"
                 },
+                leafwet: {
+                    title: "Leaf Wetness (hours/day)",
+                    body: "Estimated hours per day the leaf surface stays wet (dew, fog, rain film). Prolonged leaf wetness is the single biggest driver of fungal disease in Cameron Highlands — most spores need many continuous wet hours to infect.",
+                    model: "the value comes straight from the weather model's own leaf-wetness field.",
+                    computed: "the model field was missing, so the app estimated wet hours from humidity, dew-point spread, rain and cloud. Treat it as a guide, not a sensor reading.",
+                    rule1: "Roughly 10+ wet hours/day = high infection pressure — prioritise preventive spray timing and airflow",
+                    rule2: "This is a grid-model estimate, NOT your field's leaf-wetness sensor — your sheltered or exposed beds will differ",
+                    rule3: "Watch the trend: several high-wetness days in a row build disease pressure faster than one wet day"
+                },
                 cloud: {
                     title: "Cloud (%) & CB Risk",
                     body: "Three rows show cloud cover at three altitudes. The number is percentage, the bars below it show fill level. The amount and altitude matter for spray timing and storm risk.",
@@ -3655,6 +3662,15 @@
                     rule1: "尽量选择绿色/黄色日喷洒、修剪或收割",
                     rule2: "橙色/红色日给作物浇水遮阴 — 不要施加化学或机械压力",
                     rule3: "连续几日红色 = 类似干旱压力，规划灌溉"
+                },
+                leafwet: {
+                    title: "叶面湿润时数 (小时/天)",
+                    body: "每天叶片表面保持湿润（露水、雾、雨膜）的估计时数。叶面长时间湿润是金马伦高原真菌病害的最大推手——多数孢子需连续多个湿润小时才能侵染。",
+                    model: "数值直接来自天气模型本身的叶面湿润字段。",
+                    computed: "模型字段缺失，应用根据湿度、露点差、降雨和云量推算湿润时数。请当作参考，而非传感器读数。",
+                    rule1: "约 10 小时以上/天 = 高侵染压力——优先安排预防性喷药与通风",
+                    rule2: "这是网格模型估算，并非你田里的叶面湿润传感器——遮蔽或暴露的畦面会有差异",
+                    rule3: "看趋势：连续几天高湿润比单独一个湿润日更快累积病害压力"
                 },
                 cloud: {
                     title: "云量 (%) 与 CB 风险",
@@ -3738,6 +3754,15 @@
                     rule2: "Pada hari oren/merah, beri tanaman air dan teduh — jangan tambah tekanan kimia atau mekanikal",
                     rule3: "Beberapa hari merah berturut-turut = tekanan seperti kemarau, rancang pengairan"
                 },
+                leafwet: {
+                    title: "Daun Basah (jam/hari)",
+                    body: "Anggaran jam sehari permukaan daun kekal basah (embun, kabus, lapisan hujan). Daun basah berpanjangan adalah pemacu terbesar penyakit kulat di Cameron Highlands — kebanyakan spora perlukan banyak jam basah berterusan untuk menjangkiti.",
+                    model: "nilai datang terus daripada medan daun-basah model cuaca itu sendiri.",
+                    computed: "medan model tiada, jadi aplikasi menganggar jam basah daripada kelembapan, jurang titik embun, hujan dan awan. Anggap sebagai panduan, bukan bacaan sensor.",
+                    rule1: "Kira-kira 10+ jam basah/hari = tekanan jangkitan tinggi — utamakan masa semburan pencegahan dan pengaliran udara",
+                    rule2: "Ini anggaran model grid, BUKAN sensor daun-basah ladang anda — batas terlindung atau terdedah akan berbeza",
+                    rule3: "Perhatikan trend: beberapa hari basah tinggi berturut-turut membina tekanan penyakit lebih cepat daripada satu hari basah"
+                },
                 cloud: {
                     title: "Awan (%) & Risiko CB",
                     body: "Tiga baris menunjukkan litupan awan pada tiga altitud. Nombor itu peratusan, bar di bawah menunjukkan tahap pengisian. Jumlah dan altitud penting untuk masa semburan dan risiko ribut.",
@@ -3819,6 +3844,15 @@
                     rule1: "முடிந்தால் பச்சை/மஞ்சள் நாட்களில் தெளிக்க, வெட்ட, அறுவடை செய்யுங்கள்",
                     rule2: "ஆரஞ்சு/சிவப்பு நாட்களில் பயிருக்கு தண்ணீர் மற்றும் நிழல் கொடுங்கள் — இரசாயன அல்லது இயந்திர அழுத்தம் சேர்க்க வேண்டாம்",
                     rule3: "தொடர்ச்சியான சில சிவப்பு நாட்கள் = வறட்சி போன்ற அழுத்தம், நீர்ப்பாசனத்தைத் திட்டமிடுங்கள்"
+                },
+                leafwet: {
+                    title: "இலை ஈரம் (மணி/நாள்)",
+                    body: "இலை மேற்பரப்பு ஈரமாக (பனி, மூடுபனி, மழைப் படலம்) இருக்கும் ஒரு நாளின் மதிப்பிடப்பட்ட மணிநேரம். நீடித்த இலை ஈரம் கேமரூன் மலைப்பகுதியில் பூஞ்சை நோய்க்கான மிகப்பெரிய காரணி — பெரும்பாலான விதைகள் தொற்ற பல தொடர்ச்சியான ஈர மணிநேரம் தேவை.",
+                    model: "மதிப்பு வானிலை மாதிரியின் சொந்த இலை-ஈரப் புலத்திலிருந்து நேரடியாக வருகிறது.",
+                    computed: "மாதிரிப் புலம் இல்லை, எனவே ஈரப்பதம், பனிப்புள்ளி இடைவெளி, மழை, மேகத்திலிருந்து செயலி ஈர மணிநேரத்தை மதிப்பிட்டது. சென்சார் வாசிப்பு அல்ல, வழிகாட்டியாகக் கொள்ளுங்கள்.",
+                    rule1: "தோராயமாக 10+ ஈர மணி/நாள் = அதிக தொற்று அழுத்தம் — தடுப்பு தெளிப்பு நேரம் மற்றும் காற்றோட்டத்திற்கு முன்னுரிமை",
+                    rule2: "இது கட்டக மாதிரி மதிப்பீடு, உங்கள் வயலின் இலை-ஈர சென்சார் அல்ல — மறைவான அல்லது வெளிப்படும் படுக்கைகள் வேறுபடும்",
+                    rule3: "போக்கைக் கவனியுங்கள்: தொடர்ச்சியான பல அதிக ஈர நாட்கள் ஒரு ஈர நாளை விட நோய் அழுத்தத்தை வேகமாக உருவாக்கும்"
                 },
                 cloud: {
                     title: "மேகம் (%) & CB ஆபத்து",
@@ -3902,6 +3936,15 @@
                     rule2: "လိမ္မော်/အနီနေ့များတွင် သီးနှံကို ရေနှင့်အရိပ်ပေး — ဓာတုသို့ စက်ပစ္စည်းဖိစီးမှု မထည့်ပါနှင့်",
                     rule3: "အနီနေ့များ တစ်ဆက်တည်း = မိုးခေါင်သလို ဖိစီးမှု၊ ရေသွင်းရန် စီစဉ်ပါ"
                 },
+                leafwet: {
+                    title: "အရွက်စိုစွတ်မှု (နာရီ/နေ့)",
+                    body: "အရွက်မျက်နှာပြင် စိုစွတ်နေသည့် (နှင်း၊ မြူ၊ မိုးရေလွှာ) တစ်နေ့လျှင် ခန့်မှန်းနာရီ။ ကြာရှည်စွာ အရွက်စိုစွတ်ခြင်းသည် ကင်မရွန်းတောင်တန်းတွင် မှိုရောဂါ၏ အကြီးမားဆုံးအကြောင်းရင်း ဖြစ်သည် — ပိုးမွှားအများစုမှာ ကူးစက်ရန် ဆက်တိုက်စိုစွတ်နာရီများစွာ လိုအပ်သည်။",
+                    model: "တန်ဖိုးသည် ရာသီဥတုမော်ဒယ်၏ ကိုယ်ပိုင် အရွက်စိုစွတ်မှုအကွက်မှ တိုက်ရိုက်ရရှိသည်။",
+                    computed: "မော်ဒယ်အကွက် မရှိသဖြင့် အက်ပ်က စိုထိုင်းဆ၊ နှင်းမှတ်ကွာဟချက်၊ မိုးနှင့် တိမ်မှ စိုစွတ်နာရီကို ခန့်မှန်းသည်။ ဆင်ဆာဖတ်ချက်မဟုတ်ဘဲ လမ်းညွှန်အဖြစ်သာ ယူဆပါ။",
+                    rule1: "ခန့်မှန်းခြေ ၁၀+ စိုစွတ်နာရီ/နေ့ = ကူးစက်ဖိစီးမှုမြင့် — ကာကွယ်ဆေးဖျန်းချိန်နှင့် လေဝင်လေထွက်ကို ဦးစားပေးပါ",
+                    rule2: "ဤသည်မှာ ဂရစ်မော်ဒယ်ခန့်မှန်းချက်ဖြစ်ပြီး သင့်လယ်၏ အရွက်စိုစွတ်ဆင်ဆာ မဟုတ်ပါ — ကာကွယ်ထား/ဖွင့်ထားသော ခင်းများ ကွဲပြားမည်",
+                    rule3: "လမ်းကြောင်းကို စောင့်ကြည့်ပါ — စိုစွတ်မှုမြင့်နေ့များ တစ်ဆက်တည်းသည် တစ်နေ့တည်းထက် ရောဂါဖိစီးမှုကို ပိုမြန်စုဆောင်းသည်"
+                },
                 cloud: {
                     title: "တိမ် (%) နှင့် CB အန္တရာယ်",
                     body: "သုံးတန်းသည် မြင့်ပိုင်းသုံးပိုင်းတွင် တိမ်ဖုံးမှုကို ပြသသည်။ နံပါတ်သည် ရာခိုင်နှုန်း၊ အောက်ရှိ ဘားများ ဖြည့်တင်းမှုကို ပြသည်။",
@@ -3961,6 +4004,26 @@
             }
         };
         
+        // Paint the leaf-wetness provenance tag (model vs computed) in the row header.
+        // Reads the dominant source recorded during populate; localized per the row's lang.
+        const LW_SRC_LABEL = {
+            en: { model: 'model', computed: 'computed' },
+            zh: { model: '模型', computed: '推算' },
+            ms: { model: 'model', computed: 'anggaran' },
+            ta: { model: 'மாதிரி', computed: 'கணிப்பு' },
+            my: { model: 'မော်ဒယ်', computed: 'တွက်ချက်' }
+        };
+        window.applyLeafWetSource = (id) => {
+            const tag = document.getElementById(`lwsrc-${id}`);
+            if (!tag) return;
+            const src = leafWetSourceById[id];
+            if (!src) { tag.textContent = ''; tag.className = 'lw-src-tag'; return; }
+            const lang = (typeof getLang === 'function') ? getLang(id) : 'en';
+            const L = LW_SRC_LABEL[lang] || LW_SRC_LABEL.en;
+            tag.textContent = L[src] || src;
+            tag.className = `lw-src-tag ${src}`;
+        };
+
         window.toggleHelpCard = (id, rowType = 'temp', forceRebuild = false) => {
             const card = document.getElementById(`help-card-${rowType}-${id}`);
             const icon = document.getElementById(`help-icon-${rowType}-${id}`);
@@ -4159,6 +4222,26 @@
                     <div class="help-card-section">
                         <div style="font-weight:800; color:#9333ea; margin-bottom:6px; display:flex; align-items:center; gap:6px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#9333ea;"></span>${aT.fcExplainTitle}</div>
                         <div style="color:#1e293b; line-height:1.65; padding-left:14px;">${aT.fcExplain}</div>
+                    </div>
+                `;
+            } else if (rowType === 'leafwet') {
+                const lw = t.leafwet || HELP_CARD_CONTENT.en.leafwet;
+                bodyHTML = `
+                    <div class="help-card-section">
+                        <div style="font-size:11.5px; font-weight:800; color:#1e293b; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">${lw.title}</div>
+                        <div style="color:#1e293b; margin-bottom:8px;">${lw.body}</div>
+                        <div style="font-size:11.5px; line-height:1.7;">
+                            <div style="margin-bottom:4px;"><span class="lw-src-tag model" style="margin-left:0;">${(LW_SRC_LABEL[lang]||LW_SRC_LABEL.en).model}</span> — ${lw.model}</div>
+                            <div><span class="lw-src-tag computed" style="margin-left:0;">${(LW_SRC_LABEL[lang]||LW_SRC_LABEL.en).computed}</span> — ${lw.computed}</div>
+                        </div>
+                    </div>
+                    <div class="help-card-section" style="background:#fff; border:1px solid #99f6e4; border-radius:6px; padding:10px;">
+                        <div style="font-size:11.5px; font-weight:800; color:#1e293b; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">${t.howToUse}</div>
+                        <div style="font-size:11.5px; line-height:1.65; color:#1e293b;">
+                            <div style="margin-bottom:4px;">• ${lw.rule1}</div>
+                            <div style="margin-bottom:4px;">• ${lw.rule2}</div>
+                            <div>• ${lw.rule3}</div>
+                        </div>
                     </div>
                 `;
             }
@@ -4364,6 +4447,8 @@
                 setH(`hdr-rainpp-${id}`, cH.rainPP);
                 setH(`hdr-rainmm-${id}`, cH.rainMM);
                 setH(`hdr-rh-${id}`, cH.rh);
+                setH(`hdr-leafwet-${id}`, `${cH.leafwet} <span id="lwsrc-${id}" class="lw-src-tag"></span>${help('leafwet','What is Leaf Wetness?')}`);
+                if (typeof window.applyLeafWetSource === 'function') window.applyLeafWetSource(id);
                 setH(`hdr-et0-${id}`, cH.et0);
                 if (typeof fogT === 'function') setH(`hdr-fog-${id}`, fogT(lang).title);
             }
@@ -4372,7 +4457,7 @@
             // Refresh any OPEN help card so its text switches language in place,
             // without the user having to close and re-tap the "?" icon.
             try {
-                ['temp','wvet','cloud','storm','sky','accuracy'].forEach(rt => {
+                ['temp','wvet','cloud','storm','sky','accuracy','leafwet'].forEach(rt => {
                     const hc = el(`help-card-${rt}-${id}`);
                     if (hc && hc.classList.contains('open')) window.toggleHelpCard(id, rt, true);
                 });
@@ -6665,7 +6750,8 @@
                 <div id="ch-past-rain-${id}" class="ch-past-strip"></div>
                 <div class="relative bg-slate-50/10"><div class="row-label-overlay" id="hdr-rainmm-${id}" style="color:#1e3a8a">${cH.rainMM}</div><div class="info-row" id="row-rain-vv-${id}" style="min-height:52px;padding-top:18px;"></div><svg id="trend-layer-vv-${id}" class="trend-layer" height="52"></svg></div>
                 <div id="ch-past-rh-${id}" class="ch-past-strip"></div>
-                <div class="relative"><div class="row-label-overlay" id="hdr-rh-${id}" style="color:#0891b2">${cH.rh}</div><div id="ch-rh-forecast-${id}" class="ch-rh-forecast"></div></div>
+                <div class="relative"><div class="row-label-overlay" id="hdr-rh-${id}" style="color:#0891b2">${cH.rh}</div><div class="info-row" id="row-rh-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-rh-${id}" class="trend-layer" height="42"></svg></div>
+                <div class="relative"><div class="row-label-overlay" id="hdr-leafwet-${id}" style="color:#0d9488">${cH.leafwet} <span id="lwsrc-${id}" class="lw-src-tag"></span><span class="help-icon-btn" id="help-icon-leafwet-${id}" onclick="window.toggleHelpCard('${id}', 'leafwet')" title="What is Leaf Wetness?">?</span></div><div id="help-card-leafwet-${id}" class="help-card"></div><div class="info-row" id="row-leafwet-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-leafwet-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-fog-${id}" style="color:#475569">${fogT(lang).title}</div><div id="ch-fog-row-${id}" class="ch-fog-row"></div></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-et0-${id}" style="color:#059669">${cH.et0}</div><div class="info-row" id="row-et-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-et-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="info-row" id="row-dates-bottom-${id}"></div>
@@ -6688,7 +6774,7 @@
         function populateReportData(id) {
             const data = detailData[id]; if (!data) return;
             const days = [], crop = locationCrops[id] || 'leafy', vars = [
-                'temperature_2m','dew_point_2m','precipitation_probability','precipitation',
+                'temperature_2m','dew_point_2m','relative_humidity_2m','precipitation_probability','precipitation',
                 'cloudcover_high','cloudcover_mid','cloudcover_low',
                 'et0_fao_evapotranspiration',
                 'windspeed_10m','windspeed_2m','winddirection_10m','windgusts_10m','wind_gusts_10m',
@@ -6933,6 +7019,24 @@
                     const dailyData = detailData[id]?._daily;
                     const leafWetness = dailyData?.leaf_wetness_probability_mean?.[i] ?? null;
                     const gdd = dailyData?.growing_degree_days_base_0_limit_50?.[i] ?? null;
+
+                    // ===== LEAF WETNESS (hours/day) — reuses estimateLeafWetHours =====
+                    // Prefer the native daily model field (source 'model'); when it's
+                    // missing, estimateLeafWetHours derives wet hours from this day's
+                    // hourly RH / dew-spread / rain / cloud (source 'computed'). We pass
+                    // the SAME 0–23h slices the rest of this block uses (via win) so the
+                    // derivation is consistent with the disease engine — we do NOT
+                    // re-implement the logic here.
+                    const _lwDay = estimateLeafWetHours(
+                        win('relative_humidity_2m', 0, 23),
+                        win('temperature_2m', 0, 23),
+                        win('dew_point_2m', 0, 23),
+                        win('precipitation', 0, 23),
+                        win('cloudcover_low', 0, 23),
+                        leafWetness   // native daily probability (0–100) or null
+                    );
+                    const lwHrs = _lwDay.hours;       // 0–24
+                    const lwSrc = _lwDay.source;      // 'model' | 'computed'
                     // ===== END NEW AGGREGATIONS =====
                     
                     // WVET: representative daily stress level using peak afternoon conditions
@@ -6999,6 +7103,12 @@
                     // Build forecast date using DST-safe constructor (consistent with line 1967)
                     const todayD = new Date();
                     const fcDate = new Date(todayD.getFullYear(), todayD.getMonth(), todayD.getDate() + i);
+                    // Daily mean RH (%) for the restored RH forecast trend row.
+                    // Mean over the full day matches how the past-strip and accuracy
+                    // calc treat RH, so the forecast line is comparable to the actuals.
+                    const _rhDayArr = win('relative_humidity_2m', 0, 23);
+                    const rhMean = _rhDayArr.length ? Math.round(avg(_rhDayArr)) : null;
+
                     days.push({ 
                         date: `${fcDate.getDate()}/${fcDate.getMonth()+1}`,
                         hi: Math.round(safeMax(tS)*10)/10, lo: Math.round(safeMin(tS)*10)/10, dp: Math.round((dpS.reduce((a,b)=>a+b,0)/dpS.length)*10)/10,
@@ -7017,6 +7127,8 @@
                         radMJ: radiationMJ,
                         wbMax: Math.round(dailyWB * 10) / 10,
                         leafWet: leafWetness !== null ? Math.round(leafWetness) : null,
+                        lwHrs, lwSrc,
+                        rh: rhMean,
                         gdd: gdd !== null ? Math.round(gdd * 10) / 10 : null,
                         skyAM, skyPM
                     });
@@ -7177,6 +7289,19 @@
             document.getElementById(`row-rain-pp-${id}`).innerHTML = days.map(() => `<div class="info-data-cell"></div>`).join(''); 
             document.getElementById(`row-rain-vv-${id}`).innerHTML = days.map(() => `<div class="info-data-cell"></div>`).join('');
             document.getElementById(`row-et-${id}`).innerHTML = days.map(() => `<div class="info-data-cell"></div>`).join('');
+            const _rhRow = document.getElementById(`row-rh-${id}`);
+            if (_rhRow) _rhRow.innerHTML = days.map(() => `<div class="info-data-cell"></div>`).join('');
+            const _lwRow = document.getElementById(`row-leafwet-${id}`);
+            if (_lwRow) _lwRow.innerHTML = days.map(() => `<div class="info-data-cell"></div>`).join('');
+            // Stash the dominant leaf-wet source for this location, then paint the
+            // provenance tag. Dominant = 'computed' if ANY visible day is computed
+            // (the honest, conservative disclosure — if part of the line is derived,
+            // the farmer should treat the whole row as an estimate, not a sensor read).
+            try {
+                const anyComputed = days.some(d => d.lwSrc === 'computed');
+                leafWetSourceById[id] = anyComputed ? 'computed' : 'model';
+                if (typeof window.applyLeafWetSource === 'function') window.applyLeafWetSource(id);
+            } catch (e) { /* non-fatal */ }
             // (daysCache write moved earlier in the function — v1.0.122 — so the broadcast
             // pre-fetch can populate it even when DOM elements don't exist)
 
@@ -7190,6 +7315,8 @@
 
         function drawTrends(days, suffix) {
             const svgT = document.getElementById(`trend-layer-temp-${suffix}`), svgPP = document.getElementById(`trend-layer-pp-${suffix}`), svgVV = document.getElementById(`trend-layer-vv-${suffix}`), svgET = document.getElementById(`trend-layer-et-${suffix}`);
+            const svgLW = document.getElementById(`trend-layer-leafwet-${suffix}`);
+            const svgRH = document.getElementById(`trend-layer-rh-${suffix}`);
             if (!svgT) return; 
             
             const dateRow = document.getElementById(`row-dates-top-${suffix}`);
@@ -7213,17 +7340,17 @@
             }
             const s = w / 14; // used for bar widths in rain volume chart
             
-            svgT.innerHTML = ''; svgPP.innerHTML = ''; svgVV.innerHTML = ''; if (svgET) svgET.innerHTML = '';
-            svgT.setAttribute('width', w); svgPP.setAttribute('width', w); svgVV.setAttribute('width', w); if (svgET) svgET.setAttribute('width', w);
+            svgT.innerHTML = ''; svgPP.innerHTML = ''; svgVV.innerHTML = ''; if (svgET) svgET.innerHTML = ''; if (svgLW) svgLW.innerHTML = ''; if (svgRH) svgRH.innerHTML = '';
+            svgT.setAttribute('width', w); svgPP.setAttribute('width', w); svgVV.setAttribute('width', w); if (svgET) svgET.setAttribute('width', w); if (svgLW) svgLW.setAttribute('width', w); if (svgRH) svgRH.setAttribute('width', w);
             // Critical: force SVG element style.width to match attribute width exactly,
             // overriding CSS `width: 100%`. This prevents the SVG from rendering at
             // svgParent's width (which may differ from dateRow's width by a few px)
             // and then auto-scaling its content, which would shift x-coordinates.
-            svgT.style.width = w + 'px'; svgPP.style.width = w + 'px'; svgVV.style.width = w + 'px'; if (svgET) svgET.style.width = w + 'px';
+            svgT.style.width = w + 'px'; svgPP.style.width = w + 'px'; svgVV.style.width = w + 'px'; if (svgET) svgET.style.width = w + 'px'; if (svgLW) svgLW.style.width = w + 'px'; if (svgRH) svgRH.style.width = w + 'px';
             // Also align horizontal position: SVG is absolute-positioned, so shift it
             // to match dateRow's left edge (in case svgParent has different left).
             const svgLeft = (dateRow ? dateRow.offsetLeft - svgT.parentElement.offsetLeft : 0);
-            svgT.style.left = svgLeft + 'px'; svgPP.style.left = svgLeft + 'px'; svgVV.style.left = svgLeft + 'px'; if (svgET) svgET.style.left = svgLeft + 'px';
+            svgT.style.left = svgLeft + 'px'; svgPP.style.left = svgLeft + 'px'; svgVV.style.left = svgLeft + 'px'; if (svgET) svgET.style.left = svgLeft + 'px'; if (svgLW) svgLW.style.left = svgLeft + 'px'; if (svgRH) svgRH.style.left = svgLeft + 'px';
             // Y-axis range INCLUDES dT (defaulted to 15 when missing) so the temp lines stay
             // compressed near the top, leaving room at the bottom for DeltaT and SafeHours
             // numbers. This matches the original design — anchored to the dT band position.
@@ -7354,6 +7481,75 @@
                 etl.setAttribute("d", etP); etl.setAttribute("stroke", "#059669"); 
                 etl.setAttribute("stroke-width", "2.5"); etl.setAttribute("fill", "none"); 
                 etl.setAttribute("opacity", "0.75"); svgET.appendChild(etl);
+            }
+
+            // LEAF WETNESS (separate row, height=42). Line plot of wet HOURS per day,
+            // fixed 0–24h scale (not auto-scaled) so the height reads as an absolute
+            // wetness duration the farmer can compare day-to-day and against the ~10h
+            // infection threshold used by the disease engine. Teal to group visually
+            // with the humidity row above it.
+            if (svgLW) {
+                const LW_BASELINE = 38, LW_MAX_HEIGHT = 16, LW_FULL = 24; // 0h at y=38, 24h at y=22
+                let lwP = "";
+                days.forEach((d, i) => {
+                    const x = columnCenters[i];
+                    const hrs = (typeof d.lwHrs === 'number') ? d.lwHrs : 0;
+                    const y = LW_BASELINE - (Math.min(hrs, LW_FULL) / LW_FULL) * LW_MAX_HEIGHT;
+                    lwP += (i === 0 ? "M " : " L ") + x + " " + y;
+                    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", "2.2");
+                    c.setAttribute("fill", "#0d9488"); svgLW.appendChild(c);
+                    const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    txt.setAttribute("x", x);
+                    txt.setAttribute("y", y < 30 ? y + 9 : y - 4);
+                    txt.setAttribute("text-anchor", "middle"); txt.setAttribute("font-size", "9");
+                    txt.setAttribute("font-weight", "950");
+                    // Dim 0h days so they read as "dry" without losing the data point.
+                    txt.setAttribute("fill", hrs > 0 ? "#0d9488" : "#94a3b8");
+                    txt.textContent = hrs; svgLW.appendChild(txt);
+                });
+                const lwl = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                lwl.setAttribute("d", lwP); lwl.setAttribute("stroke", "#0d9488");
+                lwl.setAttribute("stroke-width", "2.5"); lwl.setAttribute("fill", "none");
+                lwl.setAttribute("opacity", "0.75"); svgLW.appendChild(lwl);
+            }
+
+            // HUMIDITY (RH %) — labelled trend row (height=42), matching temp/ET0 style.
+            // Highland RH clusters high (often 70–100%), so a fixed 0–100 axis would
+            // flatten the line; auto-scale to the data range (with a small margin and a
+            // sane minimum span) so day-to-day movement is readable. Every point is
+            // labelled with its %, like the other trend rows.
+            if (svgRH) {
+                const rhVals = days.map(d => (typeof d.rh === 'number') ? d.rh : null).filter(v => v !== null);
+                if (rhVals.length >= 2) {
+                    let rhMin = Math.min(...rhVals), rhMax = Math.max(...rhVals);
+                    // Ensure a minimum visible span of 10% so a flat-ish line isn't all noise.
+                    if (rhMax - rhMin < 10) { const mid = (rhMax + rhMin) / 2; rhMin = mid - 5; rhMax = mid + 5; }
+                    const rhPad = (rhMax - rhMin) * 0.15;
+                    rhMin = Math.max(0, rhMin - rhPad); rhMax = Math.min(100, rhMax + rhPad);
+                    const rhRng = (rhMax - rhMin) || 1;
+                    const RH_TOP = 22, RH_BOTTOM = 36; // drawing band within the 42px row
+                    const ry = (v) => RH_TOP + (1 - (v - rhMin) / rhRng) * (RH_BOTTOM - RH_TOP);
+                    let rhP = "";
+                    days.forEach((d, i) => {
+                        if (typeof d.rh !== 'number') return;
+                        const x = columnCenters[i], y = ry(d.rh);
+                        rhP += (rhP === "" ? "M " : " L ") + x + " " + y;
+                        const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", "2.2");
+                        c.setAttribute("fill", "#0891b2"); svgRH.appendChild(c);
+                        const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                        txt.setAttribute("x", x);
+                        txt.setAttribute("y", y < 29 ? y + 9 : y - 4);
+                        txt.setAttribute("text-anchor", "middle"); txt.setAttribute("font-size", "9");
+                        txt.setAttribute("font-weight", "950"); txt.setAttribute("fill", "#0891b2");
+                        txt.textContent = `${d.rh}%`; svgRH.appendChild(txt);
+                    });
+                    const rhl = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    rhl.setAttribute("d", rhP); rhl.setAttribute("stroke", "#0891b2");
+                    rhl.setAttribute("stroke-width", "2.5"); rhl.setAttribute("fill", "none");
+                    rhl.setAttribute("opacity", "0.75"); svgRH.appendChild(rhl);
+                }
             }
         }
 
