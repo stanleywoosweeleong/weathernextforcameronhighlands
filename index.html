@@ -5811,6 +5811,7 @@
             try {
                 if (typeof window.refreshElevationRange === 'function') window.refreshElevationRange();
                 if (typeof window.applyElevationFilter === 'function') window.applyElevationFilter();
+                elevCardCache = null; // list changed → card positions stale, rebuild on next scroll
             } catch (e) {}
         };
 
@@ -5886,6 +5887,7 @@
                     raf = requestAnimationFrame(() => window.syncSliderToScroll());
                 }, { passive: true });
             }
+            elevCardCache = null; // force rebuild of position cache
             window.applyElevationFilter();
         };
 
@@ -5898,36 +5900,64 @@
             sliderDriveTimer = setTimeout(() => { sliderDriving = false; }, 600);
         };
 
+        // Cache of card positions [{elev, top, bottom, center}] so the scroll
+        // handler doesn't force a layout reflow (reading offsetTop) every frame —
+        // that was the source of the "sticky" scrolling. Rebuilt lazily when null.
+        let elevCardCache = null;
+        let elevPersistTimer = null;
+        const buildElevCardCache = () => {
+            const farms = getAllLocations().filter(l => !hiddenIds.includes(l.id) && typeof l.elev === 'number');
+            const arr = [];
+            farms.forEach(s => {
+                const card = document.getElementById(`content-${s.id}`);
+                if (!card) return;
+                const wrap = card.closest('.list-item-wrapper') || card;
+                const top = wrap.offsetTop, h = wrap.offsetHeight;
+                arr.push({ elev: s.elev, top, bottom: top + h, center: top + h / 2 });
+            });
+            elevCardCache = arr;
+            return arr;
+        };
+
         // Find the farm card nearest the vertical center of the list and move the
         // slider to that farm's elevation index. Inverse of scrollToElevation.
         window.syncSliderToScroll = () => {
             const slider = document.getElementById('elev-slider');
             const container = document.getElementById('list-west');
             if (!slider || !container || !elevStops.length) return;
-            const centerY = container.scrollTop + container.clientHeight / 2;
-            const farms = getAllLocations().filter(l => !hiddenIds.includes(l.id) && typeof l.elev === 'number');
-            let bestId = null, bestDist = Infinity, bestElev = null;
-            farms.forEach(s => {
-                const card = document.getElementById(`content-${s.id}`);
-                if (!card) return;
-                const wrap = card.closest('.list-item-wrapper') || card;
-                const cardCenter = wrap.offsetTop + wrap.offsetHeight / 2;
-                const d = Math.abs(cardCenter - centerY);
-                if (d < bestDist) { bestDist = d; bestId = s.id; bestElev = s.elev; }
-            });
-            if (bestElev == null) return;
-            // Map the centered farm's elevation to the slider index.
-            let idx = elevStops.indexOf(bestElev);
-            if (idx < 0) {
-                let bd = Infinity;
-                elevStops.forEach((e, i) => { const dd = Math.abs(e - bestElev); if (dd < bd) { bd = dd; idx = i; } });
+            const cache = elevCardCache || buildElevCardCache();
+            if (!cache.length) return;
+
+            const maxScroll = container.scrollHeight - container.clientHeight;
+            const atTop = container.scrollTop <= 2;
+            const atBottom = container.scrollTop >= maxScroll - 2;
+
+            let targetElev = null;
+            if (atTop) {
+                // Fully scrolled up → the topmost card. Reaches one slider end.
+                const refY = container.scrollTop + 4;
+                let bd = Infinity; cache.forEach(c => { const d = refY < c.top ? c.top - refY : refY > c.bottom ? refY - c.bottom : 0; if (d < bd) { bd = d; targetElev = c.elev; } });
+            } else if (atBottom) {
+                // Fully scrolled down → the bottom card. Reaches the other slider end.
+                const refY = container.scrollTop + container.clientHeight - 4;
+                let bd = Infinity; cache.forEach(c => { const d = refY < c.top ? c.top - refY : refY > c.bottom ? refY - c.bottom : 0; if (d < bd) { bd = d; targetElev = c.elev; } });
+            } else {
+                const centerY = container.scrollTop + container.clientHeight / 2;
+                let bd = Infinity; cache.forEach(c => { const d = Math.abs(c.center - centerY); if (d < bd) { bd = d; targetElev = c.elev; } });
             }
+            if (targetElev == null) return;
+
+            let idx = elevStops.indexOf(targetElev);
+            if (idx < 0) { let bd = Infinity; elevStops.forEach((e, i) => { const dd = Math.abs(e - targetElev); if (dd < bd) { bd = dd; idx = i; } }); }
+            if (idx < 0) return;
             if (String(idx) !== slider.value) {
                 slider.value = idx;
                 slider.dataset.elev = elevStops[idx];
                 const valEl = document.getElementById('elev-value');
                 if (valEl) valEl.textContent = elevStops[idx] + ' m';
-                try { localStorage.setItem(ELEV_SLIDER_KEY, String(elevStops[idx])); } catch (e) {}
+                // Persist OFF the hot scroll path — debounced until scrolling settles.
+                if (elevPersistTimer) clearTimeout(elevPersistTimer);
+                elevPersistTimer = setTimeout(() => { try { localStorage.setItem(ELEV_SLIDER_KEY, String(elevStops[idx])); } catch (e) {} }, 400);
             }
         };
 

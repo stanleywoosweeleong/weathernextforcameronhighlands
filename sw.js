@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.219 — elevation slider now syncs BOTH ways: scrolling the location list moves the slider to the centered farm (was slider→list only). Feedback-loop guarded. bump CACHE_VERSION on each release
+// Version 1.0.220 — slider sync fixes: (1) cached card positions + debounced persist to remove scroll stickiness; (2) scroll-extreme detection so slider reaches BOTH ends (was stuck mid-range at list bottom). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606013710';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606013810';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
