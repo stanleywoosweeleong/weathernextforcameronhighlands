@@ -6980,17 +6980,15 @@
                     const avgWindDawn = dawnSampleCount > 0 ? sumWindDawn / dawnSampleCount : 999;
                     
                     if (minVisDawn < Infinity && maxVisMidday > 0) {
-                        // FOG: requires a real diurnal drop AND saturation AND calm
-                        // - dawn vis must be < 1000m (WMO fog definition)
-                        // - dawn vis must be substantially worse than midday (drop > 5000m, indicating event)
-                        // - air must be near-saturated (spread < 1.5°C)
-                        // - wind must be calm
+                        // FOG is now handled by the dedicated fog engine (its own
+                        // 14-day fog row + driving-safety banner), so we no longer
+                        // emit a separate cloud-row FOG badge — having two fog
+                        // indicators risked them disagreeing. HAZE is kept: it's a
+                        // DIFFERENT phenomenon (dry low-visibility, e.g. regional
+                        // haze season / fire smoke) not covered by the fog engine.
                         const visDrop = maxVisMidday - minVisDawn;
-                        if (minVisDawn < 1000 && visDrop > 5000 && minSpreadDawn < 1.5 && avgWindDawn < 10) {
-                            visibilityFlag = 'FOG';
-                        }
                         // HAZE: low vis with dry air, no diurnal recovery (sustained haze, e.g. fire smoke)
-                        else if (minVisDawn < 5000 && maxVisMidday < 8000 && minSpreadDawn >= 4) {
+                        if (minVisDawn < 5000 && maxVisMidday < 8000 && minSpreadDawn >= 4) {
                             visibilityFlag = 'HAZE';
                         }
                     }
