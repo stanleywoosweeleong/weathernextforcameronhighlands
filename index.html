@@ -5427,9 +5427,18 @@
                     // Per-location language drives the reading labels so the list is
                     // single-language per user (Chinese user → all Chinese, etc.).
                     const cardLang = (typeof getLang === 'function') ? getLang(s.id) : 'zh';
-                    const L = (cardLang === 'en')
-                        ? { temp:'TEMP', rain:'RAIN', elev:'ELEV', risk:'RISK' }
-                        : { temp:'温度', rain:'降雨', elev:'海拔', risk:'病害' };
+                    // Card reading labels follow the LOCATION's own language toggle
+                    // (the same one used on its detail screen), across all five
+                    // supported languages — so a Malay farm shows Malay labels, a
+                    // Chinese farm shows Chinese, etc. Falls back to English.
+                    const CARD_LABELS = {
+                        en: { temp:'TEMP', rain:'RAIN', elev:'ELEV' },
+                        zh: { temp:'温度', rain:'降雨', elev:'海拔' },
+                        ms: { temp:'SUHU', rain:'HUJAN', elev:'ALTITUD' },
+                        ta: { temp:'வெப்பம்', rain:'மழை', elev:'உயரம்' },
+                        my: { temp:'အပူချိန်', rain:'မိုး', elev:'အမြင့်' }
+                    };
+                    const L = CARD_LABELS[cardLang] || CARD_LABELS.en;
                     return `<div class="list-item-wrapper"><div class="swipe-actions"><button class="action-btn btn-share" onclick="window.shareLocation('${s.id}')" aria-label="Share location / 分享地点"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button><button class="action-btn btn-edit" onclick="window.openEditModal('${s.id}')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="action-btn btn-delete" onclick="window.deleteLocation('${s.id}')"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button></div><div class="list-item-content ${isFav?'is-favorite':''}" id="content-${s.id}" ontouchstart="window.handleTouchStart(event, '${s.id}')" ontouchmove="window.handleTouchMove(event, '${s.id}')" ontouchend="window.handleTouchEnd(event, '${s.id}')" oncontextmenu="window.handleContextMenu(event, '${s.id}')" onclick="window.handleItemClick('${s.id}')"><button class="pin-btn" onclick="event.stopPropagation(); window.toggleFavorite('${s.id}')"><svg class="pin-icon" width="22" height="22" viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg></button><div class="name-label-en">${nameEn}</div>${nameZh ? `<div class="name-label-zh">${nameZh}</div>` : ''}<div class="flex gap-8 mt-6 items-end"><div class="flex flex-col"><span class="text-[9px] font-black text-slate-400 uppercase mb-2">${L.temp}</span><span id="t-${s.id}" class="text-[17px] font-black tabular-nums transition-colors">--</span></div><div class="flex flex-col"><span class="text-[9px] font-black text-slate-400 uppercase mb-2">${L.rain}</span><span id="p-${s.id}" class="text-[17px] font-black text-blue-900 tabular-nums">--</span></div>${s.elev ? `<div class="flex flex-col"><span class="text-[9px] font-black text-slate-400 uppercase mb-2">${L.elev}</span><span class="text-[17px] font-black text-emerald-700 tabular-nums">${s.elev}m</span></div>` : ''}</div></div></div></div>`;
                 }).join('');
             };

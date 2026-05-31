@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.197 — elevation slider defaults to MIDDLE stop + persists chosen elevation across launches (nearest-snap if farms changed). bump CACHE_VERSION on each release
+// Version 1.0.198 — home-screen card reading labels follow each location's own language toggle (all 5 langs: en/zh/ms/ta/my). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606011510';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606011610';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
