@@ -5871,8 +5871,64 @@
             window.refreshElevationRange();
             // The slider SCROLLS the list to the nearest-elevation farm — it never
             // hides anything. The full list stays vertically scrollable at all times.
-            slider.oninput = () => { window.scrollToElevation(); };
+            slider.oninput = () => { sliderDriving = true; window.scrollToElevation(); };
+            // Reverse sync: when the user scrolls the list vertically, move the
+            // slider to match the farm currently centered in view. A short
+            // suppression window prevents the slider's own smooth-scroll from
+            // bouncing back and re-driving the slider (feedback loop).
+            const container = document.getElementById('list-west');
+            if (container && !container.dataset.elevSyncBound) {
+                container.dataset.elevSyncBound = '1';
+                let raf = null;
+                container.addEventListener('scroll', () => {
+                    if (sliderDriving) return; // ignore scrolls caused BY the slider
+                    if (raf) cancelAnimationFrame(raf);
+                    raf = requestAnimationFrame(() => window.syncSliderToScroll());
+                }, { passive: true });
+            }
             window.applyElevationFilter();
+        };
+
+        // Suppression flag + timer so slider-driven smooth-scrolling doesn't feed
+        // back into the scroll→slider sync. Cleared shortly after the slider acts.
+        let sliderDriving = false;
+        let sliderDriveTimer = null;
+        const releaseSliderDriving = () => {
+            if (sliderDriveTimer) clearTimeout(sliderDriveTimer);
+            sliderDriveTimer = setTimeout(() => { sliderDriving = false; }, 600);
+        };
+
+        // Find the farm card nearest the vertical center of the list and move the
+        // slider to that farm's elevation index. Inverse of scrollToElevation.
+        window.syncSliderToScroll = () => {
+            const slider = document.getElementById('elev-slider');
+            const container = document.getElementById('list-west');
+            if (!slider || !container || !elevStops.length) return;
+            const centerY = container.scrollTop + container.clientHeight / 2;
+            const farms = getAllLocations().filter(l => !hiddenIds.includes(l.id) && typeof l.elev === 'number');
+            let bestId = null, bestDist = Infinity, bestElev = null;
+            farms.forEach(s => {
+                const card = document.getElementById(`content-${s.id}`);
+                if (!card) return;
+                const wrap = card.closest('.list-item-wrapper') || card;
+                const cardCenter = wrap.offsetTop + wrap.offsetHeight / 2;
+                const d = Math.abs(cardCenter - centerY);
+                if (d < bestDist) { bestDist = d; bestId = s.id; bestElev = s.elev; }
+            });
+            if (bestElev == null) return;
+            // Map the centered farm's elevation to the slider index.
+            let idx = elevStops.indexOf(bestElev);
+            if (idx < 0) {
+                let bd = Infinity;
+                elevStops.forEach((e, i) => { const dd = Math.abs(e - bestElev); if (dd < bd) { bd = dd; idx = i; } });
+            }
+            if (String(idx) !== slider.value) {
+                slider.value = idx;
+                slider.dataset.elev = elevStops[idx];
+                const valEl = document.getElementById('elev-value');
+                if (valEl) valEl.textContent = elevStops[idx] + ' m';
+                try { localStorage.setItem(ELEV_SLIDER_KEY, String(elevStops[idx])); } catch (e) {}
+            }
         };
 
         // Kept as the slider's value-label updater + scroll trigger. Despite the
@@ -5921,6 +5977,9 @@
             const cardWrap = card.closest('.list-item-wrapper') || card;
             const target = cardWrap.offsetTop - (container.clientHeight / 2) + (cardWrap.offsetHeight / 2);
             container.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+            // Smooth scroll takes ~300-500ms; keep the scroll→slider sync suppressed
+            // until it settles, then re-enable it.
+            releaseSliderDriving();
         };
         // ============================================================
 
