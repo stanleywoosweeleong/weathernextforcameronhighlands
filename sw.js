@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.234 — VPD help card realigned with its new 'Air Dryness' identity (was still titled/bodied as 'Spray-Timing Signal'). Title+body (5 langs) now lead with air dryness and what it drives (drying, spray uptake, canopy wetness/disease, transpiration). Use-case reworded from greenhouse-vs-openfield exclusivity to 'everyone; especially greenhouse; also read DeltaT for open-field spray timing' so VPD and DeltaT read as distinct, not redundant. bump CACHE_VERSION on each release
+// Version 1.0.235 — VPD 8AM line now shows value labels: placed BELOW the dotted line (faint blue, 7.5px) on a dedicated baseline; VPD row grown 42->54px to fit them; midday labels forced above their dots so the two label rows never collide. Midday line unchanged otherwise. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605312250';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605312256';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
