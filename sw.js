@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.233 — accuracy bugfix: forecast verification now only scores days STRICTLY BEFORE today. Previously the in-progress current day (present in the _past payload) could be scored against its own partial actuals at near-zero lead time, which inflated the accuracy score and made it climb on same-day relaunches. Pre-existing inflated records self-correct as they age out of the 30-day window. bump CACHE_VERSION on each release
+// Version 1.0.234 — VPD help card realigned with its new 'Air Dryness' identity (was still titled/bodied as 'Spray-Timing Signal'). Title+body (5 langs) now lead with air dryness and what it drives (drying, spray uptake, canopy wetness/disease, transpiration). Use-case reworded from greenhouse-vs-openfield exclusivity to 'everyone; especially greenhouse; also read DeltaT for open-field spray timing' so VPD and DeltaT read as distinct, not redundant. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605312236';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202605312250';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
