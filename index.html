@@ -2899,7 +2899,8 @@
             }
             if (!days.length) { if (rowSlot) rowSlot.innerHTML = `<div class="ch-fog-empty">${T.noData}</div>`; return; }
 
-            const dowOf = (d) => { const x = new Date(Date.now() + d * 86400000); return (lang === 'en' ? ['Su','Mo','Tu','We','Th','Fr','Sa'] : ['日','一','二','三','四','五','六'])[x.getDay()]; };
+            // (Per-cell day labels removed — the fog row now sits directly under the top
+            // date row, which already labels the days, so dowOf is no longer needed.)
             const bandLabel = (k) => k === 'dense' ? T.dense : k === 'fog' ? T.fog : k === 'patchy' ? T.patchy : T.clear;
 
             // Daily row: a colored dot per day (worst band), with worst-visibility tip.
@@ -2911,7 +2912,6 @@
                     const sep = d === 7 ? 'margin-left:5px;border-left:1px dashed #e2e8f0;padding-left:5px;' : '';
                     return `<div class="ch-fog-cell" style="opacity:${op};${sep}" title="${bandLabel(f.bandKey)} · ${T.vis} ${visTxt}">
                         <div class="ch-fog-dot" style="background:${col};">${f.bandKey==='dense'?'!':''}</div>
-                        <div class="ch-fog-dow">${dowOf(d)}</div>
                     </div>`;
                 }).join('');
                 rowSlot.innerHTML = `<div class="ch-fog-cells">${cells}</div>`;
@@ -7105,6 +7105,7 @@
                 <div id="ch-fog-banner-${id}" class="ch-fog-banner-slot"></div>
 
                 <div class="info-row" id="row-dates-top-${id}"></div>
+                <div class="relative"><div class="row-label-overlay" id="hdr-fog-${id}" style="color:#475569">${fogT(lang).title}</div><div id="ch-fog-row-${id}" class="ch-fog-row"></div></div>
                 <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" id="hdr-wvet-${id}" style="color: #b45309;">${cH.wvet}<span class="help-icon-btn" id="help-icon-wvet-${id}" onclick="window.toggleHelpCard('${id}', 'wvet')" title="What is WVET?">?</span></div><div id="help-card-wvet-${id}" class="help-card"></div><div class="info-row" id="row-wvet-${id}" style="min-height: 60px; padding-top: 14px;"></div></div>
                 <div id="ch-past-temp-${id}" class="ch-past-strip" style="display:none;"></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-temp-${id}"><span style="color:#f97316;">${cH.tHi}</span>/<span style="color:#2563eb;">${cH.tLo}</span> / <span style="color:#06b6d4;">${cH.tDew}</span> <span style="color:#cbd5e1; margin:0 2px;">|</span> <span style="color:#7e22ce;">${cH.tDelta}</span> / <span style="color:#166534;">${cH.tSafe}</span><span class="help-icon-btn" id="help-icon-temp-${id}" onclick="window.toggleHelpCard('${id}', 'temp')" title="What is DeltaT and Safe Hours?">?</span></div><div id="help-card-temp-${id}" class="help-card"></div><div class="info-row" id="row-temp-combined-${id}" style="min-height: 200px; padding-top: 10px;"></div><svg id="trend-layer-temp-${id}" class="trend-layer" height="200"></svg></div>
@@ -7119,7 +7120,6 @@
                 <div id="ch-past-rh-${id}" class="ch-past-strip" style="display:none;"></div>
                 <div class="relative" style="display:none;"><div class="row-label-overlay" id="hdr-rh-${id}" style="color:#0891b2">${cH.rh}</div><div class="info-row" id="row-rh-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-rh-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-leafwet-${id}" style="color:#0d9488">${cH.leafwet} <span id="lwsrc-${id}" class="lw-src-tag"></span><span class="help-icon-btn" id="help-icon-leafwet-${id}" onclick="window.toggleHelpCard('${id}', 'leafwet')" title="What is Leaf Wetness?">?</span></div><div id="help-card-leafwet-${id}" class="help-card"></div><div class="info-row" id="row-leafwet-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-leafwet-${id}" class="trend-layer" height="42"></svg></div>
-                <div class="relative"><div class="row-label-overlay" id="hdr-fog-${id}" style="color:#475569">${fogT(lang).title}</div><div id="ch-fog-row-${id}" class="ch-fog-row"></div></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-et0-${id}" style="color:#059669">${cH.et0}</div><div class="info-row" id="row-et-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-et-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="info-row" id="row-dates-bottom-${id}"></div>
              </div>`;

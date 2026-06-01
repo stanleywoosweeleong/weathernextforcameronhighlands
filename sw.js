@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.258 — aligned the Forecast Accuracy '?' help icon with its text. The shared .help-icon-btn has position:relative; top:-1px (a nudge tuned for the OTHER rows where the icon sits in an absolute row-label-overlay with line-height:12px). In the accuracy row the icon lives in a flex line (.ch-mc-line, align-items:center) with a taller 🎯 text line, so that -1px nudge pushed it off-center. Fix: override just the accuracy icon with top:0; align-self:center so flex centering handles it. Other rows untouched. bump CACHE_VERSION on each release
+// Version 1.0.259 — fog & visibility row: (1) moved it from near the bottom (before ET0) to be the 2nd row, immediately after the top date row; (2) removed the per-cell day labels (一/二/三...) below each indicator since the top date row now sits directly above and already labels the days — saves vertical screen space. Removed the now-unused dowOf helper. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010946';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010954';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
