@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.259 — fog & visibility row: (1) moved it from near the bottom (before ET0) to be the 2nd row, immediately after the top date row; (2) removed the per-cell day labels (一/二/三...) below each indicator since the top date row now sits directly above and already labels the days — saves vertical screen space. Removed the now-unused dowOf helper. bump CACHE_VERSION on each release
+// Version 1.0.260 — fog/visibility indicator: replaced the oversized '!' dense-fog mark with a 1-10 VISIBILITY INDEX inside each dot (1=clear/safe, 10=near-zero dense fog/most dangerous), weighted to the sub-1km fog zone (6 of 10 levels below 700m) where it matters for driving + disease. Kept the band background colours (green/yellow/orange/red). Shrank the dot 26px->20px and font 12px->11px so it's proportionate to the other indicators instead of towering over them. Tooltip now shows index N/10 alongside the metres/km visibility. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010954';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606011005';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
