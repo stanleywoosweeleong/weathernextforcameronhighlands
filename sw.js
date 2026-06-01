@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.248 — REVERTED the v1.0.247 'hide info-rows when help card opens' change (user lost their place in the chart, and it created gaps). Info-rows now always stay visible; help cards expand inline. Help-card overlap fix (VPD -38px neutralized while temp/vpd card open) retained. Added a temporary [GAP-DIAG] log to measure the real dead space between the temp chart's lowest drawn element and the VPD row, so the 'big waste after DeltaT' gap can be closed precisely next build. bump CACHE_VERSION on each release
+// Version 1.0.250 — fixed lost orientation when a help card opens: every card now shows its SECTION TITLE as a bold heading at the top (sourced from CHART_HDR, per-language). The row's own label is absolutely-positioned and was getting visually lost when the card opened (only the accuracy card, which shows its title in flow, behaved correctly). Now all cards match that behaviour. Also carries the -64px temp->VPD gap fix from v1.0.249 (untested by user yet) and the [GAP-DIAG] log, both retained for verification this build. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010835';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010847';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
