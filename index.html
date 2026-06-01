@@ -2769,7 +2769,7 @@
             // A small tappable ⓘ explains how accuracy works + sets the time
             // expectation (it builds per-device over days/weeks), so a new user
             // understands the early empty/low state is normal, not a defect.
-            const accInfoBtn = `<span class="help-icon-btn" id="help-icon-accuracy-${id}" onclick="window.toggleHelpCard('${id}', 'accuracy')" title="${T.fcExplainTitle || ''}">?</span>`;
+            const accInfoBtn = `<span class="help-icon-btn" id="help-icon-accuracy-${id}" onclick="window.toggleHelpCard('${id}', 'accuracy')" title="${T.fcExplainTitle || ''}" style="top:0; align-self:center;">?</span>`;
             let accInline = '';
             if (acc.available) {
                 const c = accColor(acc.score);

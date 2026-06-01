@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.257 — FOUND IT (via screenshots). The big gap when a help card opens was THIS row's own chart (info-row + absolute SVG) keeping its full height BELOW the open card — an empty gridline block before the next row. Fix: on open, hide ONLY the opened row's chart elements (per-row id map) so the card sits directly above the next row; restore on close. Label stays (flow-root fix), all OTHER rows stay visible (no lost orientation — unlike the bad v1.0.247 that hid everything). VPD -38px still dropped to 0 while temp/vpd card open, restored on close. bump CACHE_VERSION on each release
+// Version 1.0.258 — aligned the Forecast Accuracy '?' help icon with its text. The shared .help-icon-btn has position:relative; top:-1px (a nudge tuned for the OTHER rows where the icon sits in an absolute row-label-overlay with line-height:12px). In the accuracy row the icon lives in a flex line (.ch-mc-line, align-items:center) with a taller 🎯 text line, so that -1px nudge pushed it off-center. Fix: override just the accuracy icon with top:0; align-self:center so flex centering handles it. Other rows untouched. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010936';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010946';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
