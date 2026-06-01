@@ -4221,6 +4221,19 @@
             tag.className = `lw-src-tag ${src}`;
         };
 
+        // Single source of truth for the VPD row's -38px pull-up. The pull-up tucks VPD
+        // up into the temp chart's empty tail (gridlines only), so it's safe whenever the
+        // temp chart is visible — including when VPD's own card is open (the card just sits
+        // in that empty tail). It must be 0 only when the TEMP card is open (temp chart
+        // hidden, replaced by the help card) — otherwise VPD gets yanked up into that card.
+        // Computed from live DOM state so it's always correct for any open/close combo.
+        window.syncVpdPullUp = (id) => {
+            const vpdC = document.getElementById(`vpd-row-container-${id}`);
+            if (!vpdC) return;
+            const tempChart = document.getElementById(`row-temp-combined-${id}`);
+            const tempChartVisible = tempChart && tempChart.style.display !== 'none';
+            vpdC.style.marginTop = tempChartVisible ? '-38px' : '0px';
+        };
         window.toggleHelpCard = (id, rowType = 'temp', forceRebuild = false) => {
             const card = document.getElementById(`help-card-${rowType}-${id}`);
             const icon = document.getElementById(`help-icon-${rowType}-${id}`);
@@ -4249,10 +4262,12 @@
                     const el = document.getElementById(eid);
                     if (el) el.style.display = '';
                 });
-                // Restore the VPD pull-up that we dropped to 0 on open (temp/vpd only).
+                // Re-sync VPD pull-up based on the temp chart's ACTUAL visibility (not a
+                // hardcoded value). The -38px only makes sense when the temp chart is shown;
+                // if the temp card is still open (its chart hidden), VPD must stay at 0 or it
+                // gets yanked up into the temp card. Same logic used on open — single source.
                 if (rowType === 'temp' || rowType === 'vpd') {
-                    const vpdC = document.getElementById(`vpd-row-container-${id}`);
-                    if (vpdC) vpdC.style.marginTop = '-38px';
+                    syncVpdPullUp(id);
                 }
                 return;
             }
@@ -4536,8 +4551,7 @@
             // (or vpd's) chart hidden above, that pull-up would yank VPD up over the card.
             // Drop it to 0 while the temp or VPD card is open; restore on close.
             if (rowType === 'temp' || rowType === 'vpd') {
-                const vpdC = document.getElementById(`vpd-row-container-${id}`);
-                if (vpdC) vpdC.style.marginTop = '0px';
+                syncVpdPullUp(id);
             }
         };
 

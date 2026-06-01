@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.262 — FIX regression from v1.0.261: all help cards opened EMPTY. When adding the fog help-card branch, the str_replace accidentally dropped the `card.innerHTML = ...${bodyHTML}` line that injects the built content into the card — so bodyHTML was computed but never written. Restored that single line. All cards (fog, temp/DeltaT, vpd, cloud, etc.) now show content again. bump CACHE_VERSION on each release
+// Version 1.0.263 — fixed two VPD pull-up bugs from stale hardcoded margins: (1) open DeltaT card, open VPD card, close VPD -> VPD header jumped up inside the DeltaT card; (2) open VPD card alone -> big gap above it. Root cause: the -38px VPD pull-up was set/restored as hardcoded values per card toggle, which went stale when temp+VPD cards interacted. Fix: single syncVpdPullUp(id) helper computes the margin from the temp chart's LIVE visibility (-38px only when temp chart is shown, else 0), called on every open/close. Always correct for any combo. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606011024';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606011033';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
