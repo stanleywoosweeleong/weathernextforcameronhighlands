@@ -4155,17 +4155,6 @@
                 card.classList.remove('open');
                 icon.classList.remove('active');
                 card.innerHTML = '';  // free DOM immediately since no animation
-                // Temp chart special: restore the chart's info-row, SVG, and wind row.
-                // When the help card opened, we hid the info-row + SVG (they would be a
-                // phantom 200px gap below the help card) and removed the wind row's
-                // -38px overlap margin (it's only useful when overlapping the chart's
-                // unused tail space; with the chart hidden, it would overlap the help card).
-                // Restore the VPD row's -38px pull-up (neutralized while temp OR vpd card
-                // was open) so VPD tucks back under the temp chart.
-                if (rowType === 'temp' || rowType === 'vpd') {
-                    const vpdContainer = document.getElementById(`vpd-row-container-${id}`);
-                    if (vpdContainer) vpdContainer.style.marginTop = '-64px';
-                }
                 return;
             }
             const lang = getLang(id);
@@ -4394,36 +4383,24 @@
                 `;
             }
 
-            // Prepend the SECTION TITLE inside the card itself. The row's own label is
-            // absolutely-positioned and can be visually lost when the card opens (user
-            // reported losing orientation on every card except accuracy, which already
-            // shows its title in flow). Putting the title at the top of the card guarantees
-            // the user always sees which row's help they're reading. Source: CHART_HDR
-            // (authoritative per-language row titles).
-            const _hdrTitles = (typeof chartHdr === 'function') ? chartHdr(lang) : null;
-            const _titleKeyMap = { wvet:'wvet', temp:'tDelta', vpd:'vpd', cloud:'cloud', storm:'storm', sky:'sky', leafwet:'leafwet' };
-            let _cardTitle = '';
-            if (_hdrTitles && _titleKeyMap[rowType]) {
-                // temp card covers DeltaT + Safe Hours; show both for clarity.
-                _cardTitle = (rowType === 'temp')
-                    ? `${_hdrTitles.tDelta} · ${_hdrTitles.tSafe}`
-                    : (_hdrTitles[_titleKeyMap[rowType]] || '');
-            }
-            const _titleHTML = _cardTitle
-                ? `<div style="font-size:12.5px; font-weight:900; color:#1e293b; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid rgba(0,0,0,0.08);">${_cardTitle}</div>`
-                : '';
-            card.innerHTML = `<span class="help-card-close" onclick="window.toggleHelpCard('${id}', '${rowType}')" aria-label="${t.close}">×</span>${_titleHTML}${bodyHTML}`;
-            if (forceRebuild) return; // content swapped in place; open-state & chart already set
+            card.innerHTML = `<span class="help-card-close" onclick="window.toggleHelpCard('${id}', '${rowType}')" aria-label="${t.close}">×</span>${bodyHTML}`;
+            if (forceRebuild) return; // content swapped in place; open-state already set
             card.classList.add('open');
             icon.classList.add('active');
-            // The VPD row carries a -38px pull-up (to tuck under the temp chart). While
-            // the temp OR vpd help card is open, neutralize it so the pulled-up row doesn't
-            // slide up and overlap the card. Info-rows stay VISIBLE — the card simply
-            // expands inline and pushes the chart down, so the user keeps their place.
-            if (rowType === 'temp' || rowType === 'vpd') {
-                const vpdContainer = document.getElementById(`vpd-row-container-${id}`);
-                if (vpdContainer) vpdContainer.style.marginTop = '0';
-            }
+            // [LABEL-DIAG] One-shot: capture the real geometry of the row label vs the
+            // open card, so we can find the true cause of the "header disappears" bug
+            // instead of guessing. Remove once diagnosed.
+            try {
+                requestAnimationFrame(() => {
+                    const lbl = document.getElementById(`hdr-${rowType}-${id}`);
+                    const container = card.parentElement;
+                    const cr = card.getBoundingClientRect();
+                    const lr = lbl ? lbl.getBoundingClientRect() : null;
+                    const cs = lbl ? getComputedStyle(lbl) : null;
+                    const contCs = container ? getComputedStyle(container) : null;
+                    console.log(`[LABEL-DIAG] ${rowType}: label{top:${lr?Math.round(lr.top):'?'} left:${lr?Math.round(lr.left):'?'} h:${lr?Math.round(lr.height):'?'} pos:${cs?cs.position:'?'} z:${cs?cs.zIndex:'?'} vis:${cs?cs.visibility:'?'} disp:${cs?cs.display:'?'} color:${cs?cs.color:'?'}} card{top:${Math.round(cr.top)} z:${getComputedStyle(card).zIndex} bg:${getComputedStyle(card).backgroundColor}} container{pos:${contCs?contCs.position:'?'} overflow:${contCs?contCs.overflow:'?'} mt:${contCs?contCs.marginTop:'?'}} labelInsideCard:${lr&&cr?(lr.top>=cr.top&&lr.top<cr.bottom):'?'}`);
+                });
+            } catch (e) {}
         };
 
         // Helper to get localized crop name
@@ -7092,7 +7069,7 @@
                 <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" id="hdr-wvet-${id}" style="color: #b45309;">${cH.wvet}<span class="help-icon-btn" id="help-icon-wvet-${id}" onclick="window.toggleHelpCard('${id}', 'wvet')" title="What is WVET?">?</span></div><div id="help-card-wvet-${id}" class="help-card"></div><div class="info-row" id="row-wvet-${id}" style="min-height: 60px; padding-top: 14px;"></div></div>
                 <div id="ch-past-temp-${id}" class="ch-past-strip" style="display:none;"></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-temp-${id}"><span style="color:#f97316;">${cH.tHi}</span>/<span style="color:#2563eb;">${cH.tLo}</span> / <span style="color:#06b6d4;">${cH.tDew}</span> <span style="color:#cbd5e1; margin:0 2px;">|</span> <span style="color:#7e22ce;">${cH.tDelta}</span> / <span style="color:#166534;">${cH.tSafe}</span><span class="help-icon-btn" id="help-icon-temp-${id}" onclick="window.toggleHelpCard('${id}', 'temp')" title="What is DeltaT and Safe Hours?">?</span></div><div id="help-card-temp-${id}" class="help-card"></div><div class="info-row" id="row-temp-combined-${id}" style="min-height: 200px; padding-top: 10px;"></div><svg id="trend-layer-temp-${id}" class="trend-layer" height="200"></svg></div>
-                <div class="relative" id="vpd-row-container-${id}" style="margin-top:-64px;"><div class="row-label-overlay" id="hdr-vpd-${id}" style="color:#b45309">${cH.vpd}<span class="help-icon-btn" id="help-icon-vpd-${id}" onclick="window.toggleHelpCard('${id}', 'vpd')" title="What is VPD?">?</span></div><div id="help-card-vpd-${id}" class="help-card"></div><div class="info-row" id="row-vpd-${id}" style="min-height:54px;padding-top:20px;"></div><svg id="trend-layer-vpd-${id}" class="trend-layer" height="54"></svg></div>
+                <div class="relative" id="vpd-row-container-${id}" style="margin-top:-38px;"><div class="row-label-overlay" id="hdr-vpd-${id}" style="color:#b45309">${cH.vpd}<span class="help-icon-btn" id="help-icon-vpd-${id}" onclick="window.toggleHelpCard('${id}', 'vpd')" title="What is VPD?">?</span></div><div id="help-card-vpd-${id}" class="help-card"></div><div class="info-row" id="row-vpd-${id}" style="min-height:54px;padding-top:20px;"></div><svg id="trend-layer-vpd-${id}" class="trend-layer" height="54"></svg></div>
                 <div class="relative bg-slate-50/10" id="wind-row-container-${id}" style="z-index:10;"><div class="row-label-overlay" id="hdr-wind-${id}">${cH.wind}</div><div class="info-row" id="row-wind-${id}" style="min-height:60px;padding-top:14px;"></div></div>
                 <div class="relative bg-slate-50/10"><div class="row-label-overlay" id="hdr-cloud-${id}">${cH.cloud}<span class="help-icon-btn" id="help-icon-cloud-${id}" onclick="window.toggleHelpCard('${id}', 'cloud')" title="What is Cloud % and CB Risk?">?</span></div><div id="help-card-cloud-${id}" class="help-card"></div><div class="info-row" id="row-cl-high-${id}" style="min-height:42px;padding-top:14px;"></div><div class="info-row" id="row-cl-mid-${id}" style="min-height:28px;"></div><div class="info-row" id="row-cl-low-${id}" style="min-height:28px;"></div></div>
                 <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" id="hdr-storm-${id}" style="color:#7c2d12;">${cH.storm}<span class="help-icon-btn" id="help-icon-storm-${id}" onclick="window.toggleHelpCard('${id}', 'storm')" title="What is Storm Risk?">?</span></div><div id="help-card-storm-${id}" class="help-card"></div><div class="info-row" id="row-storm-${id}" style="min-height: 70px; padding-top: 14px;"></div></div>
@@ -7685,24 +7662,6 @@
             try { if (typeof window.renderFogForecast === 'function') window.renderFogForecast(id); } catch (e) { console.warn('[fog] render skipped', e); }
 
             requestAnimationFrame(() => setTimeout(() => drawTrends(days, id), 50));
-            // [DIAG v1.0.248] Temporary: measure the dead space between the temp chart's
-            // last drawn element and the VPD row, to size the fix precisely. Remove after.
-            try {
-                setTimeout(() => {
-                    const tEl = document.getElementById(`row-temp-combined-${id}`);
-                    const tSvg = document.getElementById(`trend-layer-temp-${id}`);
-                    const vEl = document.getElementById(`vpd-row-container-${id}`);
-                    const vHdr = document.getElementById(`hdr-vpd-${id}`);
-                    if (tEl && vEl) {
-                        const tr = tEl.getBoundingClientRect(), sr = tSvg ? tSvg.getBoundingClientRect() : null;
-                        const vr = vEl.getBoundingClientRect(), hr = vHdr ? vHdr.getBoundingClientRect() : null;
-                        // Find lowest-drawn element inside the temp SVG:
-                        let lowest = 0;
-                        if (tSvg) tSvg.querySelectorAll('*').forEach(n => { try { const b = n.getBoundingClientRect().bottom; if (b > lowest) lowest = b; } catch(e){} });
-                        console.log(`[GAP-DIAG] temp infoRow bottom=${Math.round(tr.bottom)} | temp SVG bottom=${sr?Math.round(sr.bottom):'?'} | lowest drawn px=${Math.round(lowest)} | VPD container top=${Math.round(vr.top)} | VPD header top=${hr?Math.round(hr.top):'?'} | DEAD GAP (vpdTop - lowestDrawn)=${Math.round(vr.top - lowest)}`);
-                    }
-                }, 400);
-            } catch (e) {}
         }
 
         function drawTrends(days, suffix) {
