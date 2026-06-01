@@ -3640,6 +3640,17 @@
                     rule2: "This is a grid-model estimate, NOT your field's leaf-wetness sensor — your sheltered or exposed beds will differ",
                     rule3: "Watch the trend: several high-wetness days in a row build disease pressure faster than one wet day"
                 },
+                fog: {
+                    title: "Fog & Visibility Index (1–10)",
+                    body: "One number per day for the WORST visibility expected. 1 = clear, safe driving and dry air; 10 = near-zero dense fog, very dangerous on mountain roads and keeps leaves wet for disease. The scale is weighted to the fog range — most of 1–10 covers visibility below 1 km, where it actually matters. The dot colour matches the number.",
+                    s1: "<b>1–2</b> — Clear (≥1 km). Normal driving; air dries normally.",
+                    s3: "<b>3–4</b> — Patchy/light fog (500–1000 m). Headlights on; mild leaf-wetness.",
+                    s5: "<b>5–7</b> — Fog (180–500 m). Slow down, low beams, extra distance; disease pressure builds.",
+                    s8: "<b>8–9</b> — Dense fog (60–180 m). Dangerous — drive very slowly, hazard lights if needed.",
+                    s10: "<b>10</b> — Near-zero (<60 m). Avoid driving if possible; canopy stays wet for hours.",
+                    useCaseLabel: "Who reads this:",
+                    useCase: "Everyone in the highlands — fog is a real driving hazard on Cameron roads at dawn, and prolonged low visibility means hours of leaf wetness that drives fungal disease. Days 8+ in the chart fade because far-out fog is harder to forecast."
+                },
                 vpd: {
                     title: "VPD — Air Dryness (kPa)",
                     body: "Vapour Pressure Deficit measures how DRY the air is — the gap between the moisture it holds and what it could hold. High = dry, thirsty air; low = humid, near-saturated air. This one number drives several things: how fast surfaces dry, how readily a spray absorbs, whether the canopy stays wet (disease), and how hard the plant transpires. The dashed line is the 8AM reading; the labelled line is the midday peak.",
@@ -3747,6 +3758,17 @@
                     rule1: "约 10 小时以上/天 = 高侵染压力——优先安排预防性喷药与通风",
                     rule2: "这是网格模型估算，并非你田里的叶面湿润传感器——遮蔽或暴露的畦面会有差异",
                     rule3: "看趋势：连续几天高湿润比单独一个湿润日更快累积病害压力"
+                },
+                fog: {
+                    title: "雾况与能见度指数 (1–10)",
+                    body: "每天一个数字,代表当天预计最差的能见度。1 = 晴朗、行车安全、空气干爽;10 = 接近零的浓雾,在山路上非常危险,并使叶面长时间潮湿、助长病害。刻度偏重于雾的范围 —— 大部分 1–10 覆盖 1 公里以下的能见度,这才是关键。圆点颜色与数字对应。",
+                    s1: "<b>1–2</b> — 晴朗(≥1 公里)。正常行车;空气正常变干。",
+                    s3: "<b>3–4</b> — 零星/轻雾(500–1000 米)。开灯;轻微叶面潮湿。",
+                    s5: "<b>5–7</b> — 有雾(180–500 米)。减速、开近光灯、加大车距;病害压力上升。",
+                    s8: "<b>8–9</b> — 浓雾(60–180 米)。危险 —— 极慢行驶,必要时开危险灯。",
+                    s10: "<b>10</b> — 接近零(<60 米)。尽量避免开车;叶冠会潮湿数小时。",
+                    useCaseLabel: "谁该看:",
+                    useCase: "高原上的每个人 —— 清晨金马伦山路的雾是真实的行车危险,而长时间低能见度意味着数小时的叶面潮湿,助长真菌病害。图表中第 8 天以后会变淡,因为远期的雾更难预报。"
                 },
                 vpd: {
                     title: "VPD — 空气干湿 (kPa)",
@@ -3856,6 +3878,17 @@
                     rule2: "Ini anggaran model grid, BUKAN sensor daun-basah ladang anda — batas terlindung atau terdedah akan berbeza",
                     rule3: "Perhatikan trend: beberapa hari basah tinggi berturut-turut membina tekanan penyakit lebih cepat daripada satu hari basah"
                 },
+                fog: {
+                    title: "Indeks Kabus & Penglihatan (1–10)",
+                    body: "Satu nombor sehari untuk penglihatan TERBURUK dijangka. 1 = cerah, pemanduan selamat, udara kering; 10 = kabus tebal hampir-sifar, sangat bahaya di jalan gunung dan membuat daun basah lama (penyakit). Skala berat ke julat kabus — kebanyakan 1–10 meliputi penglihatan bawah 1 km. Warna titik sepadan dengan nombor.",
+                    s1: "<b>1–2</b> — Cerah (≥1 km). Pemanduan biasa; udara kering normal.",
+                    s3: "<b>3–4</b> — Kabus nipis (500–1000 m). Pasang lampu; daun basah sedikit.",
+                    s5: "<b>5–7</b> — Berkabus (180–500 m). Perlahan, lampu rendah, jarak lebih; tekanan penyakit naik.",
+                    s8: "<b>8–9</b> — Kabus tebal (60–180 m). Bahaya — pandu sangat perlahan, lampu kecemasan jika perlu.",
+                    s10: "<b>10</b> — Hampir-sifar (<60 m). Elak memandu jika boleh; kanopi basah berjam-jam.",
+                    useCaseLabel: "Siapa yang baca:",
+                    useCase: "Semua orang di tanah tinggi — kabus ialah bahaya pemanduan sebenar di jalan Cameron waktu subuh, dan penglihatan rendah berpanjangan bermakna berjam-jam daun basah yang menggalakkan penyakit kulat. Hari ke-8+ dalam carta pudar kerana kabus jauh lebih sukar diramal."
+                },
                 vpd: {
                     title: "VPD — Kekeringan Udara (kPa)",
                     body: "VPD (Defisit Tekanan Wap) mengukur sejauh mana KERING udara — jurang antara lembapan yang dikandungnya dan had tepunya. Tinggi = udara kering dahaga; rendah = lembap hampir tepu. Satu nombor ini memacu beberapa perkara: kelajuan permukaan kering, sama ada semburan mudah diserap, sama ada kanopi kekal basah (penyakit), dan sekuat mana pokok bertranspirasi. Garis putus = bacaan 8AM; garis berlabel = puncak tengah hari.",
@@ -3964,6 +3997,17 @@
                     rule2: "இது கட்டக மாதிரி மதிப்பீடு, உங்கள் வயலின் இலை-ஈர சென்சார் அல்ல — மறைவான அல்லது வெளிப்படும் படுக்கைகள் வேறுபடும்",
                     rule3: "போக்கைக் கவனியுங்கள்: தொடர்ச்சியான பல அதிக ஈர நாட்கள் ஒரு ஈர நாளை விட நோய் அழுத்தத்தை வேகமாக உருவாக்கும்"
                 },
+                fog: {
+                    title: "மூடுபனி & பார்வைத்தொலைவு குறியீடு (1–10)",
+                    body: "ஒவ்வொரு நாளுக்கும் எதிர்பார்க்கப்படும் மோசமான பார்வைத்தொலைவுக்கு ஒரு எண். 1 = தெளிவு, பாதுகாப்பான ஓட்டுதல், உலர் காற்று; 10 = ஏறக்குறைய பூஜ்ஜிய அடர் மூடுபனி, மலைச் சாலைகளில் மிகவும் ஆபத்து, இலைகளை நீண்ட நேரம் ஈரமாக வைத்து நோயைத் தூண்டும். அளவீடு மூடுபனி வரம்பை நோக்கி சாய்ந்துள்ளது — 1–10 இல் பெரும்பகுதி 1 கி.மீ.க்கு கீழ். புள்ளி நிறம் எண்ணுடன் பொருந்தும்.",
+                    s1: "<b>1–2</b> — தெளிவு (≥1 கி.மீ). சாதாரண ஓட்டுதல்; காற்று இயல்பாக உலர்கிறது.",
+                    s3: "<b>3–4</b> — லேசான மூடுபனி (500–1000 மீ). விளக்குகள் இயக்கவும்; லேசான இலை ஈரம்.",
+                    s5: "<b>5–7</b> — மூடுபனி (180–500 மீ). மெதுவாக, தாழ் விளக்கு, அதிக தூரம்; நோய் அழுத்தம் உயரும்.",
+                    s8: "<b>8–9</b> — அடர் மூடுபனி (60–180 மீ). ஆபத்து — மிக மெதுவாக ஓட்டவும், தேவைப்பட்டால் அபாய விளக்கு.",
+                    s10: "<b>10</b> — ஏறக்குறைய பூஜ்ஜியம் (<60 மீ). முடிந்தால் ஓட்டுவதைத் தவிர்க்கவும்; இலைப்பரப்பு மணிக்கணக்கில் ஈரமாக இருக்கும்.",
+                    useCaseLabel: "யார் படிக்க வேண்டும்:",
+                    useCase: "மலைப்பகுதியில் உள்ள அனைவரும் — விடியற்காலையில் கேமரூன் சாலைகளில் மூடுபனி உண்மையான ஓட்டுதல் ஆபத்து, நீடித்த குறைந்த பார்வைத்தொலைவு மணிக்கணக்கான இலை ஈரத்தை ஏற்படுத்தி பூஞ்சை நோயைத் தூண்டுகிறது. விளக்கப்படத்தில் 8+ நாட்கள் மங்கலாகின்றன, ஏனெனில் தொலைதூர மூடுபனியை கணிப்பது கடினம்."
+                },
                 vpd: {
                     title: "VPD — காற்று வறட்சி (kPa)",
                     body: "VPD (நீராவி அழுத்த பற்றாக்குறை) காற்று எவ்வளவு உலர்ந்துள்ளது என்பதை அளவிடுகிறது — காற்றில் உள்ள ஈரத்துக்கும் அது தாங்கக்கூடிய அளவுக்கும் இடையிலான இடைவெளி. அதிகம் = உலர்ந்த தாகக் காற்று; குறைவு = ஈரமான கிட்டத்தட்ட நிறைவுற்ற காற்று. இந்த ஒரு எண் பலவற்றை இயக்குகிறது: மேற்பரப்புகள் உலரும் வேகம், தெளிப்பு எளிதில் உறிஞ்சப்படுமா, விதானம் ஈரமாக இருக்குமா (நோய்), செடி எவ்வளவு டிரான்ஸ்பிரேஷன் செய்கிறது. புள்ளிக்கோடு = காலை 8 மணி; லேபிள் கோடு = மதிய உச்சம்.",
@@ -4071,6 +4115,17 @@
                     rule1: "ခန့်မှန်းခြေ ၁၀+ စိုစွတ်နာရီ/နေ့ = ကူးစက်ဖိစီးမှုမြင့် — ကာကွယ်ဆေးဖျန်းချိန်နှင့် လေဝင်လေထွက်ကို ဦးစားပေးပါ",
                     rule2: "ဤသည်မှာ ဂရစ်မော်ဒယ်ခန့်မှန်းချက်ဖြစ်ပြီး သင့်လယ်၏ အရွက်စိုစွတ်ဆင်ဆာ မဟုတ်ပါ — ကာကွယ်ထား/ဖွင့်ထားသော ခင်းများ ကွဲပြားမည်",
                     rule3: "လမ်းကြောင်းကို စောင့်ကြည့်ပါ — စိုစွတ်မှုမြင့်နေ့များ တစ်ဆက်တည်းသည် တစ်နေ့တည်းထက် ရောဂါဖိစီးမှုကို ပိုမြန်စုဆောင်းသည်"
+                },
+                fog: {
+                    title: "မြူနှင့် မြင်ကွင်းအညွှန်း (1–10)",
+                    body: "နေ့စဉ် မျှော်မှန်းရသော အဆိုးဆုံးမြင်ကွင်းအတွက် ဂဏန်းတစ်လုံး။ 1 = ကြည်လင်၊ ဘေးကင်းစွာမောင်းနိုင်၊ လေခြောက်; 10 = သုညနီးပါး မြူထူ၊ တောင်လမ်းများတွင် အလွန်အန္တရာယ်ရှိ၊ အရွက်များကို ကြာရှည်စွတ်စိုစေ၍ ရောဂါဖြစ်စေသည်။ စကေးသည် မြူအပိုင်းအခြားကို ဦးစားပေးထား — 1–10 အများစုသည် 1 ကီလိုမီတာအောက် မြင်ကွင်းကို လွှမ်းခြုံ။ အစက်အရောင်သည် ဂဏန်းနှင့်ကိုက်ညီ။",
+                    s1: "<b>1–2</b> — ကြည်လင် (≥1 km)။ ပုံမှန်မောင်းနှင်; လေပုံမှန်ခြောက်သွေ့။",
+                    s3: "<b>3–4</b> — မြူပါး (500–1000 m)။ မီးထွန်းပါ; အရွက်အနည်းငယ်စွတ်။",
+                    s5: "<b>5–7</b> — မြူ (180–500 m)။ နှေးပါ၊ မီးနိမ့်၊ အကွာအဝေးတိုး; ရောဂါဖိအားတက်။",
+                    s8: "<b>8–9</b> — မြူထူ (60–180 m)။ အန္တရာယ် — အလွန်နှေးနှေးမောင်း၊ လိုအပ်လျှင် အန္တရာယ်မီး။",
+                    s10: "<b>10</b> — သုညနီးပါး (<60 m)။ ဖြစ်နိုင်လျှင် မမောင်းပါနှင့်; အရွက်ဖုံး နာရီများစွာစွတ်နေမည်။",
+                    useCaseLabel: "ဘယ်သူဖတ်သင့်:",
+                    useCase: "တောင်ပေါ်ရှိ လူတိုင်း — အရုဏ်တက်ချိန် Cameron လမ်းများတွင် မြူသည် တကယ့်မောင်းနှင်ရေးအန္တရာယ်ဖြစ်ပြီး၊ ကြာရှည်မြင်ကွင်းနိမ့်ခြင်းသည် နာရီများစွာ အရွက်စွတ်စိုစေကာ မှိုရောဂါကိုဖြစ်စေသည်။ ဇယားတွင် ၈ ရက်ကျော် မှိန်သွားသည်မှာ ဝေးကွာသောမြူကို ခန့်မှန်းရခက်သောကြောင့်ဖြစ်သည်။"
                 },
                 vpd: {
                     title: "VPD — လေခြောက်သွေ့မှု (kPa)",
@@ -4187,7 +4242,8 @@
                     cloud:[`row-cl-high-${id}`, `row-cl-mid-${id}`, `row-cl-low-${id}`],
                     storm:[`row-storm-${id}`],
                     sky:  [`row-sky-${id}`],
-                    leafwet:[`row-leafwet-${id}`, `trend-layer-leafwet-${id}`]
+                    leafwet:[`row-leafwet-${id}`, `trend-layer-leafwet-${id}`],
+                    fog:  [`ch-fog-row-${id}`]
                 };
                 (HELP_ROW_CHART_IDS_C[rowType] || []).forEach(eid => {
                     const el = document.getElementById(eid);
@@ -4424,9 +4480,32 @@
                         <div style="font-size:11px; line-height:1.6; color:#1e293b;"><b style="color:#b45309;">${vp.useCaseLabel || 'Best for:'}</b> ${vp.useCase || 'greenhouse / protected cropping — VPD governs whether the canopy sits wet, whether the plant is transpiring and will take up foliar feed, and disease pressure in enclosed humid air. Open-field growers: use the DeltaT row (temp row) instead.'}</div>
                     </div>
                 `;
+            } else if (rowType === 'fog') {
+                const fg = t.fog || HELP_CARD_CONTENT.en.fog;
+                // Visual scale rows: index range → colour swatch → meaning. Colours match
+                // the dot bands (green/yellow/orange/red) used on the chart.
+                const scaleRow = (idxLabel, color, txt) => `
+                    <div style="display:flex; align-items:center; margin-bottom:4px;">
+                        <span style="display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:5px; background:${color}; color:#fff; font-size:11px; font-weight:900; flex-shrink:0; margin-right:8px;">${idxLabel}</span>
+                        <span style="font-size:11.5px; line-height:1.4; color:#1e293b;">${txt}</span>
+                    </div>`;
+                bodyHTML = `
+                    <div class="help-card-section">
+                        <div style="font-size:11.5px; font-weight:800; color:#1e293b; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">${fg.title}</div>
+                        <div style="color:#1e293b; margin-bottom:10px;">${fg.body}</div>
+                        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:6px; padding:10px;">
+                            ${scaleRow('1', '#16a34a', fg.s1)}
+                            ${scaleRow('3', '#ca8a00', fg.s3)}
+                            ${scaleRow('5', '#ea580c', fg.s5)}
+                            ${scaleRow('8', '#b91c1c', fg.s8)}
+                            ${scaleRow('10', '#b91c1c', fg.s10)}
+                        </div>
+                    </div>
+                    <div class="help-card-section" style="background:#fffbeb; border-left:3px solid #b45309; border-radius:4px; padding:8px 10px;">
+                        <div style="font-size:11px; line-height:1.6; color:#1e293b;"><b style="color:#b45309;">${fg.useCaseLabel}</b> ${fg.useCase}</div>
+                    </div>
+                `;
             }
-
-            card.innerHTML = `<span class="help-card-close" onclick="window.toggleHelpCard('${id}', '${rowType}')" aria-label="${t.close}">×</span>${bodyHTML}`;
             if (forceRebuild) return; // content swapped in place; open-state already set
             card.classList.add('open');
             icon.classList.add('active');
@@ -4444,7 +4523,8 @@
                 cloud:[`row-cl-high-${id}`, `row-cl-mid-${id}`, `row-cl-low-${id}`],
                 storm:[`row-storm-${id}`],
                 sky:  [`row-sky-${id}`],
-                leafwet:[`row-leafwet-${id}`, `trend-layer-leafwet-${id}`]
+                leafwet:[`row-leafwet-${id}`, `trend-layer-leafwet-${id}`],
+                fog:  [`ch-fog-row-${id}`]
             };
             (HELP_ROW_CHART_IDS[rowType] || []).forEach(eid => {
                 const el = document.getElementById(eid);
@@ -7122,7 +7202,7 @@
                 <div id="ch-fog-banner-${id}" class="ch-fog-banner-slot"></div>
 
                 <div class="info-row" id="row-dates-top-${id}"></div>
-                <div class="relative"><div class="row-label-overlay" id="hdr-fog-${id}" style="color:#475569">${fogT(lang).title}</div><div id="ch-fog-row-${id}" class="ch-fog-row"></div></div>
+                <div class="relative"><div class="row-label-overlay" id="hdr-fog-${id}" style="color:#475569">${fogT(lang).title}<span class="help-icon-btn" id="help-icon-fog-${id}" onclick="window.toggleHelpCard('${id}', 'fog')" title="What is the fog/visibility index?">?</span></div><div id="help-card-fog-${id}" class="help-card"></div><div id="ch-fog-row-${id}" class="ch-fog-row"></div></div>
                 <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" id="hdr-wvet-${id}" style="color: #b45309;">${cH.wvet}<span class="help-icon-btn" id="help-icon-wvet-${id}" onclick="window.toggleHelpCard('${id}', 'wvet')" title="What is WVET?">?</span></div><div id="help-card-wvet-${id}" class="help-card"></div><div class="info-row" id="row-wvet-${id}" style="min-height: 60px; padding-top: 14px;"></div></div>
                 <div id="ch-past-temp-${id}" class="ch-past-strip" style="display:none;"></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-temp-${id}"><span style="color:#f97316;">${cH.tHi}</span>/<span style="color:#2563eb;">${cH.tLo}</span> / <span style="color:#06b6d4;">${cH.tDew}</span> <span style="color:#cbd5e1; margin:0 2px;">|</span> <span style="color:#7e22ce;">${cH.tDelta}</span> / <span style="color:#166534;">${cH.tSafe}</span><span class="help-icon-btn" id="help-icon-temp-${id}" onclick="window.toggleHelpCard('${id}', 'temp')" title="What is DeltaT and Safe Hours?">?</span></div><div id="help-card-temp-${id}" class="help-card"></div><div class="info-row" id="row-temp-combined-${id}" style="min-height: 200px; padding-top: 10px;"></div><svg id="trend-layer-temp-${id}" class="trend-layer" height="200"></svg></div>

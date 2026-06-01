@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.260 — fog/visibility indicator: replaced the oversized '!' dense-fog mark with a 1-10 VISIBILITY INDEX inside each dot (1=clear/safe, 10=near-zero dense fog/most dangerous), weighted to the sub-1km fog zone (6 of 10 levels below 700m) where it matters for driving + disease. Kept the band background colours (green/yellow/orange/red). Shrank the dot 26px->20px and font 12px->11px so it's proportionate to the other indicators instead of towering over them. Tooltip now shows index N/10 alongside the metres/km visibility. bump CACHE_VERSION on each release
+// Version 1.0.261 — added a help card for the fog/visibility index (the row is now the 2nd row, so the card opens there in the correct position). New '?' icon on the fog row + help-card-fog div; fog branch in toggleHelpCard with a colour-coded 1-10 scale legend (1-2 clear / 3-4 patchy / 5-7 fog / 8-9 dense / 10 near-zero) matching the dot band colours, plus a 'who reads this' note (driving hazard + leaf-wetness disease). Full 5-language content (en/zh/ms/ta/my). Added fog to both help-card chart-hide maps so its chart collapses cleanly when the card opens. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606011005';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606011019';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
