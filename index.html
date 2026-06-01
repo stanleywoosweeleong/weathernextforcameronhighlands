@@ -4162,6 +4162,11 @@
                 card.classList.remove('open');
                 icon.classList.remove('active');
                 card.innerHTML = '';  // free DOM immediately since no animation
+                // Restore the VPD pull-up that we dropped to 0 on open (temp/vpd only).
+                if (rowType === 'temp' || rowType === 'vpd') {
+                    const vpdC = document.getElementById(`vpd-row-container-${id}`);
+                    if (vpdC) vpdC.style.marginTop = '-38px';
+                }
                 return;
             }
             const lang = getLang(id);
@@ -4394,6 +4399,16 @@
             if (forceRebuild) return; // content swapped in place; open-state already set
             card.classList.add('open');
             icon.classList.add('active');
+            // The VPD row uses margin-top:-38px to tuck up into the temp chart's empty
+            // tail when closed (looks tight). But that overlap breaks the moment ANY card
+            // in this area opens — the open card needs natural room, and the negative
+            // margin yanks things into each other, producing the two big gaps the user
+            // saw. So whenever the temp or VPD card opens, drop the pull-up to 0 (VPD
+            // flows naturally below temp); the close branch restores -38px.
+            if (rowType === 'temp' || rowType === 'vpd') {
+                const vpdC = document.getElementById(`vpd-row-container-${id}`);
+                if (vpdC) vpdC.style.marginTop = '0px';
+            }
         };
 
         // Helper to get localized crop name
@@ -7655,22 +7670,6 @@
             try { if (typeof window.renderFogForecast === 'function') window.renderFogForecast(id); } catch (e) { console.warn('[fog] render skipped', e); }
 
             requestAnimationFrame(() => setTimeout(() => drawTrends(days, id), 50));
-            // [GAP2-DIAG] Measure the two resting gaps the user sees: temp→VPD and VPD→wind.
-            try {
-                setTimeout(() => {
-                    const t = document.getElementById(`row-temp-combined-${id}`);
-                    const tsvg = document.getElementById(`trend-layer-temp-${id}`);
-                    const v = document.getElementById(`vpd-row-container-${id}`);
-                    const vinfo = document.getElementById(`row-vpd-${id}`);
-                    const w = document.getElementById(`wind-row-container-${id}`);
-                    if (t && v && w) {
-                        const tr=t.getBoundingClientRect(), vr=v.getBoundingClientRect(), wr=w.getBoundingClientRect();
-                        const vir = vinfo?vinfo.getBoundingClientRect():null;
-                        let lowestTemp=0; if(tsvg) tsvg.querySelectorAll('*').forEach(n=>{try{const b=n.getBoundingClientRect().bottom; if(b>lowestTemp)lowestTemp=b;}catch(e){}});
-                        console.log(`[GAP2-DIAG] temp infoRow: top=${Math.round(tr.top)} bottom=${Math.round(tr.bottom)} h=${Math.round(tr.height)} | temp lowest drawn=${Math.round(lowestTemp)} | VPD container: top=${Math.round(vr.top)} bottom=${Math.round(vr.bottom)} h=${Math.round(vr.height)} | VPD infoRow h=${vir?Math.round(vir.height):'?'} | wind top=${Math.round(wr.top)} || GAP temp→VPD (vpdTop - tempLowest)=${Math.round(vr.top-lowestTemp)} | GAP VPD→wind (windTop - vpdBottom)=${Math.round(wr.top-vr.bottom)}`);
-                    }
-                }, 450);
-            } catch(e){}
         }
 
         function drawTrends(days, suffix) {

@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.254 — keeps the v1.0.253 help-card label fix; adds [GAP2-DIAG] to measure the TWO resting-state gaps the user sees (temp→VPD and VPD→wind) in real pixels, so they can be closed precisely instead of guessed. The temp SVG is an absolute overlay on a 200px info-row; need to see how much of that 200px is dead space and how the -38px VPD pull + VPD's own 54px info-row + 54px(absolute) interact with wind. No layout change this build. bump CACHE_VERSION on each release
+// Version 1.0.256 — targeted fix for the two big gaps that appear only when a help card opens. Root cause: the VPD row's margin-top:-38px tucks it up into the temp chart's empty tail when CLOSED (looks tight), but that overlap breaks when a card opens. Fix: drop the -38px to 0 while the temp or VPD card is open (VPD flows naturally), restore -38px on close. Removed all gap diagnostics. Keeps the v1.0.253 help-card label flow-root fix. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010911';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010928';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
