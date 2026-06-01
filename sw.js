@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.252 — DIAGNOSTIC ONLY on top of the v1.0.251 rollback baseline. Adds a one-shot [LABEL-DIAG] console log when any help card opens, capturing the row label's real geometry/computed-style vs the card (position, z-index, visibility, color, whether label sits inside the card's painted area, container overflow/position). No layout change — this is to find the TRUE cause of the 'header disappears when card opens' bug instead of guessing. bump CACHE_VERSION on each release
+// Version 1.0.253 — REAL FIX for the 'row label disappears when its help card opens' bug. Diagnostic proved labelInsideCard:true on every row: the card's margin-top:18px (meant to clear the absolute top:2px label) was COLLAPSING through the non-BFC container, so the card started at container top and painted over the label. Fix: '.relative:has(> .help-card.open){display:flow-root}' makes the container contain the margin only while a card is open, so 18px properly pushes the card below the label. No per-card workarounds, no title injection. Removed [LABEL-DIAG]. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010856';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010905';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
