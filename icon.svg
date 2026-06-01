@@ -1,0 +1,54 @@
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<clipPath id="iconClip"><rect x="0" y="0" width="300" height="300" rx="66"/></clipPath>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#9fd4e0"/>
+<stop offset="0.55" stop-color="#cfe9e4"/>
+<stop offset="1" stop-color="#eaf5ee"/>
+</linearGradient>
+</defs>
+
+<rect x="0" y="0" width="300" height="300" rx="66" fill="url(#sky)"/>
+
+<g clip-path="url(#iconClip)">
+<circle cx="205" cy="95" r="38" fill="#ffe08a"/>
+<circle cx="205" cy="95" r="26" fill="#ffd166"/>
+
+<path d="M0 210 Q70 160 150 192 Q230 224 300 186 L300 300 L0 300 Z" fill="#3f7d5c"/>
+<path d="M0 228 Q80 186 160 216 Q240 246 300 212 L300 300 L0 300 Z" fill="#356b4d"/>
+<path d="M0 250 Q70 216 155 242 Q235 268 300 242 L300 300 L0 300 Z" fill="#2c5a41"/>
+<path d="M0 272 Q80 248 165 268 Q240 286 300 268 L300 300 L0 300 Z" fill="#234a35"/>
+
+<g stroke="#bfe0cb" stroke-width="2" opacity="0.55" fill="none">
+<path d="M15 218 Q80 182 150 210"/>
+<path d="M158 212 Q210 228 285 200"/>
+</g>
+
+<g fill="#f0c54a" opacity="0.92">
+<circle cx="35" cy="256" r="3"/><circle cx="50" cy="260" r="3"/><circle cx="65" cy="256" r="3"/>
+<circle cx="80" cy="260" r="3"/><circle cx="95" cy="256" r="3"/>
+</g>
+<g fill="#e8746b" opacity="0.92">
+<circle cx="43" cy="264" r="3"/><circle cx="58" cy="268" r="3"/><circle cx="73" cy="264" r="3"/>
+<circle cx="88" cy="268" r="3"/>
+</g>
+
+<g stroke="#8fd49a" stroke-width="2.4" opacity="0.85" fill="none">
+<path d="M140 260 Q190 250 280 256"/>
+<path d="M140 268 Q195 258 280 264"/>
+<path d="M140 276 Q190 267 280 273"/>
+</g>
+
+<g fill="#f4faf6" opacity="0.78">
+<rect x="0" y="198" width="300" height="13" rx="6.5"/>
+<rect x="0" y="236" width="300" height="11" rx="5.5"/>
+</g>
+<g fill="#ffffff" opacity="0.6">
+<ellipse cx="110" cy="204" rx="80" ry="9"/>
+<ellipse cx="230" cy="241" rx="70" ry="8"/>
+</g>
+</g>
+
+<rect x="0" y="0" width="300" height="300" rx="66" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.85"/>
+<rect x="3" y="3" width="294" height="294" rx="63" fill="none" stroke="#234a35" stroke-width="1.5" opacity="0.18"/>
+</svg>
