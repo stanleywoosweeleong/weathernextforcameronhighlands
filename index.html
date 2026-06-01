@@ -7655,6 +7655,22 @@
             try { if (typeof window.renderFogForecast === 'function') window.renderFogForecast(id); } catch (e) { console.warn('[fog] render skipped', e); }
 
             requestAnimationFrame(() => setTimeout(() => drawTrends(days, id), 50));
+            // [GAP2-DIAG] Measure the two resting gaps the user sees: temp→VPD and VPD→wind.
+            try {
+                setTimeout(() => {
+                    const t = document.getElementById(`row-temp-combined-${id}`);
+                    const tsvg = document.getElementById(`trend-layer-temp-${id}`);
+                    const v = document.getElementById(`vpd-row-container-${id}`);
+                    const vinfo = document.getElementById(`row-vpd-${id}`);
+                    const w = document.getElementById(`wind-row-container-${id}`);
+                    if (t && v && w) {
+                        const tr=t.getBoundingClientRect(), vr=v.getBoundingClientRect(), wr=w.getBoundingClientRect();
+                        const vir = vinfo?vinfo.getBoundingClientRect():null;
+                        let lowestTemp=0; if(tsvg) tsvg.querySelectorAll('*').forEach(n=>{try{const b=n.getBoundingClientRect().bottom; if(b>lowestTemp)lowestTemp=b;}catch(e){}});
+                        console.log(`[GAP2-DIAG] temp infoRow: top=${Math.round(tr.top)} bottom=${Math.round(tr.bottom)} h=${Math.round(tr.height)} | temp lowest drawn=${Math.round(lowestTemp)} | VPD container: top=${Math.round(vr.top)} bottom=${Math.round(vr.bottom)} h=${Math.round(vr.height)} | VPD infoRow h=${vir?Math.round(vir.height):'?'} | wind top=${Math.round(wr.top)} || GAP temp→VPD (vpdTop - tempLowest)=${Math.round(vr.top-lowestTemp)} | GAP VPD→wind (windTop - vpdBottom)=${Math.round(wr.top-vr.bottom)}`);
+                    }
+                }, 450);
+            } catch(e){}
         }
 
         function drawTrends(days, suffix) {
