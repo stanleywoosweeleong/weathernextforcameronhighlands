@@ -9814,8 +9814,18 @@
                             clonedDoc.querySelectorAll('[id^="trend-layer-temp-"], [id^="row-temp-combined-"]').forEach(el => {
                                 el.style.display = '';
                             });
-                            clonedDoc.querySelectorAll('[id^="wind-row-container-"]').forEach(el => {
-                                el.style.marginTop = '';
+                            // The VPD row's pull-up is toggled live (0px while a temp/VPD card
+                            // is open, -38px at rest). Since the clone strips .open and shows the
+                            // resting layout, force the VPD container back to its resting -38px so
+                            // captures are correct no matter what was open when download was tapped.
+                            clonedDoc.querySelectorAll('[id^="vpd-row-container-"]').forEach(el => {
+                                el.style.marginTop = '-38px';
+                            });
+                            // Also restore any chart elements that the help-card open logic
+                            // hid via inline display:none (cloud sub-rows, vpd/leafwet/fog/etc.),
+                            // so the captured image never has a collapsed row.
+                            clonedDoc.querySelectorAll('[id^="row-cl-"], [id^="row-vpd-"], [id^="trend-layer-vpd-"], [id^="row-leafwet-"], [id^="trend-layer-leafwet-"], [id^="ch-fog-row-"], [id^="row-wvet-"], [id^="row-storm-"], [id^="row-sky-"]').forEach(el => {
+                                if (el.style.display === 'none') el.style.display = '';
                             });
                             
                             // 1. CONTAINER CLEANUP
@@ -9824,9 +9834,15 @@
                                 reportContainer.style.transform = 'none';
                             }
 
-                            // 2. GLOBAL TEXT CLEANUP
-                            const allElements = clonedDoc.querySelectorAll('*');
-                            allElements.forEach(el => {
+                            // 2. TEXT CLEANUP — scoped to the card being captured.
+                            // Previously this looped over EVERY element in the whole cloned
+                            // document (querySelectorAll('*')), but only this one card is
+                            // rendered, so touching elements elsewhere was wasted work and a
+                            // big chunk of the per-image render time. Scoping to the cloned
+                            // card gives an identical image far faster.
+                            const clonedCard = clonedDoc.getElementById(`report-card-${lid}`);
+                            const cleanupScope = clonedCard || clonedDoc;
+                            cleanupScope.querySelectorAll('*').forEach(el => {
                                 el.style.letterSpacing = 'normal'; 
                                 el.style.fontVariantLigatures = 'none';
                             });
@@ -9898,7 +9914,8 @@
                     if (blob) files.push(new File([blob], `${APP_BRANDING.screenshotFileName}_${lid}.png`, { type: 'image/png' }));
                 }
                 scale = oS; posX = oX; posY = oY; applyTransform();
-                
+                console.log(`[DL-DIAG] currentDisplayedIds=${currentDisplayedIds.length}, files rendered=${files.length}`);
+
                 if (files.length > 0) {
                     // ============================================================
                     // IDLE PHASE COMPLETE — cache and arm the ready phase.
@@ -9913,8 +9930,24 @@
                     if (typeof window.showToast === 'function') {
                         window.showToast('图片就绪 — 再次点击分享 / Images ready — tap again to share', false);
                     }
+                } else {
+                    // No images were produced. Most often this means there's no farm
+                    // detail open to capture (currentDisplayedIds empty), or html2canvas
+                    // returned a blank canvas. Tell the user instead of failing silently.
+                    if (typeof window.showToast === 'function') {
+                        const m = currentDisplayedIds.length === 0
+                            ? '请先打开一个农场详情再下载图片 / Open a farm\'s detail view first, then download'
+                            : '图片生成失败,请重试 / Could not generate image, please try again';
+                        window.showToast(m, true);
+                    }
+                    console.warn('[DL-DIAG] No files produced — displayedIds:', currentDisplayedIds);
                 }
-            } catch (err) { console.error(err); } finally { btn.disabled = false; btn.style.opacity = "1"; }
+            } catch (err) {
+                console.error('[DL-DIAG] download render threw:', err);
+                if (typeof window.showToast === 'function') {
+                    window.showToast('图片生成出错,请重试 / Image generation error, please try again', true);
+                }
+            } finally { btn.disabled = false; btn.style.opacity = "1"; }
         };
 
         // ============================================================

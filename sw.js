@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.263 — fixed two VPD pull-up bugs from stale hardcoded margins: (1) open DeltaT card, open VPD card, close VPD -> VPD header jumped up inside the DeltaT card; (2) open VPD card alone -> big gap above it. Root cause: the -38px VPD pull-up was set/restored as hardcoded values per card toggle, which went stale when temp+VPD cards interacted. Fix: single syncVpdPullUp(id) helper computes the margin from the temp chart's LIVE visibility (-38px only when temp chart is shown, else 0), called on every open/close. Always correct for any combo. bump CACHE_VERSION on each release
+// Version 1.0.264 — diagnosing Windows-desktop image download that hangs on 'Preparing images…' with no result. The render path failed SILENTLY: if no files were produced (e.g. no farm detail open / empty currentDisplayedIds, or html2canvas returned blank) the 'ready' block was skipped with no message, and the catch only logged to console. Now: empty-files shows a clear bilingual toast ('open a farm detail first' vs 'could not generate'); errors surface a toast instead of dying quietly; added [DL-DIAG] console log of displayedIds + files count to pinpoint the cause. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606011033';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606011101';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
