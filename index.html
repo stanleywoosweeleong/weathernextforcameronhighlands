@@ -6064,6 +6064,15 @@
             if (!elevs.length) return;
             // Distinct, ascending elevations.
             elevStops = Array.from(new Set(elevs)).sort((a, b) => a - b);
+            // [DIAG v1.0.239] Temporary: log the resolved elevation range so we can see
+            // whether the lowest farms are present in elevStops at all. Remove after fix.
+            try {
+                const allFarms = getAllLocations().filter(l => !hiddenIds.includes(l.id));
+                const missing = allFarms.filter(l => typeof l.elev !== 'number').map(l => (l.en || l.id));
+                console.log('[ELEV-DIAG] stops:', elevStops, '| count:', elevStops.length,
+                            '| lowest:', elevStops[0], '| highest:', elevStops[elevStops.length-1],
+                            '| farms total:', allFarms.length, '| missing elev:', missing);
+            } catch (e) {}
             // Index-based slider: 0 .. (stops-1), step 1 → snaps to each farm.
             slider.min = 0;
             slider.max = Math.max(0, elevStops.length - 1);
@@ -6277,6 +6286,15 @@
             if (!card || !container) return;
             const cardWrap = card.closest('.list-item-wrapper') || card;
             const target = cardWrap.offsetTop - (container.clientHeight / 2) + (cardWrap.offsetHeight / 2);
+            // [DIAG v1.0.239] Temporary: log scroll math for the chosen elevation. If the
+            // slider stops short, compare 'target' vs 'maxScroll' and 'idx' vs lowest. Remove after fix.
+            try {
+                const maxScroll = container.scrollHeight - container.clientHeight;
+                console.log('[SCROLL-DIAG] idx:', idx, '/', elevStops.length-1, '| targetElev:', targetElev,
+                            '| best farm:', (best.en || best.id), 'elev', best.elev,
+                            '| scrollTarget:', Math.round(target), '| maxScroll:', Math.round(maxScroll),
+                            '| clamped:', Math.round(Math.max(0, target)) >= Math.round(maxScroll));
+            } catch (e) {}
             container.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
             // Smooth scroll takes ~300-500ms; keep the scroll→slider sync suppressed
             // until it settles, then re-enable it.

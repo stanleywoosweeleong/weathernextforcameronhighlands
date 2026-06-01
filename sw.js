@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.238 — added list SORT-MODE TOGGLE (footer pill, 5 langs, persisted): 'Favourites top' (default, favourites pinned then elevation high-low) vs 'By elevation' (pure elevation high-low so the slider sweeps cleanly end-to-end). Toggling re-renders list + refreshes slider/card-cache. Replaces the earlier reorder-on-scroll idea with explicit user control. bump CACHE_VERSION on each release
+// Version 1.0.239 — DIAGNOSTIC build for the slider-floor bug (slider won't reach lowest elevation, stops ~1077m regardless of favourites/wait). Adds temporary console logs: [ELEV-DIAG] shows the resolved elevStops range + any farms missing elevation; [SCROLL-DIAG] shows scroll target vs maxScroll (clamp). No behaviour change. To be removed once the cause is identified. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010651';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010710';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
