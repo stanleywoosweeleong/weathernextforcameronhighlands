@@ -1016,10 +1016,10 @@
         <div class="flex justify-center mb-2 items-center gap-3">
             <span id="elev-value" class="text-emerald-700 font-black text-lg tabular-nums">-- m</span>
             <button id="sort-mode-toggle" onclick="window.toggleSortMode()"
-                class="text-[10px] font-black uppercase tracking-wide px-2.5 py-1 rounded-full border transition-colors"
-                style="border-color:#cbd5e1;color:#64748b;background:#f8fafc;"
-                title="Switch list sorting">
-                <span id="sort-mode-label">★ Favourites top</span>
+                class="rounded-full border transition-colors flex items-center justify-center"
+                style="border-color:#cbd5e1;color:#64748b;background:#f8fafc;width:34px;height:34px;font-size:16px;line-height:1;"
+                title="Switch list sorting / 切换排序">
+                <span id="sort-mode-label">★</span>
             </button>
         </div>
         <input type="range" id="elev-slider" min="0" max="1" value="0" step="1" class="w-full">
@@ -6254,9 +6254,13 @@
             if (!el) return;
             const lang = (typeof getDeviceLang === 'function') ? getDeviceLang() : 'en';
             const L = SORT_MODE_LABELS[lang] || SORT_MODE_LABELS.en;
-            el.textContent = L[sortMode] || L.fav;
-            // Tint the pill green when in elevation mode so the active state is obvious.
+            // Icon-only pill: ★ = favourites on top, ⛰ = by elevation. The full-text
+            // label still lives in SORT_MODE_LABELS and is surfaced as the button's
+            // title (hover/long-press tooltip) so the meaning is discoverable.
+            el.textContent = (sortMode === 'elev') ? '⛰' : '★';
             if (btn) {
+                btn.title = L[sortMode] || L.fav;
+                // Tint the pill green when in elevation mode so the active state is obvious.
                 if (sortMode === 'elev') { btn.style.borderColor = '#10b981'; btn.style.color = '#047857'; btn.style.background = '#ecfdf5'; }
                 else { btn.style.borderColor = '#cbd5e1'; btn.style.color = '#64748b'; btn.style.background = '#f8fafc'; }
             }

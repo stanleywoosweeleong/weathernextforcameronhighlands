@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.243 — reduce Open-Meteo API calls / avoid 429s: added a 20-min freshness gate to fetchLandingWeather (skips the home-screen refetch on rapid relaunches / return-from-detail / deep-link when cached data is recent; writes LANDING_TS_KEY on success). Calls that must stay live pass {force:true}: model switches, GPS edits, restore, new farm, and the 10-min periodic refresh. Detail view was already cache-gated (1-hr TTL). Net effect: relaunching repeatedly no longer hammers the API. bump CACHE_VERSION on each release
+// Version 1.0.244 — sort-mode toggle is now an ICON-ONLY pill (34x34 tappable): shows just star=favourites-top / mountain=by-elevation, no label text (the app is text-dense already). The full 5-language description moved to the button's title tooltip so meaning stays discoverable; green tint still marks elevation mode. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010748';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010755';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
