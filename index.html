@@ -997,11 +997,15 @@
             </button>
         </div>
         <div style="flex: 1; display: flex; overflow: hidden;">
-            <div id="col-west" class="w-1/2 bg-white border-r-2 border-slate-200 flex flex-col overflow-hidden">
-                <div id="col-west-header" class="p-4 bg-slate-50 border-b font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">西马 West</div>
+            <!-- Cameron Highlands has no East-Malaysia farms, so we DEFAULT to single-column
+                 (West full-width, East hidden, West header hidden). This avoids a two-column
+                 "West | East" flash on slow networks that testers mistook for a bug. The render
+                 logic re-expands to the split automatically if an East-Malaysia farm is added. -->
+            <div id="col-west" class="bg-white flex flex-col overflow-hidden" style="width:100%;flex:1 1 100%;">
+                <div id="col-west-header" class="p-4 bg-slate-50 border-b font-black text-[10px] text-slate-500 uppercase tracking-widest text-center" style="display:none;">西马 West</div>
                 <div id="list-west" class="flex-1 overflow-y-auto no-scrollbar scroll-smooth"></div>
             </div>
-            <div id="col-east" class="w-1/2 bg-white flex flex-col overflow-hidden">
+            <div id="col-east" class="w-1/2 bg-white flex flex-col overflow-hidden" style="display:none;">
                 <div class="p-4 bg-slate-50 border-b font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">东马 East</div>
                 <div id="list-east" class="flex-1 overflow-y-auto no-scrollbar scroll-smooth"></div>
             </div>
@@ -1009,8 +1013,14 @@
     </main>
 
     <footer class="bg-white border-t-2 border-slate-100 px-10 flex flex-col justify-center shrink-0 z-50 shadow-inner">
-        <div class="flex justify-center mb-2 items-baseline gap-2">
+        <div class="flex justify-center mb-2 items-center gap-3">
             <span id="elev-value" class="text-emerald-700 font-black text-lg tabular-nums">-- m</span>
+            <button id="sort-mode-toggle" onclick="window.toggleSortMode()"
+                class="text-[10px] font-black uppercase tracking-wide px-2.5 py-1 rounded-full border transition-colors"
+                style="border-color:#cbd5e1;color:#64748b;background:#f8fafc;"
+                title="Switch list sorting">
+                <span id="sort-mode-label">★ Favourites top</span>
+            </button>
         </div>
         <input type="range" id="elev-slider" min="0" max="1" value="0" step="1" class="w-full">
     </footer>
@@ -4831,6 +4841,7 @@
         };
 
         window.syncUI = () => {
+            if (typeof window.updateSortModeLabel === 'function') window.updateSortModeLabel();
             // The footer slider is now an ELEVATION filter, not a time control.
             // Cards always show current-hour weather (dataIdx = now). Elevation
             // filtering happens separately in applyElevationFilter().
@@ -5919,14 +5930,18 @@
             const lw = document.getElementById('list-west'); const le = document.getElementById('list-east'); const sW = lw ? lw.scrollTop : 0; const sE = le ? le.scrollTop : 0;
             const build = (em) => {
                 let pool = getAllLocations().filter(l => l.em === em && !hiddenIds.includes(l.id));
-                pool.sort((a,b) => { 
-                    const isFavA = favoriteIds.includes(a.id); const isFavB = favoriteIds.includes(b.id);
-                    if (isFavA && !isFavB) return -1; if (!isFavA && isFavB) return 1;
-                    // CAMERON HIGHLANDS: within the same favourite group, sort by
-                    // ELEVATION high → low. Higher/foggier zones carry the most
-                    // disease pressure, so farmers see the riskiest sites first.
-                    // Farms without a known elevation (e.g. user-added) sort to the
-                    // bottom of their group, then fall back to lat/lng/name order.
+                pool.sort((a,b) => {
+                    // Sort mode is user-toggleable (persisted):
+                    //   'fav'  → favourites pinned to TOP, then elevation high→low (default).
+                    //   'elev' → pure elevation high→low (favourites highlighted, not pinned);
+                    //            gives the slider a clean monotonic list to sweep end-to-end.
+                    if (sortMode === 'fav') {
+                        const isFavA = favoriteIds.includes(a.id); const isFavB = favoriteIds.includes(b.id);
+                        if (isFavA && !isFavB) return -1; if (!isFavA && isFavB) return 1;
+                    }
+                    // Elevation high → low (within favourite group, or globally in 'elev' mode).
+                    // Higher/foggier zones carry the most disease pressure, so the riskiest
+                    // sites appear first. Unknown-elevation farms sort to the bottom.
                     const elevA = (typeof a.elev === 'number') ? a.elev : -Infinity;
                     const elevB = (typeof b.elev === 'number') ? b.elev : -Infinity;
                     if (elevA !== elevB) return elevB - elevA;   // high elevation first
@@ -6034,6 +6049,11 @@
         // farm-by-farm with no dragging at all (easier on the wrists).
         let elevStops = [];
         const ELEV_SLIDER_KEY = 'weathernextforcameron__wnext_slider_elev';
+        // List sort mode: 'fav' = favourites pinned on top (default), 'elev' = pure
+        // elevation high→low (lets the slider sweep cleanly end-to-end). Persisted so the
+        // user's choice sticks across launches.
+        const SORT_MODE_KEY = 'weathernextforcameron__wnext_sort_mode';
+        let sortMode = (() => { try { return localStorage.getItem(SORT_MODE_KEY) === 'elev' ? 'elev' : 'fav'; } catch (e) { return 'fav'; } })();
 
         window.refreshElevationRange = () => {
             const slider = document.getElementById('elev-slider');
@@ -6052,6 +6072,10 @@
             //   1. The elevation the user left it on THIS session (dataset.elev).
             //   2. The elevation saved from a PREVIOUS launch (localStorage).
             //   3. Default to the MIDDLE elevation stop (most representative).
+            // Favourites do NOT affect the slider's start/stop — the list is sorted
+            // purely by elevation and the slider travels freely low↔high; a favourite
+            // is just a highlighted farm sitting at its true elevation, reached by
+            // sliding or scrolling to that elevation like any other farm.
             const midIdx = Math.floor((elevStops.length - 1) / 2);
             let idx = midIdx;
             const prevElev = parseInt(slider.dataset.elev || '', 10);
@@ -6076,9 +6100,46 @@
         // present and freely scrollable.
         // ============================================================
 
+        // Sort-mode toggle: switch the home list between favourites-on-top and pure
+        // elevation order. Persisted to localStorage; re-renders the list and refreshes
+        // the slider afterwards so the new order takes effect immediately.
+        const SORT_MODE_LABELS = {
+            en: { fav: '★ Favourites top', elev: '⛰ By elevation' },
+            zh: { fav: '★ 收藏置顶',       elev: '⛰ 按海拔排序' },
+            ms: { fav: '★ Kegemaran atas', elev: '⛰ Ikut altitud' },
+            ta: { fav: '★ பிடித்தவை மேலே', elev: '⛰ உயரப்படி' },
+            my: { fav: '★ အကြိုက်ဆုံးအပေါ်', elev: '⛰ အမြင့်အလိုက်' }
+        };
+        window.updateSortModeLabel = () => {
+            const el = document.getElementById('sort-mode-label');
+            const btn = document.getElementById('sort-mode-toggle');
+            if (!el) return;
+            const lang = (typeof getDeviceLang === 'function') ? getDeviceLang() : 'en';
+            const L = SORT_MODE_LABELS[lang] || SORT_MODE_LABELS.en;
+            el.textContent = L[sortMode] || L.fav;
+            // Tint the pill green when in elevation mode so the active state is obvious.
+            if (btn) {
+                if (sortMode === 'elev') { btn.style.borderColor = '#10b981'; btn.style.color = '#047857'; btn.style.background = '#ecfdf5'; }
+                else { btn.style.borderColor = '#cbd5e1'; btn.style.color = '#64748b'; btn.style.background = '#f8fafc'; }
+            }
+        };
+        window.toggleSortMode = () => {
+            sortMode = (sortMode === 'fav') ? 'elev' : 'fav';
+            try { localStorage.setItem(SORT_MODE_KEY, sortMode); } catch (e) {}
+            window.updateSortModeLabel();
+            renderList();
+            // List order changed → card position cache is stale; rebuild + resync slider.
+            try {
+                elevCardCache = null;
+                if (typeof window.refreshElevationRange === 'function') window.refreshElevationRange();
+                if (typeof window.applyElevationFilter === 'function') window.applyElevationFilter();
+            } catch (e) {}
+        };
+
         window.initElevationSlider = () => {
             const slider = document.getElementById('elev-slider');
             if (!slider) return;
+            if (typeof window.updateSortModeLabel === 'function') window.updateSortModeLabel();
             window.refreshElevationRange();
             // The slider SCROLLS the list to the nearest-elevation farm — it never
             // hides anything. The full list stays vertically scrollable at all times.

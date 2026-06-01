@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.235 — VPD 8AM line now shows value labels: placed BELOW the dotted line (faint blue, 7.5px) on a dedicated baseline; VPD row grown 42->54px to fit them; midday labels forced above their dots so the two label rows never collide. Midday line unchanged otherwise. bump CACHE_VERSION on each release
+// Version 1.0.238 — added list SORT-MODE TOGGLE (footer pill, 5 langs, persisted): 'Favourites top' (default, favourites pinned then elevation high-low) vs 'By elevation' (pure elevation high-low so the slider sweeps cleanly end-to-end). Toggling re-renders list + refreshes slider/card-cache. Replaces the earlier reorder-on-scroll idea with explicit user control. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202605312256';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010651';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
