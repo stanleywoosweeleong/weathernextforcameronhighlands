@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.244 — sort-mode toggle is now an ICON-ONLY pill (34x34 tappable): shows just star=favourites-top / mountain=by-elevation, no label text (the app is text-dense already). The full 5-language description moved to the button's title tooltip so meaning stays discoverable; green tint still marks elevation mode. bump CACHE_VERSION on each release
+// Version 1.0.245 — trimmed forecast chart: hid the RH (relative humidity) 14-day trend row AND the past-3-day RH strip (display only). RH data fully retained — the disease engine reads relative_humidity_2m arrays directly and forecast accuracy reads past RH independently; pdays.rh still built. Same display-only pattern as the past-temp removal. RH row had no margin-pull so adjacent rows collapse cleanly. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010755';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010802';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

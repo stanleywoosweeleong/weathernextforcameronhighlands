@@ -2860,10 +2860,9 @@
             // and forecast accuracy reads past.temperature_2m independently.
 
             // HUMIDITY past strip.
-            setStrip(`ch-past-rh-${id}`, () => {
-                const cells = pdays.map(d => `<div class="ch-ps-cell"><div class="ch-ps-val" style="color:#0891b2;">${d.rh}%</div><div class="ch-ps-dow">${dow(d.ymd)}</div></div>`).join('');
-                return `<div class="ch-ps-row"><div class="ch-ps-tag">${L.past3} · ${L.rh}</div><div class="ch-ps-cells">${cells}</div></div>`;
-            });
+            // Past-3-day RH strip display removed by request. The pdays data (incl. rh)
+            // is kept — forecast accuracy reads past RH independently and the disease
+            // engine reads relative_humidity_2m arrays directly.
 
             // The 14-day RH FORECAST is now rendered as a standard labelled trend row
             // (row-rh / trend-layer-rh, drawn in drawTrends) so it matches temp/ET0 and
@@ -7087,8 +7086,8 @@
                 <div class="relative"><div class="row-label-overlay" id="hdr-rainpp-${id}">${cH.rainPP}</div><div class="info-row" id="row-rain-pp-${id}" style="min-height:70px;padding-top:18px;"></div><svg id="trend-layer-pp-${id}" class="trend-layer" height="70"></svg></div>
                 <div id="ch-past-rain-${id}" class="ch-past-strip"></div>
                 <div class="relative bg-slate-50/10"><div class="row-label-overlay" id="hdr-rainmm-${id}" style="color:#1e3a8a">${cH.rainMM}</div><div class="info-row" id="row-rain-vv-${id}" style="min-height:52px;padding-top:18px;"></div><svg id="trend-layer-vv-${id}" class="trend-layer" height="52"></svg></div>
-                <div id="ch-past-rh-${id}" class="ch-past-strip"></div>
-                <div class="relative"><div class="row-label-overlay" id="hdr-rh-${id}" style="color:#0891b2">${cH.rh}</div><div class="info-row" id="row-rh-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-rh-${id}" class="trend-layer" height="42"></svg></div>
+                <div id="ch-past-rh-${id}" class="ch-past-strip" style="display:none;"></div>
+                <div class="relative" style="display:none;"><div class="row-label-overlay" id="hdr-rh-${id}" style="color:#0891b2">${cH.rh}</div><div class="info-row" id="row-rh-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-rh-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-leafwet-${id}" style="color:#0d9488">${cH.leafwet} <span id="lwsrc-${id}" class="lw-src-tag"></span><span class="help-icon-btn" id="help-icon-leafwet-${id}" onclick="window.toggleHelpCard('${id}', 'leafwet')" title="What is Leaf Wetness?">?</span></div><div id="help-card-leafwet-${id}" class="help-card"></div><div class="info-row" id="row-leafwet-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-leafwet-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-fog-${id}" style="color:#475569">${fogT(lang).title}</div><div id="ch-fog-row-${id}" class="ch-fog-row"></div></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-et0-${id}" style="color:#059669">${cH.et0}</div><div class="info-row" id="row-et-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-et-${id}" class="trend-layer" height="42"></svg></div>
