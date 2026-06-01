@@ -6214,13 +6214,17 @@
 
             let targetElev = null;
             if (atTop) {
-                // Fully scrolled up → the topmost card. Reaches one slider end.
-                const refY = container.scrollTop + 4;
-                let bd = Infinity; cache.forEach(c => { const d = refY < c.top ? c.top - refY : refY > c.bottom ? refY - c.bottom : 0; if (d < bd) { bd = d; targetElev = c.elev; } });
+                // Truly scrolled to the top → the physically FIRST card (smallest top).
+                // Using the first card directly (not a nearest-to-refY search) guarantees
+                // the slider reaches this extreme even when that card can't be centered.
+                let bestTop = Infinity; cache.forEach(c => { if (c.top < bestTop) { bestTop = c.top; targetElev = c.elev; } });
             } else if (atBottom) {
-                // Fully scrolled down → the bottom card. Reaches the other slider end.
-                const refY = container.scrollTop + container.clientHeight - 4;
-                let bd = Infinity; cache.forEach(c => { const d = refY < c.top ? c.top - refY : refY > c.bottom ? refY - c.bottom : 0; if (d < bd) { bd = d; targetElev = c.elev; } });
+                // Truly scrolled to the bottom → the physically LAST card (largest bottom).
+                // This is the fix for the slider-floor bug: the lowest-elevation card sits
+                // at the list bottom but cannot be centered (not enough scroll runway), so
+                // the old nearest-to-refY search picked a higher card and the slider could
+                // never reach the lowest stop. Selecting the last card by max-bottom fixes it.
+                let bestBottom = -Infinity; cache.forEach(c => { if (c.bottom > bestBottom) { bestBottom = c.bottom; targetElev = c.elev; } });
             } else {
                 const centerY = container.scrollTop + container.clientHeight / 2;
                 let bd = Infinity; cache.forEach(c => { const d = Math.abs(c.center - centerY); if (d < bd) { bd = d; targetElev = c.elev; } });
@@ -6285,6 +6289,11 @@
             const container = document.getElementById('list-west');
             if (!card || !container) return;
             const cardWrap = card.closest('.list-item-wrapper') || card;
+            // Scroll to CENTER the target card. If the card is near the list edge and
+            // can't be centered, scrollTo clamps to the reachable max/min — the card is
+            // still fully visible at the edge. The reverse-sync (syncSliderToScroll) now
+            // selects the physically first/last card at the scroll extremes, so a clamped
+            // bottom no longer yanks the slider off the lowest stop (the prior floor bug).
             const target = cardWrap.offsetTop - (container.clientHeight / 2) + (cardWrap.offsetHeight / 2);
             // [DIAG v1.0.239] Temporary: log scroll math for the chosen elevation. If the
             // slider stops short, compare 'target' vs 'maxScroll' and 'idx' vs lowest. Remove after fix.
