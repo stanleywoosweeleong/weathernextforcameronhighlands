@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.267 — (1) cleared the [DL-DIAG] download diagnostic logs (kept the user-facing 'open a farm first' / error toasts). (2) Added an ET0 help card: ? icon + help-card on the ET0 row, et0 branch in toggleHelpCard, full 5-language content explaining ET0 as daily water demand (mm), how to read high/low, the mirror-pairing with Leaf Wetness (cool foggy day = high wetness/low ET0; hot dry day = the reverse), and who reads it. Added et0 to both help-card chart-hide maps. bump CACHE_VERSION on each release
+// Version 1.0.268 — Sky Tint upgrade for the tourist/photographer use case (Airbnb hosts, bird watchers, landscape photographers). (1) Now samples the ACTUAL sunrise/sunset hour (added sunrise,sunset to the daily fetch + sunHourIdx helper) instead of fixed 7AM/7PM, so the tint reflects the real golden moment. (2) CAMERON FIX: light/medium valley mist (1-4km vis) with some high cloud is now a pearl-peach 'Misty Glow' — the iconic sea-of-clouds sunrise — instead of being wrongly flagged dull grey; only a true whiteout (vis<1000m) reads flat. Sky help card updated with the new misty-glow swatch + reworded 'hazy' as whiteout, all 5 languages. Core burning-sky physics unchanged. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606012242';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606012253';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
