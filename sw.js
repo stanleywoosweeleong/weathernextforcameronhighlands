@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.264 — diagnosing Windows-desktop image download that hangs on 'Preparing images…' with no result. The render path failed SILENTLY: if no files were produced (e.g. no farm detail open / empty currentDisplayedIds, or html2canvas returned blank) the 'ready' block was skipped with no message, and the catch only logged to console. Now: empty-files shows a clear bilingual toast ('open a farm detail first' vs 'could not generate'); errors surface a toast instead of dying quietly; added [DL-DIAG] console log of displayedIds + files count to pinpoint the cause. bump CACHE_VERSION on each release
+// Version 1.0.265 — moved the Leaf Wetness row to sit immediately AFTER VPD (was down near ET0). This groups the canopy/spray-decision rows together: DeltaT (air dry enough to spray?) -> VPD (canopy dryness/transpiration) -> Leaf Wetness (hours the leaf stays wet = disease clock). ET0 stays in the water group near the bottom (with rainfall, and future soil moisture). Leaf-wetness row + its help card/icon moved intact; VPD -38px pull-up + syncVpdPullUp untouched (leaf-wetness is a plain row that just follows VPD now). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606011101';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606012223';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
