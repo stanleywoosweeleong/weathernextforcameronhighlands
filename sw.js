@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.265 — moved the Leaf Wetness row to sit immediately AFTER VPD (was down near ET0). This groups the canopy/spray-decision rows together: DeltaT (air dry enough to spray?) -> VPD (canopy dryness/transpiration) -> Leaf Wetness (hours the leaf stays wet = disease clock). ET0 stays in the water group near the bottom (with rainfall, and future soil moisture). Leaf-wetness row + its help card/icon moved intact; VPD -38px pull-up + syncVpdPullUp untouched (leaf-wetness is a plain row that just follows VPD now). bump CACHE_VERSION on each release
+// Version 1.0.267 — (1) cleared the [DL-DIAG] download diagnostic logs (kept the user-facing 'open a farm first' / error toasts). (2) Added an ET0 help card: ? icon + help-card on the ET0 row, et0 branch in toggleHelpCard, full 5-language content explaining ET0 as daily water demand (mm), how to read high/low, the mirror-pairing with Leaf Wetness (cool foggy day = high wetness/low ET0; hot dry day = the reverse), and who reads it. Added et0 to both help-card chart-hide maps. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606012223';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606012242';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

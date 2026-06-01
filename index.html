@@ -3651,6 +3651,15 @@
                     useCaseLabel: "Who reads this:",
                     useCase: "Everyone in the highlands — fog is a real driving hazard on Cameron roads at dawn, and prolonged low visibility means hours of leaf wetness that drives fungal disease. Days 8+ in the chart fade because far-out fog is harder to forecast."
                 },
+                et0: {
+                    title: "ET₀ — Water Demand (mm/day)",
+                    body: "ET₀ (reference evapotranspiration) is roughly how much water the day pulled out of a reference grass surface — soil evaporation plus plant transpiration combined, in millimetres. It's driven by sun, heat, dry air and wind. Think of it as the day's water 'spend'.",
+                    reading: "Higher = a thirsty day (hot, dry, sunny, windy) — the crop lost more water and likely needs irrigation. Lower = a calm, humid or overcast day (typical Cameron) — little water lost, you can usually hold off. For actual crop need, multiply by your crop's Kc factor; as a daily trend it shows when demand is rising or falling.",
+                    pairLabel: "Reads opposite to Leaf Wetness:",
+                    pair: "A cool, foggy Cameron day = HIGH leaf wetness (disease risk) but LOW ET₀ (little watering needed). A hot, dry, windy day flips it — LOW leaf wetness but HIGH ET₀ (irrigate). Together they tell you whether today's worry is fungal disease or water stress.",
+                    useCaseLabel: "Who reads this:",
+                    useCase: "Anyone managing irrigation — vegetable growers especially. Cameron's cool humid climate keeps ET₀ low most days, so big ET₀ days stand out as the ones to water."
+                },
                 vpd: {
                     title: "VPD — Air Dryness (kPa)",
                     body: "Vapour Pressure Deficit measures how DRY the air is — the gap between the moisture it holds and what it could hold. High = dry, thirsty air; low = humid, near-saturated air. This one number drives several things: how fast surfaces dry, how readily a spray absorbs, whether the canopy stays wet (disease), and how hard the plant transpires. The dashed line is the 8AM reading; the labelled line is the midday peak.",
@@ -3701,6 +3710,8 @@
                     capped: "Capped Boiler — CAPE ≥ 2000 + strong cap. Atmosphere full of fuel but locked. If cap breaks (sea breeze, mountain heating, front), violent surprise storms.",
                     severe: "Severe — CAPE ≥ 3000 + weak cap. Major organized storm potential.",
                     warnFlag: "⚠️ Warning flag: CAPE-based risk is high but the day's max rain probability stays below 40%. This is the classic 'PoP understating storm risk' case — farmers get surprised because the rain % alone looked safe. Watch the sky after lunch.",
+                    orographicLabel: "Terrain note (Cameron Highlands):",
+                    orographic: "These CAPE/CIN numbers are the same physics used everywhere — they are NOT adjusted for your elevation. But mountains add their own trigger: slopes heat up and force air upward, so a 'Capped' day here can break into storms more easily than the cap alone suggests, and storms may fire a little earlier. Treat highland Capped/Loaded days with extra caution and watch the sky.",
                     howToUse: "How to use it for spray decisions",
                     rule1: "Stable / Moderate = safe to plan a full-day field schedule",
                     rule2: "Loaded = finish spray by 11 AM, expect rain 2–5 PM",
@@ -3770,6 +3781,15 @@
                     useCaseLabel: "谁该看:",
                     useCase: "高原上的每个人 —— 清晨金马伦山路的雾是真实的行车危险,而长时间低能见度意味着数小时的叶面潮湿,助长真菌病害。图表中第 8 天以后会变淡,因为远期的雾更难预报。"
                 },
+                et0: {
+                    title: "ET₀ — 需水量 (mm/天)",
+                    body: "ET₀(参考蒸散量)大致是当天从参考草地表面蒸发掉的水量 — 土壤蒸发加植物蒸腾的总和,以毫米计。由日照、高温、干燥空气和风驱动。可把它看作当天的水分「支出」。",
+                    reading: "数值越高 = 口渴的一天(炎热、干燥、晴朗、有风)— 作物失水较多,可能需要灌溉。越低 = 平静、潮湿或阴天(金马仑常见)— 失水少,通常可暂缓。要换算实际作物需水量,乘以作物的 Kc 系数;作为每日趋势,它显示需水量在上升还是下降。",
+                    pairLabel: "与叶面湿润相反:",
+                    pair: "金马仑凉爽多雾的一天 = 叶面湿润高(病害风险)但 ET₀ 低(几乎不用浇水)。炎热干燥有风的一天则相反 — 叶面湿润低但 ET₀ 高(需灌溉)。两者结合,告诉你今天该担心的是真菌病害还是缺水。",
+                    useCaseLabel: "谁该看:",
+                    useCase: "凡是管理灌溉的人 — 尤其菜农。金马仑凉爽潮湿,大多数日子 ET₀ 偏低,因此 ET₀ 高的日子格外突出,正是需要浇水的日子。"
+                },
                 vpd: {
                     title: "VPD — 空气干湿 (kPa)",
                     body: "VPD（蒸气压差）衡量空气有多「干」——空气当前含水量与饱和上限之间的差距。高 = 干燥渴水；低 = 潮湿接近饱和。这一个数字影响多方面：表面干得多快、药液是否易吸收、冠层是否保持湿润（病害）、以及植株蒸腾的强度。虚线为早上8点读数，标注线为午后峰值。",
@@ -3820,6 +3840,8 @@
                     capped: "盖压锅炉 — CAPE ≥ 2000 + 强盖子。大气充满燃料但被锁住。若盖子破裂（海风、山地加热、锋面），可能出现猛烈的突发风暴。",
                     severe: "严重 — CAPE ≥ 3000 + 弱盖子。重大组织风暴潜势。",
                     warnFlag: "⚠️ 警告标志：CAPE 风险高，但当日最大降雨概率低于 40%。这正是「降雨概率低估风暴风险」的经典情况 — 单看降雨百分比看似安全，结果被偷袭。午餐后留意天空。",
+                    orographicLabel: "地形说明（金马仑）：",
+                    orographic: "这些 CAPE/CIN 数值采用与各地相同的物理 — 并未针对您的海拔做调整。但山地本身会增添触发因素：山坡受热、迫使空气抬升,因此这里的「封顶」日比单看盖子所示更容易爆发成风暴,且可能更早触发。对高地的封顶／装填日多加小心,留意天空。",
                     howToUse: "用于喷洒决策",
                     rule1: "稳定 / 中等 = 可安排全天田间作业",
                     rule2: "蓄势待发 = 11 时前完成喷洒，预期 2–5 时降雨",
@@ -3889,6 +3911,15 @@
                     useCaseLabel: "Siapa yang baca:",
                     useCase: "Semua orang di tanah tinggi — kabus ialah bahaya pemanduan sebenar di jalan Cameron waktu subuh, dan penglihatan rendah berpanjangan bermakna berjam-jam daun basah yang menggalakkan penyakit kulat. Hari ke-8+ dalam carta pudar kerana kabus jauh lebih sukar diramal."
                 },
+                et0: {
+                    title: "ET₀ — Permintaan Air (mm/hari)",
+                    body: "ET₀ (sejat-peluhan rujukan) ialah anggaran berapa banyak air hari itu menyejat dari permukaan rumput rujukan — sejatan tanah campur transpirasi tumbuhan, dalam milimeter. Didorong oleh matahari, haba, udara kering dan angin. Anggap ia 'perbelanjaan' air hari itu.",
+                    reading: "Lebih tinggi = hari dahaga (panas, kering, cerah, berangin) — tanaman hilang lebih banyak air dan mungkin perlu pengairan. Lebih rendah = hari tenang, lembap atau mendung (biasa di Cameron) — sedikit air hilang, biasanya boleh tangguh. Untuk keperluan sebenar tanaman, darab dengan faktor Kc tanaman anda; sebagai trend harian ia tunjuk bila permintaan naik atau turun.",
+                    pairLabel: "Lawan kepada Daun Basah:",
+                    pair: "Hari Cameron sejuk berkabus = Daun Basah TINGGI (risiko penyakit) tetapi ET₀ RENDAH (sedikit penyiraman). Hari panas, kering, berangin sebaliknya — Daun Basah rendah tetapi ET₀ tinggi (airi). Bersama, ia beritahu sama ada risau hari ini penyakit kulat atau tekanan air.",
+                    useCaseLabel: "Siapa yang baca:",
+                    useCase: "Sesiapa yang urus pengairan — terutama penanam sayur. Iklim Cameron yang sejuk lembap kekalkan ET₀ rendah kebanyakan hari, jadi hari ET₀ tinggi menonjol sebagai hari untuk menyiram."
+                },
                 vpd: {
                     title: "VPD — Kekeringan Udara (kPa)",
                     body: "VPD (Defisit Tekanan Wap) mengukur sejauh mana KERING udara — jurang antara lembapan yang dikandungnya dan had tepunya. Tinggi = udara kering dahaga; rendah = lembap hampir tepu. Satu nombor ini memacu beberapa perkara: kelajuan permukaan kering, sama ada semburan mudah diserap, sama ada kanopi kekal basah (penyakit), dan sekuat mana pokok bertranspirasi. Garis putus = bacaan 8AM; garis berlabel = puncak tengah hari.",
@@ -3939,6 +3970,8 @@
                     capped: "Dandang Bertudung — CAPE ≥ 2000 + tudung kuat. Atmosfera penuh bahan bakar tetapi terkunci. Jika tudung pecah (angin laut, pemanasan gunung, hadapan), ribut mengejutkan ganas.",
                     severe: "Teruk — CAPE ≥ 3000 + tudung lemah. Potensi ribut tersusun besar.",
                     warnFlag: "⚠️ Bendera amaran: Risiko CAPE tinggi tetapi kebarangkalian hujan maksimum kekal di bawah 40%. Ini kes klasik 'PoP memandang remeh risiko ribut' — petani terkejut kerana % hujan kelihatan selamat. Perhatikan langit selepas makan tengah hari.",
+                    orographicLabel: "Nota rupa bumi (Cameron Highlands):",
+                    orographic: "Nombor CAPE/CIN ini guna fizik sama seperti di mana-mana — TIDAK dilaraskan untuk ketinggian anda. Tetapi gunung menambah pencetus sendiri: cerun memanas dan menolak udara ke atas, jadi hari 'Bertutup' di sini boleh pecah jadi ribut lebih mudah daripada yang ditunjukkan oleh tutup itu, dan ribut mungkin mencetus lebih awal. Beri perhatian lebih pada hari Bertutup/Bermuatan di tanah tinggi dan perhatikan langit.",
                     howToUse: "Cara menggunakannya untuk keputusan semburan",
                     rule1: "Stabil / Sederhana = boleh rancang jadual ladang sepanjang hari",
                     rule2: "Bersedia = habiskan semburan menjelang 11 pagi, jangkakan hujan 2–5 PM",
@@ -4008,6 +4041,15 @@
                     useCaseLabel: "யார் படிக்க வேண்டும்:",
                     useCase: "மலைப்பகுதியில் உள்ள அனைவரும் — விடியற்காலையில் கேமரூன் சாலைகளில் மூடுபனி உண்மையான ஓட்டுதல் ஆபத்து, நீடித்த குறைந்த பார்வைத்தொலைவு மணிக்கணக்கான இலை ஈரத்தை ஏற்படுத்தி பூஞ்சை நோயைத் தூண்டுகிறது. விளக்கப்படத்தில் 8+ நாட்கள் மங்கலாகின்றன, ஏனெனில் தொலைதூர மூடுபனியை கணிப்பது கடினம்."
                 },
+                et0: {
+                    title: "ET₀ — நீர் தேவை (mm/நாள்)",
+                    body: "ET₀ (குறிப்பு ஆவியாதல்-வியர்வை) என்பது அந்த நாளில் ஒரு குறிப்பு புல் மேற்பரப்பிலிருந்து வெளியேறிய நீரின் தோராயமான அளவு — மண் ஆவியாதல் மற்றும் தாவர வியர்வை சேர்ந்து, மில்லிமீட்டரில். சூரியன், வெப்பம், உலர் காற்று, காற்று ஆகியவற்றால் இயக்கப்படுகிறது. அந்த நாளின் நீர் 'செலவு' என நினைக்கவும்.",
+                    reading: "அதிகம் = தாகமான நாள் (வெப்பம், உலர், வெயில், காற்று) — பயிர் அதிக நீரை இழந்தது, பாசனம் தேவைப்படலாம். குறைவு = அமைதியான, ஈரப்பதமான அல்லது மேகமூட்டமான நாள் (Cameron-ல் வழக்கம்) — குறைந்த நீர் இழப்பு, பொதுவாக தாமதிக்கலாம். உண்மையான பயிர் தேவைக்கு, உங்கள் பயிரின் Kc காரணியால் பெருக்கவும்; தினசரி போக்காக இது தேவை ஏறுகிறதா இறங்குகிறதா எனக் காட்டுகிறது.",
+                    pairLabel: "இலை ஈரத்திற்கு எதிர்:",
+                    pair: "குளிர்ந்த, மூடுபனி Cameron நாள் = இலை ஈரம் அதிகம் (நோய் ஆபத்து) ஆனால் ET₀ குறைவு (குறைந்த நீர்ப்பாசனம்). வெப்பமான, உலர், காற்றுள்ள நாள் தலைகீழ் — இலை ஈரம் குறைவு ஆனால் ET₀ அதிகம் (பாசனம் செய்). இரண்டும் சேர்ந்து இன்றைய கவலை பூஞ்சை நோயா அல்லது நீர் அழுத்தமா எனச் சொல்கின்றன.",
+                    useCaseLabel: "யார் படிக்க வேண்டும்:",
+                    useCase: "பாசனம் நிர்வகிக்கும் எவரும் — குறிப்பாக காய்கறி விவசாயிகள். Cameron-ன் குளிர் ஈரக் காலநிலை பெரும்பாலான நாட்களில் ET₀-ஐக் குறைவாக வைக்கிறது, எனவே அதிக ET₀ நாட்கள் நீர்ப்பாசனம் தேவையான நாட்களாகத் தனித்து நிற்கும்."
+                },
                 vpd: {
                     title: "VPD — காற்று வறட்சி (kPa)",
                     body: "VPD (நீராவி அழுத்த பற்றாக்குறை) காற்று எவ்வளவு உலர்ந்துள்ளது என்பதை அளவிடுகிறது — காற்றில் உள்ள ஈரத்துக்கும் அது தாங்கக்கூடிய அளவுக்கும் இடையிலான இடைவெளி. அதிகம் = உலர்ந்த தாகக் காற்று; குறைவு = ஈரமான கிட்டத்தட்ட நிறைவுற்ற காற்று. இந்த ஒரு எண் பலவற்றை இயக்குகிறது: மேற்பரப்புகள் உலரும் வேகம், தெளிப்பு எளிதில் உறிஞ்சப்படுமா, விதானம் ஈரமாக இருக்குமா (நோய்), செடி எவ்வளவு டிரான்ஸ்பிரேஷன் செய்கிறது. புள்ளிக்கோடு = காலை 8 மணி; லேபிள் கோடு = மதிய உச்சம்.",
@@ -4058,6 +4100,8 @@
                     capped: "மூடிய கொதிகலன் — CAPE ≥ 2000 + வலுவான மூடி. வளிமண்டலம் எரிபொருளால் நிறைந்துள்ளது ஆனால் பூட்டப்பட்டுள்ளது. மூடி உடைந்தால் (கடல் காற்று, மலை வெப்பம், முன்னணி), திடீர் கடுமையான புயல்கள்.",
                     severe: "கடுமையான — CAPE ≥ 3000 + பலவீனமான மூடி. பெரிய ஒழுங்கமைக்கப்பட்ட புயல் வாய்ப்பு.",
                     warnFlag: "⚠️ எச்சரிக்கைக் கொடி: CAPE அடிப்படையிலான ஆபத்து அதிகம் ஆனால் நாளின் அதிகபட்ச மழை வாய்ப்பு 40%-க்கு கீழ். இது 'மழை வாய்ப்பு புயல் ஆபத்தை குறைத்து மதிப்பிடுதல்' என்ற தீர்க்கமான வழக்கு — மழை % மட்டும் பாதுகாப்பானதாகத் தோன்றியதால் விவசாயிகள் ஆச்சரியப்படுகிறார்கள். மதிய உணவுக்குப் பிறகு வானத்தைப் பாருங்கள்.",
+                    orographicLabel: "நிலப்பரப்பு குறிப்பு (Cameron Highlands):",
+                    orographic: "இந்த CAPE/CIN எண்கள் எல்லா இடங்களிலும் பயன்படும் அதே இயற்பியல் — உங்கள் உயரத்திற்கு சரிசெய்யப்படவில்லை. ஆனால் மலைகள் தனி தூண்டுதலைச் சேர்க்கின்றன: சரிவுகள் சூடாகி காற்றை மேலே தள்ளுகின்றன, எனவே இங்கு 'மூடப்பட்ட' நாள் மூடி காட்டுவதை விட எளிதாக புயலாக வெடிக்கலாம், புயல் சற்று முன்னதாகவே தொடங்கலாம். மலைப்பகுதி மூடப்பட்ட/நிரப்பப்பட்ட நாட்களில் கூடுதல் கவனம் செலுத்தி வானத்தைப் பாருங்கள்.",
                     howToUse: "தெளிப்பு முடிவுகளுக்கு எப்படிப் பயன்படுத்துவது",
                     rule1: "நிலையான / மிதமான = முழு நாள் வயல் அட்டவணையை திட்டமிடலாம்",
                     rule2: "சுமை = காலை 11 மணிக்குள் தெளிப்பை முடிக்கவும், மதியம் 2–5 மணிக்கு மழை எதிர்பார்க்கவும்",
@@ -4127,6 +4171,15 @@
                     useCaseLabel: "ဘယ်သူဖတ်သင့်:",
                     useCase: "တောင်ပေါ်ရှိ လူတိုင်း — အရုဏ်တက်ချိန် Cameron လမ်းများတွင် မြူသည် တကယ့်မောင်းနှင်ရေးအန္တရာယ်ဖြစ်ပြီး၊ ကြာရှည်မြင်ကွင်းနိမ့်ခြင်းသည် နာရီများစွာ အရွက်စွတ်စိုစေကာ မှိုရောဂါကိုဖြစ်စေသည်။ ဇယားတွင် ၈ ရက်ကျော် မှိန်သွားသည်မှာ ဝေးကွာသောမြူကို ခန့်မှန်းရခက်သောကြောင့်ဖြစ်သည်။"
                 },
+                et0: {
+                    title: "ET₀ — ရေလိုအပ်ချက် (mm/နေ့)",
+                    body: "ET₀ (ကိုးကားအငွေ့ပျံ-ချွေးထွက်) သည် ထိုနေ့တွင် ကိုးကားမြက်မျက်နှာပြင်မှ ထွက်သွားသော ရေပမာဏ ခန့်မှန်း — မြေဆီအငွေ့ပျံနှင့် အပင်ချွေးထွက် ပေါင်း၊ မီလီမီတာဖြင့်။ နေ၊ အပူ၊ လေခြောက်နှင့် လေက မောင်းနှင်သည်။ ထိုနေ့၏ ရေ 'အသုံးစရိတ်' ဟု မှတ်ပါ။",
+                    reading: "မြင့် = ရေငတ်သောနေ့ (ပူ၊ ခြောက်၊ နေသာ၊ လေတိုက်) — သီးနှံက ရေပိုဆုံးရှုံး၊ ရေသွင်းရန်လိုနိုင်။ နိမ့် = တည်ငြိမ်၊ စိုထိုင်း သို့ တိမ်အုံ့သောနေ့ (Cameron ပုံမှန်) — ရေအနည်းငယ်ဆုံးရှုံး၊ ပုံမှန်ဆိုင်းငံ့နိုင်။ အမှန်တကယ်သီးနှံလိုအပ်ချက်အတွက် သင့်သီးနှံ၏ Kc နှင့်မြှောက်ပါ; နေ့စဉ်လမ်းကြောင်းအနေဖြင့် လိုအပ်ချက်တက်/ကျ ပြသသည်။",
+                    pairLabel: "အရွက်စိုစွတ်မှုနှင့် ဆန့်ကျင်:",
+                    pair: "အေးမြ၊ မြူထူသော Cameron နေ့ = အရွက်စိုစွတ်မှု မြင့် (ရောဂါအန္တရာယ်) သို့သော် ET₀ နိမ့် (ရေသွင်းနည်း)။ ပူ၊ ခြောက်၊ လေတိုက်သောနေ့ ပြောင်းပြန် — အရွက်စိုစွတ်မှုနိမ့် သို့သော် ET₀ မြင့် (ရေသွင်း)။ နှစ်ခုပေါင်း၍ ယနေ့စိုးရိမ်ရမှာ မှိုရောဂါလား ရေဖိစီးမှုလား ပြောပြသည်။",
+                    useCaseLabel: "ဘယ်သူဖတ်သင့်:",
+                    useCase: "ရေသွင်းစီမံသူတိုင်း — အထူးသဖြင့် ဟင်းသီးဟင်းရွက်စိုက်သူများ။ Cameron ၏ အေးမြစိုထိုင်းရာသီဥတုက ET₀ ကို နေ့အများစုတွင် နိမ့်စေသဖြင့်၊ ET₀ မြင့်သောနေ့များက ရေသွင်းရမည့်နေ့များအဖြစ် ထင်ရှားသည်။"
+                },
                 vpd: {
                     title: "VPD — လေခြောက်သွေ့မှု (kPa)",
                     body: "VPD (ရေငွေ့ဖိအားလိုငွေ) သည် လေ မည်မျှ ခြောက်သွေ့သည်ကို တိုင်းတာသည် — လေတွင်ပါသော ရေငွေ့နှင့် ထိန်းနိုင်သည့်အမြင့်ဆုံးကြား ကွာဟချက်။ မြင့် = ခြောက်သွေ့ရေငတ်လေ၊ နိမ့် = စိုစွတ်ပြည့်နီးပါးလေ။ ဤဂဏန်းတစ်ခုက များစွာကို လွှမ်းမိုးသည်— မျက်နှာပြင်ခြောက်နှုန်း၊ ဆေးလွယ်ကူစွာစုပ်ယူမှု၊ အရွက်ထီးစိုနေမှု (ရောဂါ)၊ အပင်ရေငွေ့ထုတ်အား။ စက်ဝိုင်းမျဉ်း = နံနက် ၈ နာရီ၊ အညွှန်းမျဉ်း = နေ့လယ်အမြင့်ဆုံး။",
@@ -4177,6 +4230,8 @@
                     capped: "အဖုံးပိတ်အိုးကြီး — CAPE ≥ 2000 + အားကောင်းသောအဖုံး။ လေထုလောင်စာပြည့်နေသော်လည်း ပိတ်ထား။ အဖုံးကွဲပါက (ပင်လယ်လေ၊ တောင်အပူပေး၊ ရှေ့မှန်)၊ ပြင်းထန်သော အံ့အားသင့်ဖွယ်ရာ မုန်တိုင်းများ။",
                     severe: "ပြင်းထန် — CAPE ≥ 3000 + အားနည်းသောအဖုံး။ ကြီးမားသော စနစ်တကျမုန်တိုင်းဖြစ်နိုင်ခြေ။",
                     warnFlag: "⚠️ သတိပေးတံဆိပ်: CAPE အခြေပြုအန္တရာယ်မြင့်သော်လည်း နေ့၏အမြင့်ဆုံးမိုးရွာဖို့ဖြစ်နိုင်ခြေ ၄၀% အောက်ဖြစ်နေ။ ဤသည် 'PoP သည် မုန်တိုင်းအန္တရာယ်ကို လျှော့တွက်' သော ဂန္ထဝင်အခြေအနေ — မိုးရာခိုင်နှုန်းတစ်ခုထဲ ကြည့်ရင် လုံခြုံပုံပေါ်သောကြောင့် တောင်သူများ အံ့အားသင့်ကြသည်။ နေ့လည်စာစားပြီးနောက် မိုးကောင်းကင်ကို စောင့်ကြည့်ပါ။",
+                    orographicLabel: "မြေမျက်နှာသွင်ပြင်မှတ်ချက် (Cameron Highlands):",
+                    orographic: "ဤ CAPE/CIN ဂဏန်းများသည် နေရာတိုင်းတွင်သုံးသော တူညီသောရူပဗေဒဖြစ် — သင့်အမြင့်အတွက် ချိန်ညှိမထားပါ။ သို့သော် တောင်များက ကိုယ်ပိုင်အစပျိုးမှုထည့်: တောင်စောင်းများပူနွေး၍ လေကိုအထက်တွန်းတင်သဖြင့်, ဤနေရာရှိ 'အဖုံးပိတ်' နေ့သည် အဖုံးကပြသသည်ထက် ပိုလွယ်ကူစွာ မုန်တိုင်းဖြစ်နိုင်ပြီး, မုန်တိုင်းများ အနည်းငယ်စောစီးစွာ စတင်နိုင်သည်။ တောင်ပေါ်ဒေသ အဖုံးပိတ်/အပြည့်သွင်းနေ့များတွင် ပိုမိုဂရုစိုက်၍ ကောင်းကင်ကိုစောင့်ကြည့်ပါ။",
                     howToUse: "ဆေးပက်ဆုံးဖြတ်ချက်များအတွက် အသုံးပြုပုံ",
                     rule1: "တည်ငြိမ် / အလယ်အလတ် = တစ်နေ့လုံး ကွင်းအချိန်ဇယားကို စီစဉ်နိုင်",
                     rule2: "အသင့်ပြင် = မနက် ၁၁ နာရီအထိ ဆေးပက်ပြီးပါစေ၊ မွန်းလွဲ ၂–၅ နာရီ မိုးရွာဖို့ မျှော်လင့်ပါ",
@@ -4256,7 +4311,8 @@
                     storm:[`row-storm-${id}`],
                     sky:  [`row-sky-${id}`],
                     leafwet:[`row-leafwet-${id}`, `trend-layer-leafwet-${id}`],
-                    fog:  [`ch-fog-row-${id}`]
+                    fog:  [`ch-fog-row-${id}`],
+                    et0:  [`row-et-${id}`, `trend-layer-et-${id}`]
                 };
                 (HELP_ROW_CHART_IDS_C[rowType] || []).forEach(eid => {
                     const el = document.getElementById(eid);
@@ -4399,6 +4455,9 @@
                     <div class="help-card-section" style="background:#fef3c7; border:1px solid #fbbf24; border-radius:6px; padding:10px;">
                         <div style="font-size:11.5px; color:#78350f;">${t.storm.warnFlag}</div>
                     </div>
+                    <div class="help-card-section" style="background:#ecfdf5; border-left:3px solid #047857; border-radius:4px; padding:8px 10px;">
+                        <div style="font-size:11px; line-height:1.6; color:#1e293b;"><b style="color:#047857;">${t.storm.orographicLabel}</b> ${t.storm.orographic}</div>
+                    </div>
                     <div class="help-card-section">
                         <div style="font-size:11.5px; font-weight:800; color:#1e293b; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">${t.storm.windowTitle}</div>
                         <div style="color:#1e293b;">${t.storm.windowBody}</div>
@@ -4520,6 +4579,21 @@
                         <div style="font-size:11px; line-height:1.6; color:#1e293b;"><b style="color:#b45309;">${fg.useCaseLabel}</b> ${fg.useCase}</div>
                     </div>
                 `;
+            } else if (rowType === 'et0') {
+                const eg = t.et0 || HELP_CARD_CONTENT.en.et0;
+                bodyHTML = `
+                    <div class="help-card-section">
+                        <div style="font-size:11.5px; font-weight:800; color:#1e293b; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">${eg.title}</div>
+                        <div style="color:#1e293b; margin-bottom:8px;">${eg.body}</div>
+                        <div style="color:#1e293b;">${eg.reading}</div>
+                    </div>
+                    <div class="help-card-section" style="background:#ecfdf5; border-left:3px solid #047857; border-radius:4px; padding:8px 10px;">
+                        <div style="font-size:11px; line-height:1.6; color:#1e293b;"><b style="color:#047857;">${eg.pairLabel}</b> ${eg.pair}</div>
+                    </div>
+                    <div class="help-card-section" style="background:#fffbeb; border-left:3px solid #b45309; border-radius:4px; padding:8px 10px;">
+                        <div style="font-size:11px; line-height:1.6; color:#1e293b;"><b style="color:#b45309;">${eg.useCaseLabel}</b> ${eg.useCase}</div>
+                    </div>
+                `;
             }
 
             card.innerHTML = `<span class="help-card-close" onclick="window.toggleHelpCard('${id}', '${rowType}')" aria-label="${t.close}">×</span>${bodyHTML}`;
@@ -4541,7 +4615,8 @@
                 storm:[`row-storm-${id}`],
                 sky:  [`row-sky-${id}`],
                 leafwet:[`row-leafwet-${id}`, `trend-layer-leafwet-${id}`],
-                fog:  [`ch-fog-row-${id}`]
+                fog:  [`ch-fog-row-${id}`],
+                et0:  [`row-et-${id}`, `trend-layer-et-${id}`]
             };
             (HELP_ROW_CHART_IDS[rowType] || []).forEach(eid => {
                 const el = document.getElementById(eid);
@@ -7233,7 +7308,7 @@
                 <div class="relative bg-slate-50/10"><div class="row-label-overlay" id="hdr-rainmm-${id}" style="color:#1e3a8a">${cH.rainMM}</div><div class="info-row" id="row-rain-vv-${id}" style="min-height:52px;padding-top:18px;"></div><svg id="trend-layer-vv-${id}" class="trend-layer" height="52"></svg></div>
                 <div id="ch-past-rh-${id}" class="ch-past-strip" style="display:none;"></div>
                 <div class="relative" style="display:none;"><div class="row-label-overlay" id="hdr-rh-${id}" style="color:#0891b2">${cH.rh}</div><div class="info-row" id="row-rh-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-rh-${id}" class="trend-layer" height="42"></svg></div>
-                <div class="relative"><div class="row-label-overlay" id="hdr-et0-${id}" style="color:#059669">${cH.et0}</div><div class="info-row" id="row-et-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-et-${id}" class="trend-layer" height="42"></svg></div>
+                <div class="relative"><div class="row-label-overlay" id="hdr-et0-${id}" style="color:#059669">${cH.et0}<span class="help-icon-btn" id="help-icon-et0-${id}" onclick="window.toggleHelpCard('${id}', 'et0')" title="What is ET0?">?</span></div><div id="help-card-et0-${id}" class="help-card"></div><div class="info-row" id="row-et-${id}" style="min-height:42px;padding-top:20px;"></div><svg id="trend-layer-et-${id}" class="trend-layer" height="42"></svg></div>
                 <div class="info-row" id="row-dates-bottom-${id}"></div>
              </div>`;
         }
@@ -9914,7 +9989,6 @@
                     if (blob) files.push(new File([blob], `${APP_BRANDING.screenshotFileName}_${lid}.png`, { type: 'image/png' }));
                 }
                 scale = oS; posX = oX; posY = oY; applyTransform();
-                console.log(`[DL-DIAG] currentDisplayedIds=${currentDisplayedIds.length}, files rendered=${files.length}`);
 
                 if (files.length > 0) {
                     // ============================================================
@@ -9940,10 +10014,10 @@
                             : '图片生成失败,请重试 / Could not generate image, please try again';
                         window.showToast(m, true);
                     }
-                    console.warn('[DL-DIAG] No files produced — displayedIds:', currentDisplayedIds);
+                    console.warn('Image download: no files produced — displayedIds:', currentDisplayedIds);
                 }
             } catch (err) {
-                console.error('[DL-DIAG] download render threw:', err);
+                console.error('Image download render error:', err);
                 if (typeof window.showToast === 'function') {
                     window.showToast('图片生成出错,请重试 / Image generation error, please try again', true);
                 }
