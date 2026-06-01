@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.247 — uniform help-card spacing fix. Previously only the temp card hid its chart when open; other cards left their info-rows/SVG visible below the card, and since each row has very different heights (temp 200px, cloud 3 sub-rows, vpd 54px+ -38px pull-up, etc.) the gap below each open card was inconsistent. Now ANY open help card generically hides all its sibling content (info-rows + SVG, keeping the row label), so every card shows with the same margin-bottom:6px gap; siblings restored on close via stored display value. VPD -38px still neutralized while temp/vpd card open. bump CACHE_VERSION on each release
+// Version 1.0.248 — REVERTED the v1.0.247 'hide info-rows when help card opens' change (user lost their place in the chart, and it created gaps). Info-rows now always stay visible; help cards expand inline. Help-card overlap fix (VPD -38px neutralized while temp/vpd card open) retained. Added a temporary [GAP-DIAG] log to measure the real dead space between the temp chart's lowest drawn element and the VPD row, so the 'big waste after DeltaT' gap can be closed precisely next build. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010825';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010835';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

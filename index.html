@@ -4160,16 +4160,6 @@
                 // phantom 200px gap below the help card) and removed the wind row's
                 // -38px overlap margin (it's only useful when overlapping the chart's
                 // unused tail space; with the chart hidden, it would overlap the help card).
-                // Generic restore: un-hide every sibling we hid when the card opened
-                // (info-rows, SVGs) using the stored prior display value.
-                if (card.parentElement) {
-                    card.parentElement.querySelectorAll(':scope > *').forEach(sib => {
-                        if (sib.dataset && sib.dataset.helpPrevDisplay !== undefined) {
-                            sib.style.display = sib.dataset.helpPrevDisplay;
-                            delete sib.dataset.helpPrevDisplay;
-                        }
-                    });
-                }
                 // Restore the VPD row's -38px pull-up (neutralized while temp OR vpd card
                 // was open) so VPD tucks back under the temp chart.
                 if (rowType === 'temp' || rowType === 'vpd') {
@@ -4410,31 +4400,11 @@
             icon.classList.add('active');
             // The VPD row carries a -38px pull-up (to tuck under the temp chart). While
             // the temp OR vpd help card is open, neutralize it so the pulled-up row doesn't
-            // overlap the card (the "DeltaT help blocking VPD" + VPD "big gap" bugs). The
-            // generic sibling-hide below handles hiding each row's chart content uniformly.
+            // slide up and overlap the card. Info-rows stay VISIBLE — the card simply
+            // expands inline and pushes the chart down, so the user keeps their place.
             if (rowType === 'temp' || rowType === 'vpd') {
                 const vpdContainer = document.getElementById(`vpd-row-container-${id}`);
                 if (vpdContainer) vpdContainer.style.marginTop = '0';
-            }
-            // UNIFORM GAP FIX: every help card sits inside a `.relative` row container
-            // alongside that row's label, info-row(s), and SVG. Those vary a lot in height
-            // (temp=200px, cloud has 3 sub-rows, vpd=54px, etc.), so leaving them visible
-            // below an open card produced inconsistent padding per card. Hide every sibling
-            // of the card EXCEPT the row label + the card itself while open; the card's own
-            // margin-bottom:6px then gives an identical gap for all cards. Restore on close.
-            // (The temp/vpd -38px handling above still runs; this generalises the chart-hide
-            // that previously only applied to temp.)
-            const _cardContainer = card.parentElement;
-            if (_cardContainer) {
-                _cardContainer.querySelectorAll(':scope > *').forEach(sib => {
-                    if (sib === card) return;
-                    if (sib.classList && sib.classList.contains('row-label-overlay')) return;
-                    // Remember the prior inline display so close can restore it exactly.
-                    if (sib.dataset.helpPrevDisplay === undefined) {
-                        sib.dataset.helpPrevDisplay = sib.style.display || '';
-                    }
-                    sib.style.display = 'none';
-                });
             }
         };
 
@@ -7697,6 +7667,24 @@
             try { if (typeof window.renderFogForecast === 'function') window.renderFogForecast(id); } catch (e) { console.warn('[fog] render skipped', e); }
 
             requestAnimationFrame(() => setTimeout(() => drawTrends(days, id), 50));
+            // [DIAG v1.0.248] Temporary: measure the dead space between the temp chart's
+            // last drawn element and the VPD row, to size the fix precisely. Remove after.
+            try {
+                setTimeout(() => {
+                    const tEl = document.getElementById(`row-temp-combined-${id}`);
+                    const tSvg = document.getElementById(`trend-layer-temp-${id}`);
+                    const vEl = document.getElementById(`vpd-row-container-${id}`);
+                    const vHdr = document.getElementById(`hdr-vpd-${id}`);
+                    if (tEl && vEl) {
+                        const tr = tEl.getBoundingClientRect(), sr = tSvg ? tSvg.getBoundingClientRect() : null;
+                        const vr = vEl.getBoundingClientRect(), hr = vHdr ? vHdr.getBoundingClientRect() : null;
+                        // Find lowest-drawn element inside the temp SVG:
+                        let lowest = 0;
+                        if (tSvg) tSvg.querySelectorAll('*').forEach(n => { try { const b = n.getBoundingClientRect().bottom; if (b > lowest) lowest = b; } catch(e){} });
+                        console.log(`[GAP-DIAG] temp infoRow bottom=${Math.round(tr.bottom)} | temp SVG bottom=${sr?Math.round(sr.bottom):'?'} | lowest drawn px=${Math.round(lowest)} | VPD container top=${Math.round(vr.top)} | VPD header top=${hr?Math.round(hr.top):'?'} | DEAD GAP (vpdTop - lowestDrawn)=${Math.round(vr.top - lowest)}`);
+                    }
+                }, 400);
+            } catch (e) {}
         }
 
         function drawTrends(days, suffix) {
