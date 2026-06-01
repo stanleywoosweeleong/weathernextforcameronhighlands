@@ -4163,10 +4163,17 @@
                 if (rowType === 'temp') {
                     const svg = document.getElementById(`trend-layer-temp-${id}`);
                     const infoRow = document.getElementById(`row-temp-combined-${id}`);
-                    const windContainer = document.getElementById(`wind-row-container-${id}`);
+                    // The -38px pull-up lives on the VPD row (inserted between temp and
+                    // wind). On close, restore it so VPD tucks back under the temp chart.
+                    const vpdContainer = document.getElementById(`vpd-row-container-${id}`);
                     if (svg) svg.style.display = '';
                     if (infoRow) infoRow.style.display = '';
-                    if (windContainer) windContainer.style.marginTop = '';
+                    if (vpdContainer) vpdContainer.style.marginTop = '-38px';
+                }
+                if (rowType === 'vpd') {
+                    // Restore VPD's own pull-up after its help card closes.
+                    const vpdContainer = document.getElementById(`vpd-row-container-${id}`);
+                    if (vpdContainer) vpdContainer.style.marginTop = '-38px';
                 }
                 return;
             }
@@ -4400,15 +4407,27 @@
             if (forceRebuild) return; // content swapped in place; open-state & chart already set
             card.classList.add('open');
             icon.classList.add('active');
-            // Temp chart special: hide the chart's info-row + SVG, AND remove the wind
-            // row's -38px overlap margin (see explanatory comment in the close branch).
+            // Temp chart special: hide the chart's info-row + SVG, AND neutralize the
+            // VPD row's -38px pull-up margin. The VPD row sits directly below temp and is
+            // pulled up to tuck under the temp chart's tail; with the chart hidden and the
+            // help card shown, that pull-up would drag VPD up to overlap the help card
+            // (the "DeltaT help blocking VPD" bug). Reset it to 0 while the card is open;
+            // the close branch restores -38px.
             if (rowType === 'temp') {
                 const svg = document.getElementById(`trend-layer-temp-${id}`);
                 const infoRow = document.getElementById(`row-temp-combined-${id}`);
-                const windContainer = document.getElementById(`wind-row-container-${id}`);
+                const vpdContainer = document.getElementById(`vpd-row-container-${id}`);
                 if (svg) svg.style.display = 'none';
                 if (infoRow) infoRow.style.display = 'none';
-                if (windContainer) windContainer.style.marginTop = '0';
+                if (vpdContainer) vpdContainer.style.marginTop = '0';
+            }
+            // VPD's OWN help card: the VPD container is pulled up -38px to tuck under the
+            // temp chart. When its help card opens inside that pulled-up container, the
+            // negative margin throws off the card's spacing (the "big gap" bug). Neutralize
+            // it while open; restore on close.
+            if (rowType === 'vpd') {
+                const vpdContainer = document.getElementById(`vpd-row-container-${id}`);
+                if (vpdContainer) vpdContainer.style.marginTop = '0';
             }
         };
 
@@ -7078,7 +7097,7 @@
                 <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" id="hdr-wvet-${id}" style="color: #b45309;">${cH.wvet}<span class="help-icon-btn" id="help-icon-wvet-${id}" onclick="window.toggleHelpCard('${id}', 'wvet')" title="What is WVET?">?</span></div><div id="help-card-wvet-${id}" class="help-card"></div><div class="info-row" id="row-wvet-${id}" style="min-height: 60px; padding-top: 14px;"></div></div>
                 <div id="ch-past-temp-${id}" class="ch-past-strip" style="display:none;"></div>
                 <div class="relative"><div class="row-label-overlay" id="hdr-temp-${id}"><span style="color:#f97316;">${cH.tHi}</span>/<span style="color:#2563eb;">${cH.tLo}</span> / <span style="color:#06b6d4;">${cH.tDew}</span> <span style="color:#cbd5e1; margin:0 2px;">|</span> <span style="color:#7e22ce;">${cH.tDelta}</span> / <span style="color:#166534;">${cH.tSafe}</span><span class="help-icon-btn" id="help-icon-temp-${id}" onclick="window.toggleHelpCard('${id}', 'temp')" title="What is DeltaT and Safe Hours?">?</span></div><div id="help-card-temp-${id}" class="help-card"></div><div class="info-row" id="row-temp-combined-${id}" style="min-height: 200px; padding-top: 10px;"></div><svg id="trend-layer-temp-${id}" class="trend-layer" height="200"></svg></div>
-                <div class="relative" style="margin-top:-38px;"><div class="row-label-overlay" id="hdr-vpd-${id}" style="color:#b45309">${cH.vpd}<span class="help-icon-btn" id="help-icon-vpd-${id}" onclick="window.toggleHelpCard('${id}', 'vpd')" title="What is VPD?">?</span></div><div id="help-card-vpd-${id}" class="help-card"></div><div class="info-row" id="row-vpd-${id}" style="min-height:54px;padding-top:20px;"></div><svg id="trend-layer-vpd-${id}" class="trend-layer" height="54"></svg></div>
+                <div class="relative" id="vpd-row-container-${id}" style="margin-top:-38px;"><div class="row-label-overlay" id="hdr-vpd-${id}" style="color:#b45309">${cH.vpd}<span class="help-icon-btn" id="help-icon-vpd-${id}" onclick="window.toggleHelpCard('${id}', 'vpd')" title="What is VPD?">?</span></div><div id="help-card-vpd-${id}" class="help-card"></div><div class="info-row" id="row-vpd-${id}" style="min-height:54px;padding-top:20px;"></div><svg id="trend-layer-vpd-${id}" class="trend-layer" height="54"></svg></div>
                 <div class="relative bg-slate-50/10" id="wind-row-container-${id}" style="z-index:10;"><div class="row-label-overlay" id="hdr-wind-${id}">${cH.wind}</div><div class="info-row" id="row-wind-${id}" style="min-height:60px;padding-top:14px;"></div></div>
                 <div class="relative bg-slate-50/10"><div class="row-label-overlay" id="hdr-cloud-${id}">${cH.cloud}<span class="help-icon-btn" id="help-icon-cloud-${id}" onclick="window.toggleHelpCard('${id}', 'cloud')" title="What is Cloud % and CB Risk?">?</span></div><div id="help-card-cloud-${id}" class="help-card"></div><div class="info-row" id="row-cl-high-${id}" style="min-height:42px;padding-top:14px;"></div><div class="info-row" id="row-cl-mid-${id}" style="min-height:28px;"></div><div class="info-row" id="row-cl-low-${id}" style="min-height:28px;"></div></div>
                 <div class="relative bg-white border-b border-slate-200"><div class="row-label-overlay" id="hdr-storm-${id}" style="color:#7c2d12;">${cH.storm}<span class="help-icon-btn" id="help-icon-storm-${id}" onclick="window.toggleHelpCard('${id}', 'storm')" title="What is Storm Risk?">?</span></div><div id="help-card-storm-${id}" class="help-card"></div><div class="info-row" id="row-storm-${id}" style="min-height: 70px; padding-top: 14px;"></div></div>
