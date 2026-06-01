@@ -492,7 +492,7 @@
         /* ===== Past-3-day mini-strips (sit above each forecast chart) ===== */
         .ch-past-strip { margin: 0; }
         .ch-ps-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; background: #f8fafc; border-top: 1px solid #eef2f6; }
-        .ch-ps-tag { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; color: #94a3b8; width: 84px; flex-shrink: 0; line-height: 1.25; }
+        .ch-ps-tag { font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; color: #94a3b8; min-width: 84px; white-space: nowrap; flex-shrink: 0; line-height: 1.25; padding-right: 6px; }
         .ch-ps-cells { display: flex; gap: 14px; align-items: flex-end; }
         .ch-ps-cell { display: flex; flex-direction: column; align-items: center; gap: 1px; }
         .ch-ps-barwrap { height: 28px; display: flex; align-items: flex-end; }
@@ -2809,9 +2809,16 @@
             const data = (typeof detailData !== 'undefined') ? detailData[id] : null;
             if (!data) return;
             const lang = (typeof getLang === 'function') ? getLang(id) : 'zh';
-            const L = (lang === 'en')
-                ? { past3:'Past 3 days (actual)', noPast:'Past 3-day data building…', rain:'rain', hi:'hi', lo:'lo', rh:'RH' }
-                : { past3:'过去3天 (实测)', noPast:'实测数据累积中…', rain:'雨', hi:'高', lo:'低', rh:'湿度' };
+            // Full 5-language labels for the past-3-day actual strips (was EN+ZH only, so
+            // ms/ta/my users saw Chinese here while the rest of the app was localized).
+            const PAST_STRIP_I18N = {
+                en: { past3:'Past 3 days (actual)', noPast:'Past 3-day data building…', rain:'rain', hi:'hi', lo:'lo', rh:'RH' },
+                zh: { past3:'过去3天 (实测)', noPast:'实测数据累积中…', rain:'雨', hi:'高', lo:'低', rh:'湿度' },
+                ms: { past3:'3 hari lepas (sebenar)', noPast:'Data 3 hari sedang terkumpul…', rain:'hujan', hi:'tinggi', lo:'rendah', rh:'RH' },
+                ta: { past3:'கடந்த 3 நாட்கள் (உண்மை)', noPast:'3-நாள் தரவு சேகரிக்கப்படுகிறது…', rain:'மழை', hi:'அதி', lo:'குறை', rh:'RH' },
+                my: { past3:'ပြီးခဲ့သည့် ၃ ရက် (အမှန်)', noPast:'၃ ရက်ဒေတာ စုဆောင်းနေသည်…', rain:'မိုး', hi:'မြင့်', lo:'နိမ့်', rh:'RH' }
+            };
+            const L = PAST_STRIP_I18N[lang] || PAST_STRIP_I18N.en;
             const model = (typeof activeModel !== 'undefined') ? activeModel : '';
             const fPick = (v) => data[`${v}_${model}`] || data[v] || null;
 

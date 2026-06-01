@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.268 — Sky Tint upgrade for the tourist/photographer use case (Airbnb hosts, bird watchers, landscape photographers). (1) Now samples the ACTUAL sunrise/sunset hour (added sunrise,sunset to the daily fetch + sunHourIdx helper) instead of fixed 7AM/7PM, so the tint reflects the real golden moment. (2) CAMERON FIX: light/medium valley mist (1-4km vis) with some high cloud is now a pearl-peach 'Misty Glow' — the iconic sea-of-clouds sunrise — instead of being wrongly flagged dull grey; only a true whiteout (vis<1000m) reads flat. Sky help card updated with the new misty-glow swatch + reworded 'hazy' as whiteout, all 5 languages. Core burning-sky physics unchanged. bump CACHE_VERSION on each release
+// Version 1.0.270 — past-3-day strip label now expands onto ONE line instead of wrapping. The .ch-ps-tag was a fixed 84px column forcing the label to wrap to 2 lines, even though the row has plenty of empty space to the right (only 3 data bars). Changed to min-width:84px + white-space:nowrap so short labels keep the bars in place but longer ones (incl. the new ms/ta/my translations) extend on a single line. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606012253';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606012300';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
