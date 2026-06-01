@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.246 — fixed two VPD help-card layout bugs caused by the VPD row's -38px pull-up margin. The temp/DeltaT help-card open/close still targeted the OLD wind-row margin (stale since VPD was inserted between temp and wind), so opening DeltaT help left VPD pulled up overlapping the card; and opening VPD's own help card kept the -38px, throwing off its spacing (big gap). Gave the VPD row an id (vpd-row-container) and now neutralize its -38px when either the temp OR vpd help card opens, restoring it on close. bump CACHE_VERSION on each release
+// Version 1.0.247 — uniform help-card spacing fix. Previously only the temp card hid its chart when open; other cards left their info-rows/SVG visible below the card, and since each row has very different heights (temp 200px, cloud 3 sub-rows, vpd 54px+ -38px pull-up, etc.) the gap below each open card was inconsistent. Now ANY open help card generically hides all its sibling content (info-rows + SVG, keeping the row label), so every card shows with the same margin-bottom:6px gap; siblings restored on close via stored display value. VPD -38px still neutralized while temp/vpd card open. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010816';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010825';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

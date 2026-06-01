@@ -4160,18 +4160,19 @@
                 // phantom 200px gap below the help card) and removed the wind row's
                 // -38px overlap margin (it's only useful when overlapping the chart's
                 // unused tail space; with the chart hidden, it would overlap the help card).
-                if (rowType === 'temp') {
-                    const svg = document.getElementById(`trend-layer-temp-${id}`);
-                    const infoRow = document.getElementById(`row-temp-combined-${id}`);
-                    // The -38px pull-up lives on the VPD row (inserted between temp and
-                    // wind). On close, restore it so VPD tucks back under the temp chart.
-                    const vpdContainer = document.getElementById(`vpd-row-container-${id}`);
-                    if (svg) svg.style.display = '';
-                    if (infoRow) infoRow.style.display = '';
-                    if (vpdContainer) vpdContainer.style.marginTop = '-38px';
+                // Generic restore: un-hide every sibling we hid when the card opened
+                // (info-rows, SVGs) using the stored prior display value.
+                if (card.parentElement) {
+                    card.parentElement.querySelectorAll(':scope > *').forEach(sib => {
+                        if (sib.dataset && sib.dataset.helpPrevDisplay !== undefined) {
+                            sib.style.display = sib.dataset.helpPrevDisplay;
+                            delete sib.dataset.helpPrevDisplay;
+                        }
+                    });
                 }
-                if (rowType === 'vpd') {
-                    // Restore VPD's own pull-up after its help card closes.
+                // Restore the VPD row's -38px pull-up (neutralized while temp OR vpd card
+                // was open) so VPD tucks back under the temp chart.
+                if (rowType === 'temp' || rowType === 'vpd') {
                     const vpdContainer = document.getElementById(`vpd-row-container-${id}`);
                     if (vpdContainer) vpdContainer.style.marginTop = '-38px';
                 }
@@ -4407,27 +4408,33 @@
             if (forceRebuild) return; // content swapped in place; open-state & chart already set
             card.classList.add('open');
             icon.classList.add('active');
-            // Temp chart special: hide the chart's info-row + SVG, AND neutralize the
-            // VPD row's -38px pull-up margin. The VPD row sits directly below temp and is
-            // pulled up to tuck under the temp chart's tail; with the chart hidden and the
-            // help card shown, that pull-up would drag VPD up to overlap the help card
-            // (the "DeltaT help blocking VPD" bug). Reset it to 0 while the card is open;
-            // the close branch restores -38px.
-            if (rowType === 'temp') {
-                const svg = document.getElementById(`trend-layer-temp-${id}`);
-                const infoRow = document.getElementById(`row-temp-combined-${id}`);
+            // The VPD row carries a -38px pull-up (to tuck under the temp chart). While
+            // the temp OR vpd help card is open, neutralize it so the pulled-up row doesn't
+            // overlap the card (the "DeltaT help blocking VPD" + VPD "big gap" bugs). The
+            // generic sibling-hide below handles hiding each row's chart content uniformly.
+            if (rowType === 'temp' || rowType === 'vpd') {
                 const vpdContainer = document.getElementById(`vpd-row-container-${id}`);
-                if (svg) svg.style.display = 'none';
-                if (infoRow) infoRow.style.display = 'none';
                 if (vpdContainer) vpdContainer.style.marginTop = '0';
             }
-            // VPD's OWN help card: the VPD container is pulled up -38px to tuck under the
-            // temp chart. When its help card opens inside that pulled-up container, the
-            // negative margin throws off the card's spacing (the "big gap" bug). Neutralize
-            // it while open; restore on close.
-            if (rowType === 'vpd') {
-                const vpdContainer = document.getElementById(`vpd-row-container-${id}`);
-                if (vpdContainer) vpdContainer.style.marginTop = '0';
+            // UNIFORM GAP FIX: every help card sits inside a `.relative` row container
+            // alongside that row's label, info-row(s), and SVG. Those vary a lot in height
+            // (temp=200px, cloud has 3 sub-rows, vpd=54px, etc.), so leaving them visible
+            // below an open card produced inconsistent padding per card. Hide every sibling
+            // of the card EXCEPT the row label + the card itself while open; the card's own
+            // margin-bottom:6px then gives an identical gap for all cards. Restore on close.
+            // (The temp/vpd -38px handling above still runs; this generalises the chart-hide
+            // that previously only applied to temp.)
+            const _cardContainer = card.parentElement;
+            if (_cardContainer) {
+                _cardContainer.querySelectorAll(':scope > *').forEach(sib => {
+                    if (sib === card) return;
+                    if (sib.classList && sib.classList.contains('row-label-overlay')) return;
+                    // Remember the prior inline display so close can restore it exactly.
+                    if (sib.dataset.helpPrevDisplay === undefined) {
+                        sib.dataset.helpPrevDisplay = sib.style.display || '';
+                    }
+                    sib.style.display = 'none';
+                });
             }
         };
 
