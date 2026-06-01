@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.240 — FIX slider-floor bug. Cause (found via diag): the lowest-elevation card sits at the list bottom but cannot be CENTERED (scrollTarget 1895 > maxScroll 1558, clamps), so the reverse scroll->slider sync, using a nearest-to-reference-Y search, picked a higher card and yanked the slider off the lowest stop (~1077m floor). Fix: at scroll extremes the reverse-sync now snaps to the physically first/last card (min top / max bottom), so the slider reliably reaches both ends. Diagnostics retained this build for verification. bump CACHE_VERSION on each release
+// Version 1.0.243 — reduce Open-Meteo API calls / avoid 429s: added a 20-min freshness gate to fetchLandingWeather (skips the home-screen refetch on rapid relaunches / return-from-detail / deep-link when cached data is recent; writes LANDING_TS_KEY on success). Calls that must stay live pass {force:true}: model switches, GPS edits, restore, new farm, and the 10-min periodic refresh. Detail view was already cache-gated (1-hr TTL). Net effect: relaunching repeatedly no longer hammers the API. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606010719';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606010748';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

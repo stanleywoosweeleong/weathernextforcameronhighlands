@@ -1057,22 +1057,31 @@
             <button onclick="document.getElementById('edit-modal').classList.add('hidden')" class="absolute top-3 right-3 p-2 text-slate-300 active:text-slate-500 transition-colors">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
-            <h3 class="text-lg font-black text-slate-900 mb-4">Edit 修改地点</h3>
+            <h3 id="edit-modal-title" class="text-lg font-black text-slate-900 mb-4">Edit 修改地点</h3>
             
-            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">名字 / Name</label>
+            <label id="edit-name-label" class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">名字 / Name</label>
             <input type="text" id="edit-name-en" class="w-input" placeholder="English Name">
             <input type="text" id="edit-name-zh" class="w-input mt-2" placeholder="中文名字">
             
-            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mt-4 mb-1">GPS 坐标 / Coordinates</label>
+            <label id="edit-coords-label" class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mt-4 mb-1">GPS 坐标 / Coordinates</label>
             <div class="flex gap-2">
                 <input type="text" inputmode="decimal" id="edit-lat" class="w-input flex-1" placeholder="纬度 Lat">
                 <input type="text" inputmode="decimal" id="edit-lng" class="w-input flex-1" placeholder="经度 Lng">
             </div>
-            <p class="text-[10px] text-slate-400 mt-1">小数格式,如 / Decimal format, e.g. 4.04597, 101.96039</p>
+            <p id="edit-decimal-hint" class="text-[10px] text-slate-400 mt-1">小数格式,如 / Decimal format, e.g. 4.04597, 101.96039</p>
+            <!-- Use Current GPS — lets a farmer standing in their field correct a
+                 location's coordinates in place (swipe → Edit → GPS → Save), instead of
+                 deleting and re-adding a same-named location. Reuses the Add modal's
+                 fillFromGPS via target-id override. -->
+            <button type="button" id="edit-gps-fill-btn" onclick="window.fillFromGPS({ latId:'edit-lat', lngId:'edit-lng', btnId:'edit-gps-fill-btn', labelId:'edit-gps-fill-label', infoId:'edit-gps-fill-info' })" class="w-full mt-2 py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 border border-emerald-200 rounded-lg flex items-center justify-center gap-2 text-emerald-700 font-bold text-sm transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="2" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="22"></line><line x1="2" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="22" y2="12"></line></svg>
+                <span id="edit-gps-fill-label">Use Current GPS</span>
+            </button>
+            <div id="edit-gps-fill-info" class="text-[10px] text-slate-500 text-center mt-1.5 h-3"></div>
 
-            <label class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mt-4 mb-1">海拔 / Elevation (m)</label>
+            <label id="edit-elev-label" class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mt-4 mb-1">海拔 / Elevation (m)</label>
             <input type="text" inputmode="numeric" id="edit-elev" class="w-input" placeholder="留空用GPS网格值 / Leave blank for GPS grid">
-            <p class="text-[10px] text-slate-400 mt-1">留空将使用GPS网格海拔 / Leave blank to use the GPS grid elevation</p>
+            <p id="edit-elev-hint" class="text-[10px] text-slate-400 mt-1">留空将使用GPS网格海拔 / Leave blank to use the GPS grid elevation</p>
 
             <button onclick="window.saveNameEdit()" class="w-btn-primary mt-4 flex items-center justify-center">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -1195,7 +1204,7 @@
             <h3 class="text-lg font-black text-slate-900 mb-1 shrink-0">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="text-blue-700"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </h3>
-            <p class="text-xs text-slate-400 mb-3 shrink-0">Add your own farm spot / 添加您的地点</p>
+            <p id="add-modal-title" class="text-xs text-slate-400 mb-3 shrink-0">Add your own farm spot / 添加您的地点</p>
             
             <div class="tab-group shrink-0">
                 <div id="tab-manual" class="tab-btn active flex items-center justify-center !py-3" onclick="window.switchAddTab('manual')">
@@ -1212,10 +1221,12 @@
                 </div>
             </div>
 
-            <!-- Content Container — 280px gives the Manual tab room for name fields,
-                 coordinate row, GPS-fill button, and the accuracy info line all visible
-                 without scrolling. Photo and Recycle tabs still fit comfortably. -->
-            <div class="relative overflow-hidden h-[280px]">
+            <!-- Content Container — height fits the Manual tab's fields: name (×2),
+                 coordinate row, ELEVATION row, GPS-fill button, and the accuracy info
+                 line, all visible without clipping. Raised from 280→334px after the
+                 elevation field was added (the GPS button was being clipped at the
+                 bottom). Photo and Recycle tabs are shorter and still fit comfortably. -->
+            <div class="relative overflow-hidden h-[334px]">
                 
                 <div id="view-manual" class="block h-full overflow-y-auto no-scrollbar pt-1">
                     <input type="text" id="add-en" class="w-input text-sm" placeholder="Location Name (English)">
@@ -1238,13 +1249,13 @@
                     <input type="file" id="scan-input" accept="image/*" class="hidden" onchange="window.handlePhotoScan(event)">
                     <div onclick="document.getElementById('scan-input').click()" class="border-2 border-dashed border-slate-300 rounded-xl p-6 cursor-pointer active:bg-slate-50 mb-2 h-[140px] flex flex-col items-center justify-center">
                         <svg class="mx-auto text-slate-300 mb-2" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                        <div class="text-xs font-bold text-slate-500 text-center">Upload Photo of Compass/Map<br>上传指南针或地图照片</div>
+                        <div id="add-photo-label" class="text-xs font-bold text-slate-500 text-center">Upload Photo of Compass/Map<br>上传指南针或地图照片</div>
                     </div>
                     <div id="scan-result" class="text-xs text-slate-600 font-medium h-6 text-center"></div>
                 </div>
 
                 <div id="view-recycle" class="hidden h-full flex flex-col overflow-hidden">
-                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center mb-2 mt-1 shrink-0">Deleted Items</div>
+                    <div id="add-recycle-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center mb-2 mt-1 shrink-0">Deleted Items</div>
                     <div id="recycle-list-integrated" class="flex-1 overflow-y-auto no-scrollbar border border-slate-100 rounded-lg">
                         <!-- List populated by JS -->
                     </div>
@@ -1849,6 +1860,12 @@
         let apiKey = localStorage.getItem('weathernextforcameron__wnext_v41_api_key') || DEFAULT_API_KEY;
 
         const WEATHER_CACHE_KEY = `weathernextforcameron__wnext_v41_weather_store`;
+        // Landing-weather freshness gate: timestamp of the last successful landing fetch.
+        // Forecasts update only a few times a day, so refetching the home-screen temps/rain
+        // on every app open (esp. rapid relaunches) wastes Open-Meteo's free-tier quota and
+        // risks 429s. We skip the landing fetch if the cached data is younger than this TTL.
+        const LANDING_TS_KEY = `weathernextforcameron__wnext_landing_ts`;
+        const LANDING_FRESH_MS = 20 * 60 * 1000; // 20 minutes
         const FAV_CACHE_KEY = `weathernextforcameron__wnext_v41_favs_store`;
         const HIDDEN_CACHE_KEY = `weathernextforcameron__wnext_v41_hidden_store`;
         const RENAME_CACHE_KEY = `weathernextforcameron__wnext_v41_rename_store`;
@@ -3393,7 +3410,7 @@
                              safeSet(PREF_MODEL_KEY, activeModel);
                              updateModelUI();
                              if (currentDisplayedIds.length > 0) fetchMultiDetailWeather(currentDisplayedIds); 
-                             else fetchLandingWeather();
+                             else fetchLandingWeather({force:true});
                          }
                     }
 
@@ -3547,14 +3564,14 @@
             activeModel = model; safeSet(PREF_MODEL_KEY, activeModel); updateModelUI();
             saveUserData();
             if (landingAbortController) { landingAbortController.abort(); landingAbortController = null; }
-            if (currentDisplayedIds.length > 0) fetchMultiDetailWeather(currentDisplayedIds); else fetchLandingWeather();
+            if (currentDisplayedIds.length > 0) fetchMultiDetailWeather(currentDisplayedIds); else fetchLandingWeather({force:true});
         };
 
         window.toggleModel = () => {
             activeModel = activeModel === 'best_match' ? 'ecmwf_ifs' : 'best_match';
             safeSet(PREF_MODEL_KEY, activeModel); updateModelUI();
             saveUserData();
-            if (currentDisplayedIds.length > 0) fetchMultiDetailWeather(currentDisplayedIds); else fetchLandingWeather();
+            if (currentDisplayedIds.length > 0) fetchMultiDetailWeather(currentDisplayedIds); else fetchLandingWeather({force:true});
         };
 
         // ===== HELP CARD: DeltaT & Safe Hours explainer =====
@@ -4609,8 +4626,25 @@
         const getLangName = (id) => LANG_NAMES[getLang(id)] || "English";
 
         // ... [Fetch Functions Retained] ...
-        async function fetchLandingWeather() {
+        async function fetchLandingWeather(opts = {}) {
             if (currentDisplayedIds.length > 0) return; 
+            // Freshness gate: if we fetched landing weather recently AND still have the
+            // cached payload in memory, skip the network call. `opts.force` (model switch,
+            // manual refresh, new farm added) bypasses this. Weather forecasts don't change
+            // minute-to-minute, so a 20-min window is safe and saves a lot of API calls.
+            if (!opts.force) {
+                try {
+                    const lastTs = parseInt(localStorage.getItem(LANDING_TS_KEY) || '0', 10);
+                    const age = Date.now() - lastTs;
+                    const haveData = weatherData && Object.keys(weatherData).length > 0;
+                    if (haveData && lastTs && age < LANDING_FRESH_MS) {
+                        // Cache is fresh — render what we have, no fetch.
+                        try { if (typeof syncUI === 'function') syncUI(); } catch (e) {}
+                        setStatus("Ready", true);
+                        return;
+                    }
+                } catch (e) { /* fall through to fetch on any cache-read error */ }
+            }
             if (landingAbortController) landingAbortController.abort();
             landingAbortController = new AbortController();
             const { signal } = landingAbortController; setStatus("Updating...");
@@ -4647,6 +4681,7 @@
                 try { if (typeof renderList === 'function') renderList(); } catch (e) {}
                 
                 safeSet(WEATHER_CACHE_KEY, JSON.stringify(weatherData));
+                try { localStorage.setItem(LANDING_TS_KEY, String(Date.now())); } catch (e) {}
                 syncUI(); setStatus("Ready", true); landingAbortController = null;
 
                 // --- Cameron Highlands: hydrate disease-risk badges ----------
@@ -5265,7 +5300,7 @@
                 // Trigger a weather fetch so the location card shows real data
                 // instead of "--" stubs. Best-effort; doesn't block toast.
                 if (typeof fetchLandingWeather === 'function') {
-                    try { fetchLandingWeather(); } catch (e) {}
+                    try { fetchLandingWeather({force:true}); } catch (e) {}
                 }
                 
                 // Inform the user. Bilingual toast since we don't know which
@@ -5494,7 +5529,7 @@
         // Sets the right expectation so a new user doesn't abandon the app before
         // the accuracy feature has had time to accumulate data.
         window.closeConfirm = (isConfirmed) => { document.getElementById('confirm-modal').classList.add('hidden'); if (isConfirmed && pendingConfirmAction) { pendingConfirmAction(); } pendingConfirmAction = null; };
-        window.openEditModal = (id) => { editingId = id; const loc = getAllLocations().find(l => l.id === id); const custom = renamedLocations[id]; document.getElementById('edit-name-en').value = custom ? custom.en : (loc.en || ''); document.getElementById('edit-name-zh').value = custom ? custom.zh : (loc.zh || ''); document.getElementById('edit-lat').value = loc ? String(loc.lat) : ''; document.getElementById('edit-lng').value = loc ? String(loc.lng) : ''; const elevField = document.getElementById('edit-elev'); if (elevField) { elevField.value = (typeof manualElevations[id] === 'number') ? String(manualElevations[id]) : ''; elevField.placeholder = (loc && typeof loc.elev === 'number') ? `${loc.elev}m (${loc.elevSource === 'grid' ? 'GPS' : loc.elevSource === 'manual' ? '手动 manual' : '默认 default'})` : '留空用GPS / blank = GPS'; } document.getElementById('edit-modal').classList.remove('hidden'); closeCardActions(id); };
+        window.openEditModal = (id) => { editingId = id; const loc = getAllLocations().find(l => l.id === id); const custom = renamedLocations[id]; document.getElementById('edit-name-en').value = custom ? custom.en : (loc.en || ''); document.getElementById('edit-name-zh').value = custom ? custom.zh : (loc.zh || ''); document.getElementById('edit-lat').value = loc ? String(loc.lat) : ''; document.getElementById('edit-lng').value = loc ? String(loc.lng) : ''; const elevField = document.getElementById('edit-elev'); if (elevField) { elevField.value = (typeof manualElevations[id] === 'number') ? String(manualElevations[id]) : ''; elevField.placeholder = (loc && typeof loc.elev === 'number') ? `${loc.elev}m (${loc.elevSource === 'grid' ? 'GPS' : loc.elevSource === 'manual' ? '手动 manual' : '默认 default'})` : '留空用GPS / blank = GPS'; } document.getElementById('edit-modal').classList.remove('hidden'); closeCardActions(id); if (typeof window.localizeModals === 'function') window.localizeModals(); const _egi = document.getElementById('edit-gps-fill-info'); if (_egi) _egi.textContent = ''; };
         // saveNameEdit (now: save name + GPS) — handles both the name overlay
         // (renamedLocations) and the actual coordinate mutation on the underlying
         // customLocations entry. GPS edits require cache invalidation and a fresh
@@ -5641,7 +5676,7 @@
                 // Re-fetch weather for the new coordinates if they changed.
                 // Best-effort: don't block the modal close on the fetch.
                 if (gpsChanged && typeof fetchLandingWeather === 'function') {
-                    try { fetchLandingWeather(); } catch (e) { console.warn('Re-fetch after GPS edit failed (non-fatal):', e); }
+                    try { fetchLandingWeather({force:true}); } catch (e) { console.warn('Re-fetch after GPS edit failed (non-fatal):', e); }
                 }
                 
                 // No success toast — the modal closing and the list re-rendering
@@ -5681,7 +5716,7 @@
         // Point them at the expanded handler.
         window.saveNameEdit = window.saveLocationEdit;
         window.deleteLocation = (id) => { if(!hiddenIds.includes(id)) { hiddenIds.push(id); safeSet(HIDDEN_CACHE_KEY, JSON.stringify(hiddenIds)); saveUserData(); renderList(); } swipeCurrentId = null; };
-        window.restoreLocation = (id) => { const idx = hiddenIds.indexOf(id); if(idx > -1) { hiddenIds.splice(idx, 1); safeSet(HIDDEN_CACHE_KEY, JSON.stringify(hiddenIds)); saveUserData(); if(!document.getElementById('view-recycle').classList.contains('hidden')) { window.renderRecycleView(); } renderList(); fetchLandingWeather(); } };
+        window.restoreLocation = (id) => { const idx = hiddenIds.indexOf(id); if(idx > -1) { hiddenIds.splice(idx, 1); safeSet(HIDDEN_CACHE_KEY, JSON.stringify(hiddenIds)); saveUserData(); if(!document.getElementById('view-recycle').classList.contains('hidden')) { window.renderRecycleView(); } renderList(); fetchLandingWeather({force:true}); } };
 
         // --- Search Logic ---
         window.openSearch = () => {
@@ -5778,6 +5813,100 @@
         //
         // Localized strings: detected from navigator.language at runtime, mapped to one
         // of the 5 app languages (en/ms/zh/ta/my). Falls back to English for anything else.
+        // Full 5-language strings for the Add and Edit location modals, so a farmer in
+        // any supported language can add/correct their own farm in their own language
+        // (previously these forms were hardcoded EN+ZH only — the rest of the app is 5-lang).
+        const MODAL_I18N = {
+            en: {
+                addTitle: 'Add your own farm spot', editTitle: 'Edit location',
+                nameEn: 'Location Name (English)', nameZh: 'Location Name (local)',
+                lat: 'Lat', lng: 'Lng',
+                elevAdd: 'Elevation (m) — blank = GPS', elevEdit: 'Leave blank for GPS grid value',
+                useGps: 'Use Current GPS',
+                photoUpload: 'Upload Photo of Compass/Map', deleted: 'Deleted Items',
+                nameLabel: 'Name', coordsLabel: 'Coordinates', elevLabel: 'Elevation (m)',
+                decimalHint: 'Decimal format, e.g. 4.04597, 101.96039',
+                elevGridHint: 'Leave blank to use the GPS grid elevation'
+            },
+            zh: {
+                addTitle: '添加您的地点', editTitle: '修改地点',
+                nameEn: '地点名称 (英文)', nameZh: '地点名称 (中文)',
+                lat: '纬度', lng: '经度',
+                elevAdd: '海拔 (m) — 留空用GPS', elevEdit: '留空用GPS网格值',
+                useGps: '使用当前GPS',
+                photoUpload: '上传指南针或地图照片', deleted: '已删除项目',
+                nameLabel: '名字', coordsLabel: 'GPS 坐标', elevLabel: '海拔 (m)',
+                decimalHint: '小数格式,如 4.04597, 101.96039',
+                elevGridHint: '留空将使用GPS网格海拔'
+            },
+            ms: {
+                addTitle: 'Tambah lokasi ladang anda', editTitle: 'Edit lokasi',
+                nameEn: 'Nama Lokasi (Inggeris)', nameZh: 'Nama Lokasi (tempatan)',
+                lat: 'Lat', lng: 'Lng',
+                elevAdd: 'Ketinggian (m) — kosong = GPS', elevEdit: 'Kosongkan untuk nilai grid GPS',
+                useGps: 'Guna GPS Semasa',
+                photoUpload: 'Muat naik foto kompas/peta', deleted: 'Item Dipadam',
+                nameLabel: 'Nama', coordsLabel: 'Koordinat', elevLabel: 'Ketinggian (m)',
+                decimalHint: 'Format perpuluhan, cth. 4.04597, 101.96039',
+                elevGridHint: 'Kosongkan untuk guna ketinggian grid GPS'
+            },
+            ta: {
+                addTitle: 'உங்கள் பண்ணை இடத்தைச் சேர்க்கவும்', editTitle: 'இடத்தைத் திருத்து',
+                nameEn: 'இட பெயர் (ஆங்கிலம்)', nameZh: 'இட பெயர் (உள்ளூர்)',
+                lat: 'அட்சரேகை', lng: 'தீர்க்கரேகை',
+                elevAdd: 'உயரம் (m) — காலி = GPS', elevEdit: 'GPS கட்ட மதிப்பிற்கு காலியாக விடவும்',
+                useGps: 'தற்போதைய GPS ஐப் பயன்படுத்து',
+                photoUpload: 'திசைகாட்டி/வரைபடப் படத்தைப் பதிவேற்று', deleted: 'நீக்கப்பட்டவை',
+                nameLabel: 'பெயர்', coordsLabel: 'ஆயத்தொலைவுகள்', elevLabel: 'உயரம் (m)',
+                decimalHint: 'தசம வடிவம், எ.கா. 4.04597, 101.96039',
+                elevGridHint: 'GPS கட்ட உயரத்தைப் பயன்படுத்த காலியாக விடவும்'
+            },
+            my: {
+                addTitle: 'သင့်ကိုယ်ပိုင် ခြံတည်နေရာ ထည့်ပါ', editTitle: 'တည်နေရာ ပြင်ဆင်ရန်',
+                nameEn: 'တည်နေရာအမည် (အင်္ဂလိပ်)', nameZh: 'တည်နေရာအမည် (ဒေသခံ)',
+                lat: 'လတ်တီတွဒ်', lng: 'လောင်ဂျီတွဒ်',
+                elevAdd: 'အမြင့် (m) — ကွက်လပ် = GPS', elevEdit: 'GPS ဂရစ်တန်ဖိုးအတွက် ကွက်လပ်ထားပါ',
+                useGps: 'လက်ရှိ GPS သုံးရန်',
+                photoUpload: 'သံလိုက်အိမ်မြှောင်/မြေပုံ ဓာတ်ပုံတင်ရန်', deleted: 'ဖျက်ထားသောအရာများ',
+                nameLabel: 'အမည်', coordsLabel: 'ကိုသြဒိနိတ်', elevLabel: 'အမြင့် (m)',
+                decimalHint: 'ဒႆမ ပုံစံ၊ ဥပမာ 4.04597, 101.96039',
+                elevGridHint: 'GPS ဂရစ်အမြင့်သုံးရန် ကွက်လပ်ထားပါ'
+            }
+        };
+        // Apply MODAL_I18N to both modals' labels/placeholders. Safe to call repeatedly
+        // (on modal open + on language change). Missing elements are skipped.
+        window.localizeModals = () => {
+            const M = MODAL_I18N[getDeviceLang()] || MODAL_I18N.en;
+            // GPS button label: defer to GPS_I18N so it matches what fillFromGPS resets to
+            // (single source of truth — avoids a flicker between the two strings).
+            const gpsBtnLabel = (typeof GPS_I18N === 'object' && GPS_I18N[getDeviceLang()]) ? GPS_I18N[getDeviceLang()].btn : M.useGps;
+            const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            const setPlaceholder = (id, v) => { const el = document.getElementById(id); if (el) el.placeholder = v; };
+            // Add modal
+            setText('add-modal-title', M.addTitle);
+            setPlaceholder('add-en', M.nameEn);
+            setPlaceholder('add-zh', M.nameZh);
+            setPlaceholder('add-lat', M.lat);
+            setPlaceholder('add-lng', M.lng);
+            setPlaceholder('add-elev', M.elevAdd);
+            setText('gps-fill-label', gpsBtnLabel);
+            setText('add-photo-label', M.photoUpload);
+            setText('add-recycle-label', M.deleted);
+            // Edit modal
+            setText('edit-modal-title', M.editTitle);
+            setText('edit-name-label', M.nameLabel);
+            setPlaceholder('edit-name-en', M.nameEn);
+            setPlaceholder('edit-name-zh', M.nameZh);
+            setText('edit-coords-label', M.coordsLabel);
+            setPlaceholder('edit-lat', M.lat);
+            setPlaceholder('edit-lng', M.lng);
+            setText('edit-decimal-hint', M.decimalHint);
+            setText('edit-gps-fill-label', gpsBtnLabel);
+            setText('edit-elev-label', M.elevLabel);
+            setPlaceholder('edit-elev', M.elevEdit);
+            setText('edit-elev-hint', M.elevGridHint);
+        };
+
         const GPS_I18N = {
             en: {
                 btn: "Use Current GPS",
@@ -5838,12 +5967,21 @@
         
         // Note: getDeviceLang() is defined globally near the top of the script (with SYSTEM_I18N).
         
-        window.fillFromGPS = () => {
-            const btn = document.getElementById('gps-fill-btn');
-            const label = document.getElementById('gps-fill-label');
-            const info = document.getElementById('gps-fill-info');
-            const latInput = document.getElementById('add-lat');
-            const lngInput = document.getElementById('add-lng');
+        window.fillFromGPS = (opts = {}) => {
+            // Generalised so BOTH the Add modal and the Edit modal can reuse it.
+            // Defaults target the Add modal's element IDs; the Edit modal passes its own.
+            const cfg = {
+                latId: opts.latId || 'add-lat',
+                lngId: opts.lngId || 'add-lng',
+                btnId: opts.btnId || 'gps-fill-btn',
+                labelId: opts.labelId || 'gps-fill-label',
+                infoId: opts.infoId || 'gps-fill-info'
+            };
+            const btn = document.getElementById(cfg.btnId);
+            const label = document.getElementById(cfg.labelId);
+            const info = document.getElementById(cfg.infoId);
+            const latInput = document.getElementById(cfg.latId);
+            const lngInput = document.getElementById(cfg.lngId);
             if (!btn || !latInput || !lngInput) return;
             const t = GPS_I18N[getDeviceLang()];
             
@@ -5916,11 +6054,11 @@
 
         // ... [Add Location Logic Retained] ...
         window.showToast = (msg, isError = false) => { const t = document.getElementById('toast'); const m = document.getElementById('toast-msg'); const i = document.getElementById('toast-icon'); if(t && m && i) { m.innerText = msg; if(isError) { i.className = "w-6 h-6 bg-white rounded-full flex items-center justify-center shrink-0"; i.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'; } else { i.className = "w-6 h-6 bg-white rounded-full flex items-center justify-center shrink-0"; i.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'; } t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); } };
-        window.openAddModal = () => { document.getElementById('add-loc-modal').classList.remove('hidden'); window.switchAddTab('manual'); };
+        window.openAddModal = () => { document.getElementById('add-loc-modal').classList.remove('hidden'); window.switchAddTab('manual'); if (typeof window.localizeModals === 'function') window.localizeModals(); };
         window.switchAddTab = (tab) => { ['manual', 'scan', 'recycle'].forEach(t => { const tabEl = document.getElementById(`tab-${t}`); const viewEl = document.getElementById(`view-${t}`); if(tabEl) tabEl.classList.toggle('active', t === tab); if(viewEl) { viewEl.classList.toggle('hidden', t !== tab); if (t === 'recycle') { viewEl.classList.toggle('flex', t === tab); } else { viewEl.classList.toggle('block', t === tab); } } }); const btn = document.getElementById('btn-save-loc'); if (btn) { if (tab === 'recycle') { btn.style.visibility = 'hidden'; window.renderRecycleView(); } else { btn.style.visibility = 'visible'; } } };
         window.renderRecycleView = () => { const list = document.getElementById('recycle-list-integrated'); if(!list) return; list.innerHTML = ''; const deleted = getAllLocations().filter(l => hiddenIds.includes(l.id)); if(deleted.length === 0) { list.innerHTML = '<div class="p-8 text-center text-xs text-slate-300 font-bold uppercase tracking-widest">Bin is empty</div>'; } else { deleted.forEach(l => { const custom = renamedLocations[l.id]; const en = custom?.en || l.en; const zh = custom?.zh || l.zh; list.innerHTML += `<div class="flex items-center justify-between p-3 border-b border-slate-50 last:border-0 bg-slate-50/50"><div class="flex-1 min-w-0 pr-2"><div class="font-bold text-slate-700 text-xs truncate">${en}</div>${zh ? `<div class="text-[10px] text-slate-400 truncate">${zh}</div>` : ''}</div><div class="flex items-center gap-2"><button onclick="window.purgeLocation('${l.id}')" class="text-[9px] font-black text-red-600 bg-white px-3 py-2 rounded shadow-sm border border-slate-100 uppercase tracking-wider active:scale-95 transition-transform">Purge</button><button onclick="window.restoreLocation('${l.id}')" class="text-[9px] font-black text-blue-600 bg-white px-3 py-2 rounded shadow-sm border border-slate-100 uppercase tracking-wider active:scale-95 transition-transform">Restore</button></div></div>`; }); } };
         window.purgeLocation = (id) => { window.showConfirm(sysT().confirmPurge, () => { if(!purgedIds.includes(id)) { purgedIds.push(id); } if (id.startsWith('c_')) { const cIdx = customLocations.findIndex(c => c.id === id); if (cIdx > -1) customLocations.splice(cIdx, 1); } const hIdx = hiddenIds.indexOf(id); if (hIdx > -1) hiddenIds.splice(hIdx, 1); const fIdx = favoriteIds.indexOf(id); if (fIdx > -1) favoriteIds.splice(fIdx, 1); if (renamedLocations[id]) delete renamedLocations[id]; if (weatherData[id]) delete weatherData[id]; if (detailData[id]) delete detailData[id]; try { const detailBlob = safeGetJson(DETAIL_CACHE_KEY, {}); let changed = false; for (const k in detailBlob) { if (k.startsWith(id + '__')) { delete detailBlob[k]; changed = true; } } if (changed) safeSet(DETAIL_CACHE_KEY, JSON.stringify(detailBlob)); } catch(e) {} safeSet(CUSTOM_CACHE_KEY, JSON.stringify(customLocations)); safeSet(HIDDEN_CACHE_KEY, JSON.stringify(hiddenIds)); safeSet(FAV_CACHE_KEY, JSON.stringify(favoriteIds)); safeSet(RENAME_CACHE_KEY, JSON.stringify(renamedLocations)); safeSet(PURGED_CACHE_KEY, JSON.stringify(purgedIds)); saveUserData(); window.renderRecycleView(); const binCountEl = document.getElementById('tab-bin-count'); if (binCountEl) { binCountEl.innerText = hiddenIds.length; if(hiddenIds.length === 0) binCountEl.classList.add('hidden'); } renderList(); }); };
-        window.saveCustomLocation = () => { const enInput = document.getElementById('add-en'); const zhInput = document.getElementById('add-zh'); const latInput = document.getElementById('add-lat'); const lngInput = document.getElementById('add-lng'); if(!enInput || !zhInput || !latInput || !lngInput) { alert("System Error: Inputs missing."); return; } const en = enInput.value.trim(); const zh = zhInput.value.trim(); const lat = parseFloat(latInput.value); const lng = parseFloat(lngInput.value); const T = sysT(); if(!en && !zh) { window.showToast(T.nameRequired, true); enInput.focus(); return; } if(isNaN(lat) || isNaN(lng)) { window.showToast(T.invalidCoords, true); latInput.focus(); return; } if(lat < -90 || lat > 90 || lng < -180 || lng > 180) { window.showToast(T.coordsOutOfRange, true); latInput.focus(); return; } const elevInput = document.getElementById('add-elev'); const elevStr = (elevInput && elevInput.value || '').trim(); let manualElevVal = null; if (elevStr !== '') { const ev = parseFloat(elevStr); if (isNaN(ev) || !isFinite(ev)) { window.showToast(T.elevInvalid, true); elevInput.focus(); return; } if (ev < -50 || ev > 4500) { window.showToast(T.elevOutOfRange, true); elevInput.focus(); return; } manualElevVal = Math.round(ev); } const allLocs = getAllLocations(); const isDuplicate = allLocs.some(l => Math.abs(l.lat - lat) < 0.0001 && Math.abs(l.lng - lng) < 0.0001); if (isDuplicate) { window.showToast(T.locationExists, true); return; } let finalEn = en; let finalZh = zh; if (!finalEn && finalZh) { finalEn = finalZh; finalZh = ""; } else if (finalEn && !finalZh) { finalZh = ""; } else if (finalEn === finalZh) { finalZh = ""; } const id = `c_${Date.now()}_${Math.floor(Math.random()*1000)}`; const newLoc = { id, en: finalEn, zh: finalZh, lat, lng, t: 0, p: 0, em: lng > 108.0 }; const performSave = () => { try { let diskCustom = []; try { const raw = localStorage.getItem(CUSTOM_CACHE_KEY); diskCustom = raw ? JSON.parse(raw) : []; if(!Array.isArray(diskCustom)) diskCustom = []; } catch(e) { diskCustom = []; } diskCustom.push(newLoc); safeSet(CUSTOM_CACHE_KEY, JSON.stringify(diskCustom)); customLocations = diskCustom; if (manualElevVal !== null) { manualElevations[id] = manualElevVal; saveManualElevations(); } let diskFavs = []; try { const rawF = localStorage.getItem(FAV_CACHE_KEY); diskFavs = rawF ? JSON.parse(rawF) : []; if(!Array.isArray(diskFavs)) diskFavs = []; } catch(e) { diskFavs = []; } if (!diskFavs.includes(id)) { diskFavs.push(id); safeSet(FAV_CACHE_KEY, JSON.stringify(diskFavs)); } favoriteIds = diskFavs; saveUserData(); window.showToast(T.saved); enInput.value = ''; zhInput.value = ''; latInput.value = ''; lngInput.value = ''; if (elevInput) elevInput.value = ''; enInput.focus(); renderList(); if(currentDisplayedIds.length > 0) window.closeModal(); fetchLandingWeather(); setTimeout(() => { const newEl = document.getElementById(`content-${id}`); if(newEl) { newEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); newEl.style.backgroundColor = '#ecfdf5'; setTimeout(() => { newEl.style.backgroundColor = ''; }, 1500); } }, 500); } catch(e) { console.error("Save Critical Error:", e); window.showToast(T.storageError, true); } }; if (lat < 0.8 || lat > 7.8 || lng < 99.0 || lng > 120.0) { window.showConfirm(T.outsideMalaysia, performSave); } else { performSave(); } };
+        window.saveCustomLocation = () => { const enInput = document.getElementById('add-en'); const zhInput = document.getElementById('add-zh'); const latInput = document.getElementById('add-lat'); const lngInput = document.getElementById('add-lng'); if(!enInput || !zhInput || !latInput || !lngInput) { alert("System Error: Inputs missing."); return; } const en = enInput.value.trim(); const zh = zhInput.value.trim(); const lat = parseFloat(latInput.value); const lng = parseFloat(lngInput.value); const T = sysT(); if(!en && !zh) { window.showToast(T.nameRequired, true); enInput.focus(); return; } if(isNaN(lat) || isNaN(lng)) { window.showToast(T.invalidCoords, true); latInput.focus(); return; } if(lat < -90 || lat > 90 || lng < -180 || lng > 180) { window.showToast(T.coordsOutOfRange, true); latInput.focus(); return; } const elevInput = document.getElementById('add-elev'); const elevStr = (elevInput && elevInput.value || '').trim(); let manualElevVal = null; if (elevStr !== '') { const ev = parseFloat(elevStr); if (isNaN(ev) || !isFinite(ev)) { window.showToast(T.elevInvalid, true); elevInput.focus(); return; } if (ev < -50 || ev > 4500) { window.showToast(T.elevOutOfRange, true); elevInput.focus(); return; } manualElevVal = Math.round(ev); } const allLocs = getAllLocations(); const isDuplicate = allLocs.some(l => Math.abs(l.lat - lat) < 0.0001 && Math.abs(l.lng - lng) < 0.0001); if (isDuplicate) { window.showToast(T.locationExists, true); return; } let finalEn = en; let finalZh = zh; if (!finalEn && finalZh) { finalEn = finalZh; finalZh = ""; } else if (finalEn && !finalZh) { finalZh = ""; } else if (finalEn === finalZh) { finalZh = ""; } const id = `c_${Date.now()}_${Math.floor(Math.random()*1000)}`; const newLoc = { id, en: finalEn, zh: finalZh, lat, lng, t: 0, p: 0, em: lng > 108.0 }; const performSave = () => { try { let diskCustom = []; try { const raw = localStorage.getItem(CUSTOM_CACHE_KEY); diskCustom = raw ? JSON.parse(raw) : []; if(!Array.isArray(diskCustom)) diskCustom = []; } catch(e) { diskCustom = []; } diskCustom.push(newLoc); safeSet(CUSTOM_CACHE_KEY, JSON.stringify(diskCustom)); customLocations = diskCustom; if (manualElevVal !== null) { manualElevations[id] = manualElevVal; saveManualElevations(); } let diskFavs = []; try { const rawF = localStorage.getItem(FAV_CACHE_KEY); diskFavs = rawF ? JSON.parse(rawF) : []; if(!Array.isArray(diskFavs)) diskFavs = []; } catch(e) { diskFavs = []; } if (!diskFavs.includes(id)) { diskFavs.push(id); safeSet(FAV_CACHE_KEY, JSON.stringify(diskFavs)); } favoriteIds = diskFavs; saveUserData(); window.showToast(T.saved); enInput.value = ''; zhInput.value = ''; latInput.value = ''; lngInput.value = ''; if (elevInput) elevInput.value = ''; enInput.focus(); renderList(); if(currentDisplayedIds.length > 0) window.closeModal(); fetchLandingWeather({force:true}); setTimeout(() => { const newEl = document.getElementById(`content-${id}`); if(newEl) { newEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); newEl.style.backgroundColor = '#ecfdf5'; setTimeout(() => { newEl.style.backgroundColor = ''; }, 1500); } }, 500); } catch(e) { console.error("Save Critical Error:", e); window.showToast(T.storageError, true); } }; if (lat < 0.8 || lat > 7.8 || lng < 99.0 || lng > 120.0) { window.showConfirm(T.outsideMalaysia, performSave); } else { performSave(); } };
         window.handlePhotoScan = async (e) => { const file = e.target.files[0]; if(!file) return; const res = document.getElementById('scan-result'); res.innerText = "Scanning... / 正在扫描..."; const reader = new FileReader(); reader.onload = async function(event) { const base64Data = event.target.result.split(',')[1]; const prompt = "Analyze this image. It might be a photo of a compass app, a GPS device, or a location screenshot. Extract the Latitude and Longitude. Return strictly JSON format: { \"lat\": 3.1234, \"lng\": 101.5678 }. If not found, return { \"error\": \"No coordinates found\" }."; try { 
             const payload = { contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType: "image/jpeg", data: base64Data } } ] }], generationConfig: { responseMimeType: "application/json" } };
             const response = await fetchGemini(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`, payload);
@@ -6064,15 +6202,6 @@
             if (!elevs.length) return;
             // Distinct, ascending elevations.
             elevStops = Array.from(new Set(elevs)).sort((a, b) => a - b);
-            // [DIAG v1.0.239] Temporary: log the resolved elevation range so we can see
-            // whether the lowest farms are present in elevStops at all. Remove after fix.
-            try {
-                const allFarms = getAllLocations().filter(l => !hiddenIds.includes(l.id));
-                const missing = allFarms.filter(l => typeof l.elev !== 'number').map(l => (l.en || l.id));
-                console.log('[ELEV-DIAG] stops:', elevStops, '| count:', elevStops.length,
-                            '| lowest:', elevStops[0], '| highest:', elevStops[elevStops.length-1],
-                            '| farms total:', allFarms.length, '| missing elev:', missing);
-            } catch (e) {}
             // Index-based slider: 0 .. (stops-1), step 1 → snaps to each farm.
             slider.min = 0;
             slider.max = Math.max(0, elevStops.length - 1);
@@ -6295,15 +6424,6 @@
             // selects the physically first/last card at the scroll extremes, so a clamped
             // bottom no longer yanks the slider off the lowest stop (the prior floor bug).
             const target = cardWrap.offsetTop - (container.clientHeight / 2) + (cardWrap.offsetHeight / 2);
-            // [DIAG v1.0.239] Temporary: log scroll math for the chosen elevation. If the
-            // slider stops short, compare 'target' vs 'maxScroll' and 'idx' vs lowest. Remove after fix.
-            try {
-                const maxScroll = container.scrollHeight - container.clientHeight;
-                console.log('[SCROLL-DIAG] idx:', idx, '/', elevStops.length-1, '| targetElev:', targetElev,
-                            '| best farm:', (best.en || best.id), 'elev', best.elev,
-                            '| scrollTarget:', Math.round(target), '| maxScroll:', Math.round(maxScroll),
-                            '| clamped:', Math.round(Math.max(0, target)) >= Math.round(maxScroll));
-            } catch (e) {}
             container.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
             // Smooth scroll takes ~300-500ms; keep the scroll→slider sync suppressed
             // until it settles, then re-enable it.
@@ -9739,7 +9859,7 @@
             // Elevation slider wiring (replaces the old hourly timeline).
             if (typeof window.initElevationSlider === 'function') window.initElevationSlider();
             setInterval(syncUI, 1000); setInterval(updateLunarDate, 60000);
-            setInterval(() => { if(currentDisplayedIds.length === 0) fetchLandingWeather(); }, 10 * 60 * 1000); 
+            setInterval(() => { if(currentDisplayedIds.length === 0) fetchLandingWeather({force:true}); }, 10 * 60 * 1000); 
         });
     </script>
 
