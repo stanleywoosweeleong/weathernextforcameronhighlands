@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.296 — data-freshness UI redesign: split the persistent status from the detail. A small tappable status dot now lives in the HEADER (next to the model pills) — green=fresh / amber=awaiting / grey=checking-or-unavailable, always visible at a glance. The detailed message ('数据已更新 (18:55…)/Fresh — updated…' or 'next update ~HH:MM') is now a bottom TOAST that fires automatically on app load and whenever the header dot is tapped (reuses showToast, auto-hides 3s). Removed the freshness line from the broadcast bar entirely, so the broadcast buttons sit cleaner. Same metadata logic underneath (model-matched query, 2h offset, 6h-cycle schedule). bump CACHE_VERSION on each release
+// Version 1.0.300 — accessibility: cleared the DevTools 'No label associated with a form field' warnings. Added aria-label to every standalone form input (derived from each field's existing placeholder; explicit bilingual labels for the elevation range slider and the photo-scan file input). No visual change — aria-label is invisible, just gives each field an accessible name for screen readers/autofill. The SOP checkbox was already wrapped in a <label>, so it needed no change. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021158';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021217';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

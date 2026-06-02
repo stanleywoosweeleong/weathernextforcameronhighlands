@@ -1024,7 +1024,7 @@
                 <span id="sort-mode-label">★</span>
             </button>
         </div>
-        <input type="range" id="elev-slider" min="0" max="1" value="0" step="1" class="w-full">
+        <input type="range" aria-label="海拔筛选 Elevation filter" id="elev-slider" min="0" max="1" value="0" step="1" class="w-full">
     </footer>
 
     <!-- Forecast Modal -->
@@ -1062,13 +1062,13 @@
             <h3 id="edit-modal-title" class="text-lg font-black text-slate-900 mb-4">Edit 修改地点</h3>
             
             <label id="edit-name-label" class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">名字 / Name</label>
-            <input type="text" id="edit-name-en" class="w-input" placeholder="English Name">
-            <input type="text" id="edit-name-zh" class="w-input mt-2" placeholder="中文名字">
+            <input aria-label="English Name" type="text" id="edit-name-en" class="w-input" placeholder="English Name">
+            <input aria-label="中文名字" type="text" id="edit-name-zh" class="w-input mt-2" placeholder="中文名字">
             
             <label id="edit-coords-label" class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mt-4 mb-1">GPS 坐标 / Coordinates</label>
             <div class="flex gap-2">
-                <input type="text" inputmode="decimal" id="edit-lat" class="w-input flex-1" placeholder="纬度 Lat">
-                <input type="text" inputmode="decimal" id="edit-lng" class="w-input flex-1" placeholder="经度 Lng">
+                <input aria-label="纬度 Lat" type="text" inputmode="decimal" id="edit-lat" class="w-input flex-1" placeholder="纬度 Lat">
+                <input aria-label="经度 Lng" type="text" inputmode="decimal" id="edit-lng" class="w-input flex-1" placeholder="经度 Lng">
             </div>
             <p id="edit-decimal-hint" class="text-[10px] text-slate-400 mt-1">小数格式,如 / Decimal format, e.g. 4.04597, 101.96039</p>
             <!-- Use Current GPS — lets a farmer standing in their field correct a
@@ -1082,7 +1082,7 @@
             <div id="edit-gps-fill-info" class="text-[10px] text-slate-500 text-center mt-1.5 h-3"></div>
 
             <label id="edit-elev-label" class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mt-4 mb-1">海拔 / Elevation (m)</label>
-            <input type="text" inputmode="numeric" id="edit-elev" class="w-input" placeholder="留空用GPS网格值 / Leave blank for GPS grid">
+            <input aria-label="留空用GPS网格值 / Leave blank for GPS grid" type="text" inputmode="numeric" id="edit-elev" class="w-input" placeholder="留空用GPS网格值 / Leave blank for GPS grid">
             <p id="edit-elev-hint" class="text-[10px] text-slate-400 mt-1">留空将使用GPS网格海拔 / Leave blank to use the GPS grid elevation</p>
 
             <button onclick="window.saveNameEdit()" class="w-btn-primary mt-4 flex items-center justify-center">
@@ -1096,7 +1096,7 @@
         <div class="w-modal-card !p-0 overflow-hidden flex flex-col max-h-[70vh] !w-[90%] !max-w-[360px]">
             <div class="p-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="search-input" class="flex-1 text-base font-bold text-slate-700 outline-none placeholder:font-normal bg-transparent" placeholder="Search location..." oninput="window.handleSearchInput()">
+                <input aria-label="Search location..." type="text" id="search-input" class="flex-1 text-base font-bold text-slate-700 outline-none placeholder:font-normal bg-transparent" placeholder="Search location..." oninput="window.handleSearchInput()">
                 <button onclick="document.getElementById('search-modal').classList.add('hidden')" class="p-2 text-slate-300 active:text-slate-500">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
@@ -1130,7 +1130,7 @@
             </button>
             <h3 class="text-lg font-black text-slate-900 mb-2">API Key</h3>
             <p class="text-xs text-slate-500 mb-4">Paste your free Gemini API Key to enable AI features. Get one at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="text-blue-600 underline">aistudio.google.com</a> → "Create API key". Stored only on this device.</p>
-            <input type="text" id="api-key-input" class="w-input" placeholder="Paste your Gemini API key" onkeydown="if(event.key==='Enter') window.submitApiKey()">
+            <input aria-label="Paste your Gemini API key" type="text" id="api-key-input" class="w-input" placeholder="Paste your Gemini API key" onkeydown="if(event.key==='Enter') window.submitApiKey()">
             <button onclick="window.submitApiKey()" class="w-btn-primary mt-2 flex items-center justify-center">
                 <span class="mr-2">Save Key</span>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -1152,11 +1152,11 @@
             <p id="profile-modal-intro" class="text-xs text-slate-500 mb-3">输入您的名字，让这个 app 属于您。<br>Enter your name to personalize this app.</p>
             
             <label class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">显示名字 / Display name</label>
-            <input type="text" id="profile-name-input" class="w-input mb-2" placeholder="您的名字 / Your name" maxlength="40" onkeydown="if(event.key==='Enter') window.submitProfile()">
+            <input aria-label="您的名字 / Your name" type="text" id="profile-name-input" class="w-input mb-2" placeholder="您的名字 / Your name" maxlength="40" onkeydown="if(event.key==='Enter') window.submitProfile()">
             <p class="text-[10px] text-slate-400 mb-3">中文、英文、马来文皆可 · Any language works · Max 40 chars</p>
             
             <label class="block text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1">英文/拼音 名字（可选）/ English name (optional)</label>
-            <input type="text" id="profile-name-ascii-input" class="w-input mb-1" placeholder="YourName" maxlength="32">
+            <input aria-label="YourName" type="text" id="profile-name-ascii-input" class="w-input mb-1" placeholder="YourName" maxlength="32">
             <p class="text-[10px] text-slate-400 mb-4">仅用于分享截图的文件名（ASCII 字母数字）<br>Used only for shared screenshot filenames (ASCII letters/numbers)</p>
             
             <div class="flex gap-2">
@@ -1231,13 +1231,13 @@
             <div class="relative overflow-hidden h-[334px]">
                 
                 <div id="view-manual" class="block h-full overflow-y-auto no-scrollbar pt-1">
-                    <input type="text" id="add-en" class="w-input text-sm" placeholder="Location Name (English)">
-                    <input type="text" id="add-zh" class="w-input text-sm" placeholder="地点名称 (中文)">
+                    <input aria-label="Location Name (English)" type="text" id="add-en" class="w-input text-sm" placeholder="Location Name (English)">
+                    <input aria-label="地点名称 (中文)" type="text" id="add-zh" class="w-input text-sm" placeholder="地点名称 (中文)">
                     <div class="flex gap-2">
-                        <input type="number" id="add-lat" class="w-input text-sm" placeholder="Lat 纬度" step="0.0001">
-                        <input type="number" id="add-lng" class="w-input text-sm" placeholder="Lng 经度" step="0.0001">
+                        <input aria-label="Lat 纬度" type="number" id="add-lat" class="w-input text-sm" placeholder="Lat 纬度" step="0.0001">
+                        <input aria-label="Lng 经度" type="number" id="add-lng" class="w-input text-sm" placeholder="Lng 经度" step="0.0001">
                     </div>
-                    <input type="number" id="add-elev" class="w-input text-sm mt-2" placeholder="海拔 Elevation (m) — 留空用GPS / blank = GPS" step="1">
+                    <input aria-label="海拔 Elevation (m) — 留空用GPS / blank = GPS" type="number" id="add-elev" class="w-input text-sm mt-2" placeholder="海拔 Elevation (m) — 留空用GPS / blank = GPS" step="1">
                     <!-- Use current GPS location button. Populates the lat/lng inputs above
                          after the OS-level location permission prompt is granted. -->
                     <button type="button" id="gps-fill-btn" onclick="window.fillFromGPS()" class="w-full mt-3 py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 border border-emerald-200 rounded-lg flex items-center justify-center gap-2 text-emerald-700 font-bold text-sm transition-colors">
@@ -1248,7 +1248,7 @@
                 </div>
 
                 <div id="view-scan" class="hidden h-full overflow-y-auto no-scrollbar py-2">
-                    <input type="file" id="scan-input" accept="image/*" class="hidden" onchange="window.handlePhotoScan(event)">
+                    <input type="file" aria-label="扫描照片 Scan photo" id="scan-input" accept="image/*" class="hidden" onchange="window.handlePhotoScan(event)">
                     <div onclick="document.getElementById('scan-input').click()" class="border-2 border-dashed border-slate-300 rounded-xl p-6 cursor-pointer active:bg-slate-50 mb-2 h-[140px] flex flex-col items-center justify-center">
                         <svg class="mx-auto text-slate-300 mb-2" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         <div id="add-photo-label" class="text-xs font-bold text-slate-500 text-center">Upload Photo of Compass/Map<br>上传指南针或地图照片</div>
@@ -10114,15 +10114,15 @@
 
                 if (fresh) {
                     setDot('#16a34a');  // green
-                    toast(`数据已更新 (${availMyt}，${sinceStr}前) / Fresh — updated ${availMyt} MYT (${sinceStr} ago)`);
+                    toast(`已更新 / Fresh ${availMyt} (${sinceStr})`);
                 } else {
                     setDot('#f59e0b');  // amber
-                    toast(`数据待更新 — 下次约 ${nextMyt} (还有 ${toNextStr}) / Next update ~${nextMyt} MYT (in ${toNextStr})`);
+                    toast(`待更新 / Next ~${nextMyt} (${toNextStr})`);
                 }
             } catch (e) {
                 // Graceful fallback — never block the broadcaster.
                 setDot('#cbd5e1');  // grey: unknown
-                if (force) toast('数据更新状态不可用 / Freshness unavailable — tap to retry', true);
+                if (force) toast('状态不可用 / Unavailable', true);
             }
         };
 
