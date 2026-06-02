@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.283 — Malay broadcast storm wording corrected per native speaker: 'Tempoh kemungkinan ribut' -> 'Masa kemungkinan ribut' (renders 'Masa kemungkinan ribut 12PM-3PM'). bump CACHE_VERSION on each release
+// Version 1.0.284 — reconcile 'storm window' vs 'no rain' contradiction in broadcasts. A storm flag is CAPE-based (storm POTENTIAL) while the hourly list only shows hours >=0.7mm, so a storm-window day could show 'possible storm 4-6PM' then a flat '没有下雨/no rain' — confusing recipients. Now, on a storm-flagged day with no measurable hourly rain, the no-rain line is replaced with a 'scattered storms possible in the window (uncertain)' message (3 languages: '时段内或有零星雷阵雨（不确定）' / 'Scattered storms possible in the window (uncertain)' / 'Ribut berselerak mungkin dalam masa ini (tidak pasti)'). Genuinely dry non-storm days keep the clean 'no rain'. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021001';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021007';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

@@ -9010,7 +9010,8 @@
                         if (band === 'fog')   return amFog >= 2 ? '🌫️ Foggy dawn — low visibility' : '🌫️ Foggy spells (mostly overnight/dawn)';
                         return null;
                     },
-                    trace: 'trace only'
+                    trace: 'trace only',
+                    stormMaybe: 'Scattered storms possible in the window (uncertain)'
                 },
                 zh: {
                     storm: '可能有暴雨时段',
@@ -9033,7 +9034,8 @@
                         if (band === 'fog')   return amFog >= 2 ? '🌫️ 清晨有雾 — 能见度低' : '🌫️ 夜间/清晨间中有雾';
                         return null;
                     },
-                    trace: '微量'
+                    trace: '微量',
+                    stormMaybe: '时段内或有零星雷阵雨（不确定）'
                 },
                 ms: {
                     storm: 'Masa kemungkinan ribut',
@@ -9054,7 +9056,8 @@
                         if (band === 'fog')   return amFog >= 2 ? '🌫️ Subuh berkabus — penglihatan rendah' : '🌫️ Berkabus (malam/subuh)';
                         return null;
                     },
-                    trace: 'sedikit sahaja'
+                    trace: 'sedikit sahaja',
+                    stormMaybe: 'Ribut berselerak mungkin dalam masa ini (tidak pasti)'
                 }
             };
             // For ta and my, no native-speaker confirmation of vocabulary — fall through
@@ -9318,6 +9321,21 @@
                     }
                     
                     if (rainEntries.length === 0) {
+                        // No hour reaches the 0.7mm display threshold. Normally this is a
+                        // flat "no rain" — BUT if a storm window is flagged for this day
+                        // (CAPE-based potential), a flat "没有下雨" contradicts the storm
+                        // clause in the summary above. CAPE says storms are POSSIBLE while
+                        // the model places no measurable rain in any specific hour (storms
+                        // are localized/hit-or-miss). Reconcile by acknowledging the
+                        // uncertain storm potential instead of denying rain outright.
+                        const dayObj = (typeof days !== 'undefined' && days) ? days[dayIdx] : null;
+                        const dayHasStorm = !!(dayObj && dayObj.cape >= 1500 && dayObj.triggerWindow);
+                        if (dayHasStorm && V.stormMaybe) {
+                            const topStorm = V.stormMaybe;
+                            // Malay second line for the bilingual (hourly) broadcast.
+                            const msStorm = (VOCAB.ms && VOCAB.ms.stormMaybe) ? VOCAB.ms.stormMaybe : topStorm;
+                            return includeMalay ? [topStorm, msStorm] : [topStorm];
+                        }
                         // Dry day. Single-language or bilingual no-rain line.
                         const topNoRain = locLang === 'en' ? 'No rain' : '没有下雨';
                         return includeMalay
