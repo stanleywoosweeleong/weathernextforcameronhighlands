@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.300 — accessibility: cleared the DevTools 'No label associated with a form field' warnings. Added aria-label to every standalone form input (derived from each field's existing placeholder; explicit bilingual labels for the elevation range slider and the photo-scan file input). No visual change — aria-label is invisible, just gives each field an accessible name for screen readers/autofill. The SOP checkbox was already wrapped in a <label>, so it needed no change. bump CACHE_VERSION on each release
+// Version 1.0.301 — moved the data-freshness status dot from the model-pills row (row 2) up to the top row, right after the edit-name pencil. On row 2 it was crowding the '离 芒种 4天' term countdown and pushing against the right-side date. Top row has room and groups it with the other header controls. Still tappable; same green/amber/grey states + toast. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021217';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021240';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
