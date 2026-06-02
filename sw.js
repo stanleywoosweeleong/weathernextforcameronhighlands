@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.284 — reconcile 'storm window' vs 'no rain' contradiction in broadcasts. A storm flag is CAPE-based (storm POTENTIAL) while the hourly list only shows hours >=0.7mm, so a storm-window day could show 'possible storm 4-6PM' then a flat '没有下雨/no rain' — confusing recipients. Now, on a storm-flagged day with no measurable hourly rain, the no-rain line is replaced with a 'scattered storms possible in the window (uncertain)' message (3 languages: '时段内或有零星雷阵雨（不确定）' / 'Scattered storms possible in the window (uncertain)' / 'Ribut berselerak mungkin dalam masa ini (tidak pasti)'). Genuinely dry non-storm days keep the clean 'no rain'. bump CACHE_VERSION on each release
+// Version 1.0.285 — data-freshness indicator for the broadcaster. A tappable bar at the top of the broadcast area queries Open-Meteo's per-model metadata (ecmwf_ifs025/static/meta.json — metadata calls don't count against the rate limit) for the latest ECMWF run's init + availability time, and shows green '✓ fresh data ready (run HH:MM MYT)' or amber '⚠️ awaiting update — last run HH:MM MYT (Xh ago)'. So before broadcasting (~5:15am workflow) the broadcaster knows whether the next ECMWF run has actually landed at source. Checked on startup + on tap; graceful fallback if the endpoint is unreachable. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021007';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021021';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

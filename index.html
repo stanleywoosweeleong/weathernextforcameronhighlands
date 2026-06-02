@@ -990,6 +990,16 @@
     <main id="main-content" style="height: calc(100vh - var(--chrome-h, 215px) - var(--safe-top) - var(--safe-bottom)); display: flex; flex-direction: column;" class="bg-slate-100">
         <!-- Broadcast buttons (v1.0.122; v1.0.138 added hourly bilingual button) -->
         <div id="broadcast-bar" class="flex flex-col gap-1.5 px-2 py-2 bg-slate-50 border-b border-slate-200 shrink-0">
+            <!-- Data freshness indicator (v1.0.285): checks Open-Meteo's metadata for the
+                 latest ECMWF run, so the broadcaster knows whether fresh data has landed
+                 before broadcasting. Tappable to re-check. Metadata calls don't count
+                 against the API rate limit. -->
+            <div id="data-fresh-bar" onclick="window.checkDataFreshness(true)"
+                 class="flex items-center justify-center gap-1.5 text-[10px] font-bold text-slate-400 py-0.5 cursor-pointer active:scale-95 transition-transform"
+                 title="Tap to re-check Open-Meteo data freshness / 点击重新检查数据更新">
+                <span id="data-fresh-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0;"></span>
+                <span id="data-fresh-text">检查数据更新… / Checking data…</span>
+            </div>
             <div class="flex gap-1.5">
                 <button onclick="window.handleBroadcastClick('favorites')" 
                         class="flex-1 py-2.5 px-2 rounded-lg font-black text-[11px] uppercase tracking-wider text-white active:scale-95 transition-transform shadow-md"
@@ -3407,6 +3417,11 @@
                 renderList(); updateLunarDate(); updateModelUI(); syncUI();
                 // First paint is done — clear the boot screen.
                 if (window.hideBootScreen) window.hideBootScreen();
+                // Kick off a data-freshness check for the broadcast bar (non-blocking;
+                // metadata calls don't count against the API rate limit).
+                if (typeof window.checkDataFreshness === 'function') {
+                    setTimeout(() => window.checkDataFreshness(true), 800);
+                }
                 
                 try {
                     await signInAnonymously(auth);
@@ -10021,6 +10036,76 @@
             }
         };
         
+        // ============================================================
+        // DATA FRESHNESS CHECK (v1.0.285)
+        // ------------------------------------------------------------
+        // Queries Open-Meteo's per-model metadata for the latest ECMWF run's
+        // availability time, so the broadcaster knows — BEFORE broadcasting —
+        // whether fresh data has actually landed at source. Metadata calls do
+        // NOT count against the API rate limit.
+        //
+        // The broadcaster's workflow: wake ~5am, broadcast ~5:15am to reach
+        // farmers before their 6/7/8am start. The ~7am-MYT ECMWF run (06 UTC)
+        // hasn't landed yet at 5:15am, so this will honestly show "data not yet
+        // refreshed — last run Xh ago", matching the in-broadcast staleness note.
+        //
+        // Defensive: if the metadata endpoint shape differs or the fetch fails,
+        // it falls back to a neutral message rather than breaking anything.
+        // ============================================================
+        let _lastFreshnessCheck = 0;
+        window.checkDataFreshness = async (force) => {
+            const dot = document.getElementById('data-fresh-dot');
+            const txt = document.getElementById('data-fresh-text');
+            if (!dot || !txt) return;
+            // Throttle automatic checks to once per 5 min; manual tap (force) always runs.
+            const now = Date.now();
+            if (!force && (now - _lastFreshnessCheck) < 5 * 60 * 1000) return;
+            _lastFreshnessCheck = now;
+
+            const setBar = (color, message) => { dot.style.background = color; txt.innerText = message; };
+            setBar('#cbd5e1', '检查数据更新… / Checking…');
+
+            try {
+                // ECMWF IFS metadata. The 0.25° open-data model id is 'ecmwf_ifs025'.
+                const metaUrl = 'https://api.open-meteo.com/data/ecmwf_ifs025/static/meta.json';
+                const res = await fetch(metaUrl, { cache: 'no-store' });
+                if (!res.ok) throw new Error('meta http ' + res.status);
+                const meta = await res.json();
+                // Fields are Unix timestamps (seconds). availability = when usable on API.
+                const initT = meta.last_run_initialisation_time;
+                const availT = meta.last_run_availability_time;
+                if (typeof initT !== 'number' || typeof availT !== 'number') throw new Error('meta shape');
+
+                const initMs = initT * 1000;
+                const ageMin = Math.round((now - initMs) / 60000);
+                const ageHrs = Math.floor(ageMin / 60);
+                const ageRemMin = ageMin % 60;
+                const ageStr = ageHrs > 0 ? `${ageHrs}h ${ageRemMin}m` : `${ageRemMin}m`;
+
+                // Format the run's init time in Malaysian local time for the broadcaster.
+                const initDate = new Date(initMs);
+                const myt = new Intl.DateTimeFormat('en-GB', {
+                    timeZone: 'Asia/Kuala_Lumpur', hour: '2-digit', minute: '2-digit', hour12: false
+                }).format(initDate);
+
+                // "Fresh" heuristic: ECMWF runs every 6h and lands ~5h after init. If the
+                // newest run's data is already available (availability time has passed) and
+                // the run is recent (< ~6.5h old), call it fresh; otherwise it's the prior
+                // run still in use while we wait for the next one.
+                const availPassed = now >= (availT * 1000);
+                const fresh = availPassed && (ageMin <= 6.5 * 60);
+
+                if (fresh) {
+                    setBar('#16a34a', `✓ 最新数据已更新 (${myt} 运行) / Fresh data ready (run ${myt} MYT)`);
+                } else {
+                    setBar('#f59e0b', `⚠️ 数据待更新 — 最近运行 ${myt} (${ageStr}前) / Awaiting update — last run ${myt} MYT (${ageStr} ago)`);
+                }
+            } catch (e) {
+                // Graceful fallback — never block the broadcaster.
+                setBar('#cbd5e1', '数据更新状态不可用 / Freshness unavailable — tap to retry');
+            }
+        };
+
         window.handleBroadcastClick = (mode) => {
             // Open the language picker. The user's pick advances to the
             // inner dispatcher; cancel closes the modal and does nothing.
