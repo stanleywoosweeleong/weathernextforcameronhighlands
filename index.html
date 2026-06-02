@@ -1888,6 +1888,23 @@
         const DETAIL_CACHE_KEY = `weathernextforcameron__wnext_v41_detail_store`;
         const DETAIL_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
         const PREF_MODEL_KEY = `weathernextforcameron__wnext_v41_pref_model_store`;
+        // Per-location model override store: { locationId: 'best_match' | 'ecmwf_ifs' }.
+        // A location with an entry here uses that model everywhere (landing + detail);
+        // a location WITHOUT an entry falls back to the global default (PREF_MODEL_KEY,
+        // ECMWF on first launch). This lets a user keep location A on AI and location B on
+        // ECMWF, each persistent, instead of one global all-or-nothing model.
+        const LOC_MODEL_KEY = `weathernextforcameron__wnext_loc_model_store`;
+        let locModelMap = {};
+        try { locModelMap = JSON.parse(localStorage.getItem(LOC_MODEL_KEY) || '{}') || {}; } catch (e) { locModelMap = {}; }
+        const saveLocModelMap = () => { try { localStorage.setItem(LOC_MODEL_KEY, JSON.stringify(locModelMap)); } catch (e) {} };
+        // The model to use for a given location: its own override, else the global default.
+        window.modelFor = (id) => (id && locModelMap[id]) ? locModelMap[id] : activeModel;
+        // Set (or clear) a location's model override and persist.
+        window.setLocModel = (id, model) => {
+            if (!id) return;
+            if (model) locModelMap[id] = model; else delete locModelMap[id];
+            saveLocModelMap();
+        };
         const PREF_CROPS_KEY = `weathernextforcameron__wnext_v41_pref_crops_store`;
         const PREF_AI_KEY = `weathernextforcameron__wnext_v41_ai_pref_map_v2`;
 
@@ -3591,17 +3608,32 @@
 
         // ... [Model & UI Functions Retained] ...
         window.setModel = (model) => {
-            activeModel = model; safeSet(PREF_MODEL_KEY, activeModel); updateModelUI();
-            saveUserData();
-            if (landingAbortController) { landingAbortController.abort(); landingAbortController = null; }
-            if (currentDisplayedIds.length > 0) fetchMultiDetailWeather(currentDisplayedIds); else fetchLandingWeather({force:true});
+            if (currentDisplayedIds.length > 0) {
+                // DETAIL VIEW: set the model for the displayed location(s) only, and persist
+                // per-location. The global default (activeModel) is left untouched, so other
+                // locations keep their own choices. Refetch just the displayed location(s).
+                currentDisplayedIds.forEach(id => window.setLocModel(id, model));
+                updateModelUI();
+                saveUserData();
+                fetchMultiDetailWeather(currentDisplayedIds);
+            } else {
+                // HOME: set the GLOBAL DEFAULT model (used by locations with no override).
+                activeModel = model; safeSet(PREF_MODEL_KEY, activeModel); updateModelUI();
+                saveUserData();
+                if (landingAbortController) { landingAbortController.abort(); landingAbortController = null; }
+                fetchLandingWeather({force:true});
+            }
         };
 
         window.toggleModel = () => {
-            activeModel = activeModel === 'best_match' ? 'ecmwf_ifs' : 'best_match';
-            safeSet(PREF_MODEL_KEY, activeModel); updateModelUI();
-            saveUserData();
-            if (currentDisplayedIds.length > 0) fetchMultiDetailWeather(currentDisplayedIds); else fetchLandingWeather({force:true});
+            // Flip between the two models. In detail view this flips the DISPLAYED
+            // location's model (per-location, persistent); on home it flips the global
+            // default. Delegate to setModel so the context logic lives in one place.
+            const ctxModel = (currentDisplayedIds.length > 0)
+                ? window.modelFor(currentDisplayedIds[0])
+                : activeModel;
+            const next = ctxModel === 'best_match' ? 'ecmwf_ifs' : 'best_match';
+            window.setModel(next);
         };
 
         // ===== HELP CARD: DeltaT & Safe Hours explainer =====
@@ -4742,7 +4774,13 @@
         };
 
         function updateModelUI() {
-            const isAI = activeModel === 'best_match';
+            // In detail view, the pills reflect the DISPLAYED location's effective model;
+            // on home they reflect the global default. (Multi-location detail is rare; use
+            // the first displayed id as representative.)
+            const ctxModel = (currentDisplayedIds.length > 0)
+                ? window.modelFor(currentDisplayedIds[0])
+                : activeModel;
+            const isAI = ctxModel === 'best_match';
             document.querySelectorAll('.model-pill').forEach(p => p.classList.remove('active'));
             const pLanding = document.getElementById(isAI ? 'pill-seamless' : 'pill-ecmwf');
             if(pLanding) pLanding.classList.add('active');
@@ -4882,26 +4920,44 @@
             const visibleLocations = getAllLocations().filter(l => !hiddenIds.includes(l.id));
             if(visibleLocations.length === 0) { setStatus("Ready", true); return; }
 
-            const batchSize = 45; const batches = [];
-            for (let i = 0; i < visibleLocations.length; i += batchSize) { batches.push(visibleLocations.slice(i, i + batchSize)); }
-            
-            const fetchBatch = async (locations) => {
+            // Group visible locations by their effective model (per-location override or
+            // global default), so a mixed list — some AI, some ECMWF — fetches each with
+            // the right model. Each group is batched (≤45 coords/request) as before.
+            const byModel = {};
+            visibleLocations.forEach(l => {
+                const m = window.modelFor(l.id);
+                (byModel[m] = byModel[m] || []).push(l);
+            });
+
+            const fetchBatch = async (locations, model) => {
                 const lats = locations.map(l => l.lat).join(','), lngs = locations.map(l => l.lng).join(',');
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&hourly=temperature_2m,precipitation_probability&models=${activeModel}&timezone=auto&forecast_days=2`;
-                const res = await fetch(url, { signal }); return await res.json();
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&hourly=temperature_2m,precipitation_probability&models=${model}&timezone=auto&forecast_days=2`;
+                const res = await fetch(url, { signal });
+                const json = await res.json();
+                // Return results paired with the exact locations they belong to, so mapping
+                // back to weatherData[id] is correct regardless of model grouping/order.
+                const arr = Array.isArray(json) ? json : [json];
+                return locations.map((loc, i) => ({ loc, r: arr[i] }));
             };
             try {
-                const results = await Promise.all(batches.map(fetchBatch));
-                const flatResults = results.flatMap(r => Array.isArray(r) ? r : [r]);
-                
-                flatResults.forEach((r, idx) => { 
-                    if(r?.hourly && visibleLocations[idx]) {
-                        weatherData[visibleLocations[idx].id] = r.hourly; 
-                        // CAMERON: capture the model terrain elevation for each farm's
-                        // GPS coordinate (Open-Meteo returns `elevation` per location).
-                        // This OVERRIDES hand-entered elev for sort/slider/card.
+                // Build one fetch task per (model group, ≤45 batch).
+                const tasks = [];
+                Object.keys(byModel).forEach(model => {
+                    const locs = byModel[model];
+                    for (let i = 0; i < locs.length; i += 45) {
+                        tasks.push(fetchBatch(locs.slice(i, i + 45), model));
+                    }
+                });
+                const taskResults = await Promise.all(tasks);
+                const flatResults = taskResults.flat(); // [{loc, r}, ...]
+
+                flatResults.forEach(({ loc, r }) => {
+                    if (r?.hourly && loc) {
+                        weatherData[loc.id] = r.hourly;
+                        // CAMERON: capture the model terrain elevation for each farm's GPS
+                        // coordinate (Open-Meteo returns `elevation` per location).
                         if (typeof r.elevation === 'number' && isFinite(r.elevation)) {
-                            gpsElevations[visibleLocations[idx].id] = Math.round(r.elevation);
+                            gpsElevations[loc.id] = Math.round(r.elevation);
                         }
                     }
                 });
@@ -4953,7 +5009,7 @@
              //   - 'missing' → no cache at all → must fetch from network (with loading indicator)
              const cacheStatus = {};
              locIds.forEach(id => {
-                 const cached = getDetailCacheEntry(id, activeModel);
+                 const cached = getDetailCacheEntry(id, window.modelFor(id));
                  if (cached) {
                      detailData[id] = cached.data;
                      cacheStatus[id] = cached.isFresh ? 'fresh' : 'stale';
@@ -5016,7 +5072,8 @@
                      // NEW: heat stress
                      'wet_bulb_temperature_2m'
                  ].join(',');
-                 const url = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lng}&hourly=${hourlyVars}&models=${activeModel}&timezone=auto&forecast_days=14`;
+                 const locModel = window.modelFor(id);
+                 const url = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lng}&hourly=${hourlyVars}&models=${locModel}&timezone=auto&forecast_days=14`;
                  const res = await fetch(url); const data = await res.json();
 
                  // PAST WEATHER (isolated): a small, separate call for the last 3 days
@@ -5028,7 +5085,7 @@
                  // forecast-only behaviour.
                  try {
                      const pastVars = 'relative_humidity_2m,temperature_2m,dew_point_2m,precipitation,cloudcover_mid';
-                     const pastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lng}&hourly=${pastVars}&models=${activeModel}&timezone=auto&past_days=3&forecast_days=1`;
+                     const pastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lng}&hourly=${pastVars}&models=${locModel}&timezone=auto&past_days=3&forecast_days=1`;
                      const pastRes = await fetch(pastUrl);
                      if (pastRes.ok) {
                          const pastData = await pastRes.json();
@@ -5045,7 +5102,7 @@
                  // OPTIONAL: fetch daily-only variables (leaf wetness, growing degree days).
                  // Wrapped in try/catch because not all models support these — if it fails, the app continues without them.
                  try {
-                     const dailyUrl = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lng}&daily=leaf_wetness_probability_mean,growing_degree_days_base_0_limit_50,sunrise,sunset&models=${activeModel}&timezone=auto&forecast_days=14`;
+                     const dailyUrl = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lng}&daily=leaf_wetness_probability_mean,growing_degree_days_base_0_limit_50,sunrise,sunset&models=${locModel}&timezone=auto&forecast_days=14`;
                      const dailyRes = await fetch(dailyUrl);
                      if (dailyRes.ok) {
                          const dailyData = await dailyRes.json();
@@ -5087,7 +5144,7 @@
                      // Persist to localStorage so the next session/page-refresh can hydrate
                      // this data instantly without re-fetching. Keyed by id+model so switching
                      // weather models doesn't return stale model data.
-                     saveDetailCacheEntry(id, activeModel, detailData[id]);
+                     saveDetailCacheEntry(id, locModel, detailData[id]);
                  }
              };
              // Only fetch the network for ids that need it (missing or stale).

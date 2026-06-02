@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.270 — past-3-day strip label now expands onto ONE line instead of wrapping. The .ch-ps-tag was a fixed 84px column forcing the label to wrap to 2 lines, even though the row has plenty of empty space to the right (only 3 data bars). Changed to min-width:84px + white-space:nowrap so short labels keep the bars in place but longer ones (incl. the new ms/ta/my translations) extend on a single line. bump CACHE_VERSION on each release
+// Version 1.0.271 — MAJOR: per-location weather model (was global all-or-nothing). New LOC_MODEL_KEY store + modelFor(id) (per-location override, else global default PREF_MODEL_KEY=ECMWF). Landing fetch now GROUPS locations by model (one request per model group) so a mixed AI/ECMWF list fetches each correctly. Detail fetch + cache keys use modelFor(id). On the detail screen, the model pills/toggle now set THAT location's model (persistent), refetching only it — not every location. On home, the pills set the global default for unset locations. updateModelUI reflects the displayed location's model in detail view. Solves: pick AI for location A and ECMWF for location B, each sticky across launches; and no more full-app refetch when changing one location's model. (Per-location map persists via localStorage; cloud cross-device sync is a possible follow-up.) bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606012300';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606020728';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
