@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.278 — added a COMPACT Cameron fog/visibility tag to all 3 WhatsApp broadcasts (favorites 3-day, all-stable 1-day, hourly bilingual — they all flow through buildBroadcastText/buildDayLine). Only emitted on meaningfully foggy days (computeFog bandKey fog/dense) so clear days stay clean and the message doesn't bloat. Emphasises the dawn commute window (real mountain-road hazard): e.g. '🌫️ Foggy dawn — low visibility' / '🌫️ 清晨有雾 — 能见度低' / dense variant 'drive slow'. 3-language (zh/en/ms, matching the broadcast vocab); best-effort try/catch so it never breaks a broadcast. Only fog/visibility added per request — leaf wetness etc. deliberately omitted to keep WhatsApp messages short. bump CACHE_VERSION on each release
+// Version 1.0.279 — broadcast listing order now MATCHES the home screen. sortStableLocations (used by all-stable + hourly broadcasts) was a separate state/west-east geographic sort; rewrote it to delegate to the shared homeListSort comparator (sort-mode + elevation high->low), resolving ids via getAllLocations() so user-added farms order too (old version only knew STABLE_LOCATIONS, leaving custom farms unsorted). Also sorted the FAVORITES broadcast (was raw favourite-pin order). Now home list, detail view, and all 3 broadcasts share one ordering source and stay in lockstep. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606020908';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606020927';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

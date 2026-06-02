@@ -1980,29 +1980,20 @@
         // Stanley's request — recipients should encounter Keningau (5.33°N) before
         // Kionsom (5.99°N) since Keningau is more typical reference point.
         const sortStableLocations = (ids) => {
+            // Broadcast listing order now MATCHES the home screen (and detail view):
+            // it delegates to the shared homeListSort comparator (sort-mode + elevation
+            // high→low + geography), instead of the old state/west-east-only geographic
+            // sort. Resolving via getAllLocations() (not just STABLE_LOCATIONS) so
+            // user-added farms are ordered too, not left unsorted.
+            // NOTE: homeListSort is a module-scope const defined later in the file; this
+            // function is only ever CALLED well after that definition, so it's available.
+            const all = (typeof getAllLocations === 'function') ? getAllLocations() : [];
             const byId = {};
-            for (const loc of STABLE_LOCATIONS) byId[loc.id] = loc;
-            
+            for (const loc of all) byId[loc.id] = loc;
             return ids.slice().sort((a, b) => {
                 const locA = byId[a]; const locB = byId[b];
                 if (!locA || !locB) return 0;
-                
-                const stateA = LOCATION_STATES[a] || 'Pahang';
-                const stateB = LOCATION_STATES[b] || 'Pahang';
-                const idxA = STATE_SORT_INDEX[stateA] || 99;
-                const idxB = STATE_SORT_INDEX[stateB] || 99;
-                
-                if (idxA !== idxB) return idxA - idxB;
-                
-                // Within same state, Sabah goes bottom-to-top by latitude.
-                if (stateA === 'Sabah') {
-                    return locA.lat - locB.lat;  // smaller lat first
-                }
-                
-                // All other states: west-to-east (longitude), then north-to-south (latitude).
-                const lngDiff = locA.lng - locB.lng;
-                if (Math.abs(lngDiff) > 0.05) return lngDiff;  // 0.05° ≈ 5.5km tolerance
-                return locB.lat - locA.lat;  // larger lat first (north)
+                return (typeof homeListSort === 'function') ? homeListSort(locA, locB) : 0;
             });
         };
 
@@ -8938,6 +8929,9 @@
                 // Filter out hidden ones (recycle bin) and any not in getAllLocations.
                 const visible = getAllLocations().filter(l => !hiddenIds.includes(l.id));
                 ids = ids.filter(id => visible.some(l => l.id === id));
+                // Order them the SAME as the home list (elevation / sort-mode), instead of
+                // raw favourite-pin order, so the broadcast sequence matches the screen.
+                if (typeof sortStableLocations === 'function') ids = sortStableLocations(ids);
             } else if (mode === 'allStable' || mode === 'allStableHourly') {
                 // "All Stable" broadcast — every location the user has, minus
                 // purged/hidden ones. Originally pulled from the STABLE_LOCATIONS
