@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.301 — moved the data-freshness status dot from the model-pills row (row 2) up to the top row, right after the edit-name pencil. On row 2 it was crowding the '离 芒种 4天' term countdown and pushing against the right-side date. Top row has room and groups it with the other header controls. Still tappable; same green/amber/grey states + toast. bump CACHE_VERSION on each release
+// Version 1.0.302 — removed the 'Kuala Terla' town seed location (kept 'Kuala Terla Tea Estate'). The two sat ~457m apart in the SAME ECMWF grid cell, so they produced identical forecasts — redundant. Seed array drops 16->15. SEED_VERSION bumped ch-2->ch-3 with a one-time migration that also removes c_ch-kuala-terla from existing testers' saved list AND favourites, UNLESS they renamed it (then it's kept — they clearly want it). Users can re-add it manually any time. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021240';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021304';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
