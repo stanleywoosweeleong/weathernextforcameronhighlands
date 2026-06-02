@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.276 — long-press a home-screen model pill (~550ms, touch or mouse) to reset ALL per-location model overrides back to the global default. Only acts when overrides exist (the pill shows inverted then); shows a 5-language confirm dialog first since it wipes every location's individual choice. New window.resetAllLocModels() clears locModelMap, persists, cloud-syncs, updateModelUI (removes inversion), and refetches the current view. A quick tap still sets the default as before — the normal tap is suppressed only when a long-press actually fired. bump CACHE_VERSION on each release
+// Version 1.0.277 — FIX: detail-view favourite stack now sorted in the SAME sequence as the home list. The home list orders by sort-mode + elevation (high->low), but openDetail used a separate geography-only sort (latitude), so tapping a farm landed in a differently-ordered stack. Extracted the home list's exact ordering into a single shared homeListSort() comparator now used by BOTH renderList and openDetail — same order, and no future drift. (Old geography-only sortLocationsCompat left defined but unused.) bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606020824';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606020834';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

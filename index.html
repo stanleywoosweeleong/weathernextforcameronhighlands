@@ -5418,6 +5418,31 @@
             return nameA.localeCompare(nameB);
         };
 
+        // SHARED home-list ordering — the SINGLE source of truth used by BOTH the home
+        // list (renderList) and the detail-view favourite stack (openDetail), so the
+        // detail screen scrolls in the SAME sequence the user sees on the home screen.
+        // Respects the sort-mode toggle and elevation, unlike the geography-only
+        // sortLocationsCompat above. `em` (West/East column) is honoured only when both
+        // items share it; in the detail stack all favourites are compared together.
+        const homeListSort = (a, b) => {
+            // West before East (matches the home list's column split / reading order).
+            if (a.em !== b.em) return a.em ? 1 : -1;
+            // Favourites pinned to top in 'fav' mode (in the detail stack everything is a
+            // favourite, so this is a no-op there — but keeps parity with the home list).
+            if (sortMode === 'fav') {
+                const isFavA = favoriteIds.includes(a.id); const isFavB = favoriteIds.includes(b.id);
+                if (isFavA && !isFavB) return -1; if (!isFavA && isFavB) return 1;
+            }
+            // Elevation high → low (primary ordering on the home list).
+            const elevA = (typeof a.elev === 'number') ? a.elev : -Infinity;
+            const elevB = (typeof b.elev === 'number') ? b.elev : -Infinity;
+            if (elevA !== elevB) return elevB - elevA;
+            if (a.em) { const isSabahA = a.lng > 115.0; const isSabahB = b.lng > 115.0; if (isSabahA && !isSabahB) return -1; if (!isSabahA && isSabahB) return 1; }
+            if (Math.abs(b.lat - a.lat) > 0.0001) return b.lat - a.lat;
+            if (Math.abs(b.lng - a.lng) > 0.0001) return b.lng - a.lng;
+            const nameA = (renamedLocations[a.id]?.en || a.en || '').toLowerCase(); const nameB = (renamedLocations[b.id]?.en || b.en || '').toLowerCase(); return nameA.localeCompare(nameB);
+        };
+
         window.openDetail = (id) => {
             // Remove resetZoom() here, we will call it after rendering
             if (landingAbortController) { landingAbortController.abort(); landingAbortController = null; }
@@ -5428,8 +5453,10 @@
 
             if (isFav && favoriteIds.length > 1) {
                 const favObjs = favoriteIds.map(fid => visibleLocations.find(l => l.id === fid)).filter(l => l);
-                // Apply the robust sorting logic
-                favObjs.sort(sortLocationsCompat);
+                // Order the detail stack to MATCH the home list exactly (same elevation /
+                // sort-mode ordering), so tapping a farm lands in a stack sequenced like
+                // the list the user just saw.
+                favObjs.sort(homeListSort);
                 targets = favObjs.map(l => l.id);
             } else { targets = [id]; }
             currentDisplayedIds = targets; 
@@ -6448,26 +6475,7 @@
             const lw = document.getElementById('list-west'); const le = document.getElementById('list-east'); const sW = lw ? lw.scrollTop : 0; const sE = le ? le.scrollTop : 0;
             const build = (em) => {
                 let pool = getAllLocations().filter(l => l.em === em && !hiddenIds.includes(l.id));
-                pool.sort((a,b) => {
-                    // Sort mode is user-toggleable (persisted):
-                    //   'fav'  → favourites pinned to TOP, then elevation high→low (default).
-                    //   'elev' → pure elevation high→low (favourites highlighted, not pinned);
-                    //            gives the slider a clean monotonic list to sweep end-to-end.
-                    if (sortMode === 'fav') {
-                        const isFavA = favoriteIds.includes(a.id); const isFavB = favoriteIds.includes(b.id);
-                        if (isFavA && !isFavB) return -1; if (!isFavA && isFavB) return 1;
-                    }
-                    // Elevation high → low (within favourite group, or globally in 'elev' mode).
-                    // Higher/foggier zones carry the most disease pressure, so the riskiest
-                    // sites appear first. Unknown-elevation farms sort to the bottom.
-                    const elevA = (typeof a.elev === 'number') ? a.elev : -Infinity;
-                    const elevB = (typeof b.elev === 'number') ? b.elev : -Infinity;
-                    if (elevA !== elevB) return elevB - elevA;   // high elevation first
-                    if (em) { const isSabahA = a.lng > 115.0; const isSabahB = b.lng > 115.0; if (isSabahA && !isSabahB) return -1; if (!isSabahA && isSabahB) return 1; }
-                    if (Math.abs(b.lat - a.lat) > 0.0001) { return b.lat - a.lat; }
-                    if (Math.abs(b.lng - a.lng) > 0.0001) { return b.lng - a.lng; }
-                    const nameA = (renamedLocations[a.id]?.en || a.en || '').toLowerCase(); const nameB = (renamedLocations[b.id]?.en || b.en || '').toLowerCase(); return nameA.localeCompare(nameB);
-                });
+                pool.sort(homeListSort);
                 // Empty-state: fresh install OR all-deleted state. Only show in
                 // the West list to avoid duplicating the message across both
                 // columns. East gets a quieter "—" placeholder.
