@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.285 — data-freshness indicator for the broadcaster. A tappable bar at the top of the broadcast area queries Open-Meteo's per-model metadata (ecmwf_ifs025/static/meta.json — metadata calls don't count against the rate limit) for the latest ECMWF run's init + availability time, and shows green '✓ fresh data ready (run HH:MM MYT)' or amber '⚠️ awaiting update — last run HH:MM MYT (Xh ago)'. So before broadcasting (~5:15am workflow) the broadcaster knows whether the next ECMWF run has actually landed at source. Checked on startup + on tap; graceful fallback if the endpoint is unreachable. bump CACHE_VERSION on each release
+// Version 1.0.288 — freshness bar made more legible (Cameron users often read on desktop before work): text 10px->13px, weight font-bold->font-semibold, colour slate-400->slate-600 (darker/higher contrast), more vertical padding, status dot 7px->10px. Dynamic green/amber dot colours unaffected. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021021';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021044';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

@@ -995,9 +995,9 @@
                  before broadcasting. Tappable to re-check. Metadata calls don't count
                  against the API rate limit. -->
             <div id="data-fresh-bar" onclick="window.checkDataFreshness(true)"
-                 class="flex items-center justify-center gap-1.5 text-[10px] font-bold text-slate-400 py-0.5 cursor-pointer active:scale-95 transition-transform"
+                 class="flex items-center justify-center gap-2 text-[13px] font-semibold text-slate-600 py-1.5 cursor-pointer active:scale-95 transition-transform"
                  title="Tap to re-check Open-Meteo data freshness / 点击重新检查数据更新">
-                <span id="data-fresh-dot" style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;flex-shrink:0;"></span>
+                <span id="data-fresh-dot" style="width:10px;height:10px;border-radius:50%;background:#cbd5e1;flex-shrink:0;"></span>
                 <span id="data-fresh-text">检查数据更新… / Checking data…</span>
             </div>
             <div class="flex gap-1.5">
@@ -10078,27 +10078,40 @@
 
                 const initMs = initT * 1000;
                 const ageMin = Math.round((now - initMs) / 60000);
-                const ageHrs = Math.floor(ageMin / 60);
-                const ageRemMin = ageMin % 60;
-                const ageStr = ageHrs > 0 ? `${ageHrs}h ${ageRemMin}m` : `${ageRemMin}m`;
 
-                // Format the run's init time in Malaysian local time for the broadcaster.
-                const initDate = new Date(initMs);
-                const myt = new Intl.DateTimeFormat('en-GB', {
+                const fmtMyt = (ms) => new Intl.DateTimeFormat('en-GB', {
                     timeZone: 'Asia/Kuala_Lumpur', hour: '2-digit', minute: '2-digit', hour12: false
-                }).format(initDate);
+                }).format(new Date(ms));
 
                 // "Fresh" heuristic: ECMWF runs every 6h and lands ~5h after init. If the
                 // newest run's data is already available (availability time has passed) and
                 // the run is recent (< ~6.5h old), call it fresh; otherwise it's the prior
                 // run still in use while we wait for the next one.
-                const availPassed = now >= (availT * 1000);
+                const availMs = availT * 1000;
+                const availPassed = now >= availMs;
                 const fresh = availPassed && (ageMin <= 6.5 * 60);
 
+                // Show AVAILABILITY times throughout (when data actually became / becomes
+                // usable), all in Malaysia time — clearer than the model's init time, which
+                // isn't directly meaningful to the broadcaster. 'availMyt' = when the current
+                // data landed; 'nextMyt' = when the next run's data lands.
+                const availMyt = fmtMyt(availMs);
+
+                // NEXT fresh-data time (the most useful thing for planning a broadcast):
+                // ECMWF runs every 6h, so the next run's data lands ~6h after THIS run's
+                // availability time. Roll forward in 6h steps until we're past 'now'.
+                let nextAvailMs = availMs + 6 * 3600 * 1000;
+                while (nextAvailMs <= now) nextAvailMs += 6 * 3600 * 1000;
+                const nextMyt = fmtMyt(nextAvailMs);
+                const minsToNext = Math.round((nextAvailMs - now) / 60000);
+                const toNextStr = minsToNext >= 60
+                    ? `${Math.floor(minsToNext/60)}h ${minsToNext%60}m`
+                    : `${minsToNext}m`;
+
                 if (fresh) {
-                    setBar('#16a34a', `✓ 最新数据已更新 (${myt} 运行) / Fresh data ready (run ${myt} MYT)`);
+                    setBar('#16a34a', `✓ 最新数据 (${availMyt} 更新) · 下次约 ${nextMyt} / Fresh (updated ${availMyt}) · next ~${nextMyt} MYT`);
                 } else {
-                    setBar('#f59e0b', `⚠️ 数据待更新 — 最近运行 ${myt} (${ageStr}前) / Awaiting update — last run ${myt} MYT (${ageStr} ago)`);
+                    setBar('#f59e0b', `⚠️ 数据待更新 — 现用 ${availMyt} · 下次约 ${nextMyt} (还有 ${toNextStr}) / Awaiting — using ${availMyt} · fresh ~${nextMyt} MYT (in ${toNextStr})`);
                 }
             } catch (e) {
                 // Graceful fallback — never block the broadcaster.
