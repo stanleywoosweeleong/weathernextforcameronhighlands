@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.274 — cloud sync for the per-location model map (locModelMap). saveUserData now writes locModels:{}; the Firestore snapshot handler merges cloud locModels into local (local wins on collision so a just-made change isn't clobbered, cloud-only entries from another device preserved, old ecmwf_ifs025 migrated) and persists to LOC_MODEL_KEY; dirty-check pushes local-only overrides up. So each location's AI/ECMWF choice now follows the user across devices like favourites/crops/langs. bump CACHE_VERSION on each release
+// Version 1.0.276 — long-press a home-screen model pill (~550ms, touch or mouse) to reset ALL per-location model overrides back to the global default. Only acts when overrides exist (the pill shows inverted then); shows a 5-language confirm dialog first since it wipes every location's individual choice. New window.resetAllLocModels() clears locModelMap, persists, cloud-syncs, updateModelUI (removes inversion), and refetches the current view. A quick tap still sets the default as before — the normal tap is suppressed only when a long-press actually fired. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606020800';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606020824';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

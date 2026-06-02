@@ -557,6 +557,11 @@
             background: #f1f5f9; color: #64748b; text-transform: uppercase; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s; line-height: 1; white-space: nowrap;
         }
         .model-pill.active { background: #1d4ed8; color: white; border-color: #1d4ed8; }
+        /* When at least one location has its OWN per-location model override, the home
+           pills are shown INVERTED (outlined instead of solid-filled). This signals "the
+           default isn't the whole story — some locations use their own model" without
+           adding any text. Applied via .has-overrides on the active pill. */
+        .model-pill.active.has-overrides { background: #ffffff; color: #1d4ed8; border-color: #1d4ed8; }
         
         .crop-pill {
             display: inline-block; font-size: 10px; font-weight: 950; color: #b45309; text-transform: uppercase;
@@ -1904,6 +1909,21 @@
             if (!id) return;
             if (model) locModelMap[id] = model; else delete locModelMap[id];
             saveLocModelMap();
+        };
+        // Clear ALL per-location model overrides so every location follows the global
+        // default again. Triggered by long-pressing a home-screen model pill (with a
+        // confirm). Persists, syncs to cloud, and refreshes whatever view is showing.
+        window.resetAllLocModels = () => {
+            locModelMap = {};
+            saveLocModelMap();
+            if (typeof saveUserData === 'function') saveUserData();
+            updateModelUI();
+            if (currentDisplayedIds.length > 0) {
+                fetchMultiDetailWeather(currentDisplayedIds);
+            } else {
+                if (landingAbortController) { landingAbortController.abort(); landingAbortController = null; }
+                fetchLandingWeather({ force: true });
+            }
         };
         const PREF_CROPS_KEY = `weathernextforcameron__wnext_v41_pref_crops_store`;
         const PREF_AI_KEY = `weathernextforcameron__wnext_v41_ai_pref_map_v2`;
@@ -4799,9 +4819,17 @@
         function updateModelUI() {
             // Home pills reflect the GLOBAL DEFAULT.
             const isAIDefault = activeModel === 'best_match';
-            document.querySelectorAll('.model-pill').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.model-pill').forEach(p => { p.classList.remove('active'); p.classList.remove('has-overrides'); });
             const pLanding = document.getElementById(isAIDefault ? 'pill-seamless' : 'pill-ecmwf');
-            if (pLanding) pLanding.classList.add('active');
+            if (pLanding) {
+                pLanding.classList.add('active');
+                // If ANY location has its own per-location model override, show the active
+                // home pill INVERTED (outlined) as a heads-up that the default isn't
+                // controlling every location.
+                if (locModelMap && Object.keys(locModelMap).length > 0) {
+                    pLanding.classList.add('has-overrides');
+                }
+            }
             // Each detail card's toggle reflects ITS OWN location's model (per-location).
             currentDisplayedIds.forEach(id => {
                 const btn = document.getElementById(`model-toggle-${id}`);
@@ -6363,6 +6391,45 @@
         document.addEventListener('DOMContentLoaded', () => {
             const label = document.getElementById('gps-fill-label');
             if (label) label.textContent = GPS_I18N[getDeviceLang()].btn;
+
+            // LONG-PRESS a home model pill (≈550ms) to reset ALL per-location model
+            // overrides back to the global default. Only meaningful when overrides exist
+            // (the active pill shows inverted then). Shows a confirm first, since it wipes
+            // every location's individual choice. Works with touch and mouse.
+            const attachPillLongPress = (pillId) => {
+                const el = document.getElementById(pillId);
+                if (!el) return;
+                let timer = null, fired = false;
+                const start = () => {
+                    fired = false;
+                    timer = setTimeout(() => {
+                        fired = true;
+                        if (!locModelMap || Object.keys(locModelMap).length === 0) return; // nothing to reset
+                        const dl = (typeof getDeviceLang === 'function') ? getDeviceLang() : 'en';
+                        const defLabel = (activeModel === 'best_match') ? 'AI Model' : 'ECMWF';
+                        const MSG = {
+                            en: `Reset ALL locations to the default model (${defLabel})? This clears each location's individual model choice.`,
+                            zh: `将所有地点重置为默认模型（${defLabel}）？这会清除每个地点单独设定的模型。`,
+                            ms: `Set semula SEMUA lokasi kepada model lalai (${defLabel})? Ini memadam pilihan model individu setiap lokasi.`,
+                            ta: `அனைத்து இடங்களையும் இயல்புநிலை மாதிரிக்கு (${defLabel}) மீட்டமைக்கவா? இது ஒவ்வொரு இடத்தின் தனிப்பட்ட மாதிரித் தேர்வையும் அழிக்கும்.`,
+                            my: `နေရာအားလုံးကို မူရင်းမော်ဒယ် (${defLabel}) သို့ ပြန်လည်သတ်မှတ်မလား။ ၎င်းသည် နေရာတစ်ခုစီ၏ သီးခြားမော်ဒယ်ရွေးချယ်မှုကို ရှင်းလင်းမည်။`
+                        };
+                        const TITLE = { en:'Reset models', zh:'重置模型', ms:'Set semula model', ta:'மாதிரிகளை மீட்டமை', my:'မော်ဒယ်ပြန်သတ်မှတ်' };
+                        window.showConfirm(MSG[dl] || MSG.en, window.resetAllLocModels, TITLE[dl] || TITLE.en);
+                    }, 550);
+                };
+                const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+                // Block the normal tap (setModel) only when a long-press actually fired.
+                el.addEventListener('click', (e) => { if (fired) { e.preventDefault(); e.stopPropagation(); fired = false; } }, true);
+                el.addEventListener('touchstart', start, { passive: true });
+                el.addEventListener('touchend', cancel);
+                el.addEventListener('touchmove', cancel, { passive: true });
+                el.addEventListener('mousedown', start);
+                el.addEventListener('mouseup', cancel);
+                el.addEventListener('mouseleave', cancel);
+            };
+            attachPillLongPress('pill-seamless');
+            attachPillLongPress('pill-ecmwf');
         });
 
         // ... [Add Location Logic Retained] ...
