@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.271 — MAJOR: per-location weather model (was global all-or-nothing). New LOC_MODEL_KEY store + modelFor(id) (per-location override, else global default PREF_MODEL_KEY=ECMWF). Landing fetch now GROUPS locations by model (one request per model group) so a mixed AI/ECMWF list fetches each correctly. Detail fetch + cache keys use modelFor(id). On the detail screen, the model pills/toggle now set THAT location's model (persistent), refetching only it — not every location. On home, the pills set the global default for unset locations. updateModelUI reflects the displayed location's model in detail view. Solves: pick AI for location A and ECMWF for location B, each sticky across launches; and no more full-app refetch when changing one location's model. (Per-location map persists via localStorage; cloud cross-device sync is a possible follow-up.) bump CACHE_VERSION on each release
+// Version 1.0.272 — FIX v1.0.271 bug: changing one location's model flipped ALL of them. Root cause: the detail view is a STACK of all favourite cards, so currentDisplayedIds holds every favourite — my setModel/toggleModel looped over all of them. Fix: each detail card's model toggle now passes ITS OWN id (model-toggle-<id> + toggleModel('<id>')); setModel(model, targetId) and toggleModel(targetId) apply to just that one location, refetch only it. updateModelUI now sets each card's toggle text from its own modelFor(id), so cards can show different models. Home pills still set the global default. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606020728';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606020736';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

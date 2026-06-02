@@ -3607,17 +3607,23 @@
         }
 
         // ... [Model & UI Functions Retained] ...
-        window.setModel = (model) => {
-            if (currentDisplayedIds.length > 0) {
-                // DETAIL VIEW: set the model for the displayed location(s) only, and persist
-                // per-location. The global default (activeModel) is left untouched, so other
-                // locations keep their own choices. Refetch just the displayed location(s).
-                currentDisplayedIds.forEach(id => window.setLocModel(id, model));
+        window.setModel = (model, targetId = null) => {
+            if (targetId) {
+                // Specific location (from its own detail-card toggle): set ONLY that
+                // location's model, persist, and refetch only it. Other displayed
+                // locations are untouched — this is the per-location fix.
+                window.setLocModel(targetId, model);
+                updateModelUI();
+                saveUserData();
+                fetchMultiDetailWeather([targetId]);
+            } else if (currentDisplayedIds.length === 1) {
+                // Detail view of a single location (no multi-fav stack): treat as that one.
+                window.setLocModel(currentDisplayedIds[0], model);
                 updateModelUI();
                 saveUserData();
                 fetchMultiDetailWeather(currentDisplayedIds);
             } else {
-                // HOME: set the GLOBAL DEFAULT model (used by locations with no override).
+                // HOME (or no specific target): set the GLOBAL DEFAULT for unset locations.
                 activeModel = model; safeSet(PREF_MODEL_KEY, activeModel); updateModelUI();
                 saveUserData();
                 if (landingAbortController) { landingAbortController.abort(); landingAbortController = null; }
@@ -3625,15 +3631,12 @@
             }
         };
 
-        window.toggleModel = () => {
-            // Flip between the two models. In detail view this flips the DISPLAYED
-            // location's model (per-location, persistent); on home it flips the global
-            // default. Delegate to setModel so the context logic lives in one place.
-            const ctxModel = (currentDisplayedIds.length > 0)
-                ? window.modelFor(currentDisplayedIds[0])
-                : activeModel;
-            const next = ctxModel === 'best_match' ? 'ecmwf_ifs' : 'best_match';
-            window.setModel(next);
+        window.toggleModel = (targetId = null) => {
+            // Flip the model for a SPECIFIC location (from its detail-card toggle) when an
+            // id is passed; otherwise flip the global default (home). Delegates to setModel.
+            const baseModel = targetId ? window.modelFor(targetId) : activeModel;
+            const next = baseModel === 'best_match' ? 'ecmwf_ifs' : 'best_match';
+            window.setModel(next, targetId);
         };
 
         // ===== HELP CARD: DeltaT & Safe Hours explainer =====
@@ -4774,17 +4777,16 @@
         };
 
         function updateModelUI() {
-            // In detail view, the pills reflect the DISPLAYED location's effective model;
-            // on home they reflect the global default. (Multi-location detail is rare; use
-            // the first displayed id as representative.)
-            const ctxModel = (currentDisplayedIds.length > 0)
-                ? window.modelFor(currentDisplayedIds[0])
-                : activeModel;
-            const isAI = ctxModel === 'best_match';
+            // Home pills reflect the GLOBAL DEFAULT.
+            const isAIDefault = activeModel === 'best_match';
             document.querySelectorAll('.model-pill').forEach(p => p.classList.remove('active'));
-            const pLanding = document.getElementById(isAI ? 'pill-seamless' : 'pill-ecmwf');
-            if(pLanding) pLanding.classList.add('active');
-            document.querySelectorAll('.model-toggle-btn').forEach(btn => { btn.innerText = isAI ? 'AI Model' : 'ECMWF'; });
+            const pLanding = document.getElementById(isAIDefault ? 'pill-seamless' : 'pill-ecmwf');
+            if (pLanding) pLanding.classList.add('active');
+            // Each detail card's toggle reflects ITS OWN location's model (per-location).
+            currentDisplayedIds.forEach(id => {
+                const btn = document.getElementById(`model-toggle-${id}`);
+                if (btn) btn.innerText = (window.modelFor(id) === 'best_match') ? 'AI Model' : 'ECMWF';
+            });
         }
 
         function updateCropUI() {
@@ -7308,7 +7310,7 @@
              
              // Reduced mt-2 to mt-0.5 and added leading-none to English headers to save vertical space
              return `<div class="report-card" id="report-card-${id}">
-                <div class="report-header"><div class="w-full flex flex-col"><div class="flex justify-between items-start w-full"><div class="flex items-center gap-2"><h2 class="text-xl font-black uppercase text-slate-900 leading-none">${nameEn}</h2></div><h2 id="m-range-${id}" class="text-sm font-black uppercase text-slate-900 leading-none">--</h2></div><div class="flex justify-between items-end w-full mt-0.5"><div class="flex flex-wrap items-center gap-x-3 gap-y-1"><h2 class="text-xl font-black text-blue-700 leading-none">${nameZh}</h2><div class="flex items-center">${langBtns}</div></div><div class="flex items-center gap-1"><span id="m-crop-toggle-${id}" onclick="window.toggleCrop('${id}')" class="crop-pill">${crop}</span><span onclick="window.toggleModel()" class="model-toggle-btn">${activeModel==='best_match'?'AI Model':'ECMWF'}</span></div></div></div></div>
+                <div class="report-header"><div class="w-full flex flex-col"><div class="flex justify-between items-start w-full"><div class="flex items-center gap-2"><h2 class="text-xl font-black uppercase text-slate-900 leading-none">${nameEn}</h2></div><h2 id="m-range-${id}" class="text-sm font-black uppercase text-slate-900 leading-none">--</h2></div><div class="flex justify-between items-end w-full mt-0.5"><div class="flex flex-wrap items-center gap-x-3 gap-y-1"><h2 class="text-xl font-black text-blue-700 leading-none">${nameZh}</h2><div class="flex items-center">${langBtns}</div></div><div class="flex items-center gap-1"><span id="m-crop-toggle-${id}" onclick="window.toggleCrop('${id}')" class="crop-pill">${crop}</span><span id="model-toggle-${id}" onclick="window.toggleModel('${id}')" class="model-toggle-btn">${window.modelFor(id)==='best_match'?'AI Model':'ECMWF'}</span></div></div></div></div>
                 ${(window.ephemeralLocationIds && window.ephemeralLocationIds.has(id)) ? `
                 <div id="save-shared-row-${id}" class="mt-2 mb-1">
                     <button onclick="window.saveSharedLocation('${id}')" class="w-full text-center py-2.5 px-3 rounded-lg border-2 border-dashed border-emerald-300 bg-emerald-50 text-emerald-700 font-black text-xs uppercase tracking-wider active:scale-95 transition-transform">${labels.saveLoc}</button>
