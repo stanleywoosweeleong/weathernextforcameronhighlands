@@ -10128,9 +10128,9 @@
                     : `${sinceCurMin}m`;
 
                 if (fresh) {
-                    setBar('#16a34a', `✓ 数据已更新 (${availMyt}，${sinceStr}前) / Fresh — updated ${availMyt} MYT (${sinceStr} ago)`);
+                    setBar('#16a34a', `数据已更新 (${availMyt}，${sinceStr}前) / Fresh — updated ${availMyt} MYT (${sinceStr} ago)`);
                 } else {
-                    setBar('#f59e0b', `⚠️ 数据待更新 — 下次约 ${nextMyt} (还有 ${toNextStr}) / Next update ~${nextMyt} MYT (in ${toNextStr})`);
+                    setBar('#f59e0b', `数据待更新 — 下次约 ${nextMyt} (还有 ${toNextStr}) / Next update ~${nextMyt} MYT (in ${toNextStr})`);
                 }
             } catch (e) {
                 // Graceful fallback — never block the broadcaster.

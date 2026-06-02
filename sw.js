@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.291 — FIX freshness bar logic + clarity (dot never turned green; times confusing). Root cause: it used the metadata's single availability timestamp as 'current', which could be two 6h-cycles stale, so it skipped the actual latest run and the fresh test (tied to model init age) never passed. Now: derive the schedule from the offset-adjusted availability by stepping in 6h cycles to the MOST RECENT availability that has passed (= current fresh data) + the next upcoming one; fresh = that landing was within one 6h cycle. Dot now correctly green when fresh / amber when awaiting. Simpler text: fresh shows 'updated HH:MM (Xm ago)', awaiting shows 'next update ~HH:MM (in Xh Ym)' — one relevant time each. META_DELAY_MS (2h) still the tunable dial. bump CACHE_VERSION on each release
+// Version 1.0.292 — removed redundant ✓/⚠️ symbols from the freshness bar text. The coloured status dot (green=fresh, amber=awaiting) already conveys the state, so the leading checkmark/warning emoji duplicated it. Dropping them lets the dot carry status and the text carry just the useful detail (the time), and shortens the line so it's less likely to wrap on mobile. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021117';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021125';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
