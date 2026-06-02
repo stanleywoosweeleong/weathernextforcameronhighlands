@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.277 — FIX: detail-view favourite stack now sorted in the SAME sequence as the home list. The home list orders by sort-mode + elevation (high->low), but openDetail used a separate geography-only sort (latitude), so tapping a farm landed in a differently-ordered stack. Extracted the home list's exact ordering into a single shared homeListSort() comparator now used by BOTH renderList and openDetail — same order, and no future drift. (Old geography-only sortLocationsCompat left defined but unused.) bump CACHE_VERSION on each release
+// Version 1.0.278 — added a COMPACT Cameron fog/visibility tag to all 3 WhatsApp broadcasts (favorites 3-day, all-stable 1-day, hourly bilingual — they all flow through buildBroadcastText/buildDayLine). Only emitted on meaningfully foggy days (computeFog bandKey fog/dense) so clear days stay clean and the message doesn't bloat. Emphasises the dawn commute window (real mountain-road hazard): e.g. '🌫️ Foggy dawn — low visibility' / '🌫️ 清晨有雾 — 能见度低' / dense variant 'drive slow'. 3-language (zh/en/ms, matching the broadcast vocab); best-effort try/catch so it never breaks a broadcast. Only fog/visibility added per request — leaf wetness etc. deliberately omitted to keep WhatsApp messages short. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606020834';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606020908';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

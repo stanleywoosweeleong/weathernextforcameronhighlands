@@ -9008,6 +9008,13 @@
                         if (mm < 50) return 'Heavy Rainfall';
                         if (mm < 100) return 'Very Heavy Rainfall';
                         return 'Extreme Rainfall';
+                    },
+                    // Compact fog tag for the broadcast. Only emitted when fog matters.
+                    // amFog = hours of fog in the 5-9am commute window; band = dense/fog.
+                    fog: (band, amFog) => {
+                        if (band === 'dense') return amFog >= 2 ? '🌫️ Dense dawn fog — drive slow' : '🌫️ Dense fog risk';
+                        if (band === 'fog')   return amFog >= 2 ? '🌫️ Foggy dawn — low visibility' : '🌫️ Foggy spells';
+                        return null;
                     }
                 },
                 zh: {
@@ -9025,6 +9032,11 @@
                         if (mm < 50) return '强降雨';
                         if (mm < 100) return '大量降雨';
                         return '极端降雨';
+                    },
+                    fog: (band, amFog) => {
+                        if (band === 'dense') return amFog >= 2 ? '🌫️ 清晨浓雾 — 小心驾驶' : '🌫️ 有浓雾风险';
+                        if (band === 'fog')   return amFog >= 2 ? '🌫️ 清晨有雾 — 能见度低' : '🌫️ 间中有雾';
+                        return null;
                     }
                 },
                 ms: {
@@ -9040,6 +9052,11 @@
                         if (mm < 50) return 'Hujan Lebat';
                         if (mm < 100) return 'Hujan Sangat Lebat';
                         return 'Hujan Ekstrem';
+                    },
+                    fog: (band, amFog) => {
+                        if (band === 'dense') return amFog >= 2 ? '🌫️ Kabus tebal subuh — pandu perlahan' : '🌫️ Risiko kabus tebal';
+                        if (band === 'fog')   return amFog >= 2 ? '🌫️ Subuh berkabus — penglihatan rendah' : '🌫️ Berkabus berkala';
+                        return null;
                     }
                 }
             };
@@ -9140,6 +9157,20 @@
                         // second line. Better than letting WhatsApp wrap mid-phrase.
                         line += `,\n${V.storm} ${fmtHour(d.triggerWindow.start)}-${fmtHour(d.triggerWindow.end)}`;
                     }
+                    // CAMERON fog/visibility tag (compact). Only emitted on meaningfully
+                    // foggy days (band fog/dense) so clear days stay clean and the WhatsApp
+                    // message doesn't bloat. Emphasises the dawn commute window — the real
+                    // mountain-road driving hazard for the boss reading this. Wrapped in a
+                    // guard so a missing computeFog / data never breaks the broadcast.
+                    try {
+                        if (typeof V.fog === 'function' && typeof window.computeFog === 'function' && loc && detailData[lid]) {
+                            const _f = window.computeFog(loc, detailData[lid], dayIdx);
+                            if (_f && _f.available && (_f.bandKey === 'fog' || _f.bandKey === 'dense')) {
+                                const fogTag = V.fog(_f.bandKey, _f.amFogHours || 0);
+                                if (fogTag) line += `\n${fogTag}`;
+                            }
+                        }
+                    } catch (e) { /* fog tag is best-effort; never break the broadcast */ }
                     // Ensemble confidence marker (v1.0.129; v1.0.130 reworded gently;
                     // v1.0.145 inverted to positive framing).
                     // ----------
