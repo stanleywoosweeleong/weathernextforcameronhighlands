@@ -10066,8 +10066,15 @@
             setBar('#cbd5e1', '检查数据更新… / Checking…');
 
             try {
-                // ECMWF IFS metadata. The 0.25° open-data model id is 'ecmwf_ifs025'.
-                const metaUrl = 'https://api.open-meteo.com/data/ecmwf_ifs025/static/meta.json';
+                // Query the metadata for the SAME model the app actually fetches forecasts
+                // from, so the freshness times correspond to OUR data. The app uses
+                // 'ecmwf_ifs' (HRES 9km); the older 'ecmwf_ifs025' (0.25°) is deprecated AND
+                // has an extra ~2h dissemination delay, so querying it gave times ~2-3h late
+                // (e.g. 15:59 instead of ~13:00). Use activeModel; fall back to ecmwf_ifs.
+                const freshModel = (typeof activeModel === 'string' && activeModel && activeModel !== 'best_match')
+                    ? activeModel
+                    : 'ecmwf_ifs';
+                const metaUrl = `https://api.open-meteo.com/data/${freshModel}/static/meta.json`;
                 const res = await fetch(metaUrl, { cache: 'no-store' });
                 if (!res.ok) throw new Error('meta http ' + res.status);
                 const meta = await res.json();

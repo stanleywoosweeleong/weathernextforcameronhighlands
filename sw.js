@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.288 — freshness bar made more legible (Cameron users often read on desktop before work): text 10px->13px, weight font-bold->font-semibold, colour slate-400->slate-600 (darker/higher contrast), more vertical padding, status dot 7px->10px. Dynamic green/amber dot colours unaffected. bump CACHE_VERSION on each release
+// Version 1.0.289 — FIX freshness times reading the wrong model. The bar queried 'ecmwf_ifs025' (0.25° open-data) metadata, but the app fetches forecasts from 'ecmwf_ifs' (HRES 9km). The 0.25° feed has an extra ~2h dissemination delay, so the bar showed times ~2-3h late (e.g. 15:59 / 21:59 instead of the expected ~13:00 / 19:00 MYT). Now the freshness check queries metadata for the SAME model the app uses (activeModel, fallback ecmwf_ifs), so times correspond to our actual data. NOTE: exact HRES metadata slug unverified live — if the bar shows 'unavailable', the slug needs adjusting. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021044';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021049';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
