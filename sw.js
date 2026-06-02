@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.273 — FIX blank detail screen after a per-location model switch. The detail view is a stack of all favourite cards; tapping one card's model toggle called fetchMultiDetailWeather([thatId]) which made renderReports rebuild with just 1 id — its smart-render saw a layout mismatch (N cards vs 1) and wiped the whole stack (innerHTML='') → blank until re-entry. Fix: fetchMultiDetailWeather now takes an optional renderIds; setModel fetches ONLY the changed location but RE-RENDERS the full currentDisplayedIds stack, so isSameLayout stays true and only the changed card's data updates. Per-location switching + persistence confirmed working; this fixes the render. bump CACHE_VERSION on each release
+// Version 1.0.274 — cloud sync for the per-location model map (locModelMap). saveUserData now writes locModels:{}; the Firestore snapshot handler merges cloud locModels into local (local wins on collision so a just-made change isn't clobbered, cloud-only entries from another device preserved, old ecmwf_ifs025 migrated) and persists to LOC_MODEL_KEY; dirty-check pushes local-only overrides up. So each location's AI/ECMWF choice now follows the user across devices like favourites/crops/langs. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606020747';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606020800';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

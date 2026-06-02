@@ -3480,6 +3480,22 @@
                         safeSet(PREF_CROPS_KEY, JSON.stringify(locationCrops));
                     }
 
+                    // Merge per-location model overrides from cloud (cross-device sync of
+                    // each location's AI/ECMWF choice). Local wins on collision so a change
+                    // just made on this device isn't overwritten; cloud-only entries (set on
+                    // another device) are preserved. Migrate any old ecmwf_ifs025 value.
+                    if (d.locModels && typeof d.locModels === 'object') {
+                        const cloudLM = {};
+                        for (const k in d.locModels) {
+                            const v = d.locModels[k];
+                            if (v === 'best_match' || v === 'ecmwf_ifs' || v === 'ecmwf_ifs025') {
+                                cloudLM[k] = (v === 'ecmwf_ifs025') ? 'ecmwf_ifs' : v;
+                            }
+                        }
+                        locModelMap = { ...cloudLM, ...locModelMap };
+                        saveLocModelMap();
+                    }
+
                     safeSet(FAV_CACHE_KEY, JSON.stringify(favoriteIds));
                     safeSet(HIDDEN_CACHE_KEY, JSON.stringify(hiddenIds));
                     safeSet(RENAME_CACHE_KEY, JSON.stringify(renamedLocations));
@@ -3498,6 +3514,8 @@
                     const cloudLangKeys = Object.keys(d.aiLangs || {}).length;
                     const localCropKeys = Object.keys(locationCrops).length;
                     const cloudCropKeys = Object.keys(d.locationCrops || {}).length;
+                    const localModelKeys = Object.keys(locModelMap).length;
+                    const cloudModelKeys = Object.keys(d.locModels || {}).length;
                     
                     if (
                         customLocations.length > (d.custom?.length || 0) || 
@@ -3505,7 +3523,8 @@
                         purgedIds.length > (d.purged?.length || 0) ||
                         localRenameKeys > cloudRenameKeys ||
                         localLangKeys > cloudLangKeys ||
-                        localCropKeys > cloudCropKeys
+                        localCropKeys > cloudCropKeys ||
+                        localModelKeys > cloudModelKeys
                     ) {
                         saveUserData();
                     }
@@ -3553,6 +3572,7 @@
                     custom: customToSync, 
                     purged: purgedIds,
                     model: activeModel,
+                    locModels: locModelMap,
                     aiLangs: locationAiLangs,
                     locationCrops: locationCrops  // v1.0.62: now synced to cloud
                 });
