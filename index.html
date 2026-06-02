@@ -8990,7 +8990,7 @@
             // set of labels for a given location's effective language.
             const VOCAB = {
                 en: {
-                    storm: 'Possible Thunderstorm',
+                    storm: 'Possible storm window',
                     rain: 'Rain',
                     today: 'Today',
                     tomorrow: 'Tomorrow',
@@ -9013,7 +9013,7 @@
                     trace: 'trace only'
                 },
                 zh: {
-                    storm: '可能有暴雨',
+                    storm: '可能有暴雨时段',
                     rain: '雨',
                     today: '今天',
                     tomorrow: '明天',
@@ -9036,7 +9036,7 @@
                     trace: '微量'
                 },
                 ms: {
-                    storm: 'Kemungkinan Ribut Petir',
+                    storm: 'Masa kemungkinan ribut',
                     rain: 'Hujan',
                     today: 'Hari Ini',
                     tomorrow: 'Esok',
@@ -9135,6 +9135,12 @@
                     // mm suffix "/D" (v1.0.146) marks this as daily total — distinguishes
                     // from per-hour mm values in the hourly timeline that follows the daily
                     // summary in the integrated allStableHourly report.
+                    // Is a thunderstorm flagged for this day? A storm is concentrated,
+                    // intense rain — NEVER a "trace", even if the DAILY total mm is modest
+                    // (convective rain falls in a short window). So the trace qualifier must
+                    // be suppressed when the storm clause will fire, or we'd contradict
+                    // ourselves ("4mm trace" + "possible thunderstorm" on the same line).
+                    const hasStorm = (d.cape >= 1500 && d.triggerWindow);
                     let rainfallStr = '';
                     if (typeof d.rv === 'number' && d.rv >= 1) {
                         const mmRounded = Math.round(d.rv);
@@ -9143,22 +9149,24 @@
                             rainfallStr = label
                                 ? ` (${label} ${mmRounded}mm/D)`
                                 : ` (${mmRounded}mm/D)`;
-                        } else if (d.rv < 4 && V.trace) {
+                        } else if (d.rv < 4 && V.trace && !hasStorm) {
                             // Low daily total (1–4mm) usually spreads so thin that no single
                             // hour reaches the 0.7mm hourly display threshold — so the hourly
                             // timeline reads "no rain". Tag the mm as trace so the daily "100%"
-                            // and the empty hourly list reconcile for the reader.
+                            // and the empty hourly list reconcile for the reader. NOT on storm
+                            // days (handled above) — a storm's rain isn't a trace.
                             rainfallStr = ` (${mmRounded}mm/D, ${V.trace})`;
                         } else {
                             rainfallStr = ` (${mmRounded}mm/D)`;
                         }
-                    } else if (d.pp >= 50 && V.trace) {
+                    } else if (d.pp >= 50 && V.trace && !hasStorm) {
                         // High probability but <1mm total: pure trace. Without this note
-                        // "雨 100%" beside "没有下雨" reads as a bug to the user.
+                        // "雨 100%" beside "没有下雨" reads as a bug to the user. Again, not
+                        // on storm days.
                         rainfallStr = ` (${V.trace})`;
                     }
                     let line = `${prefix}: ${d.hi}°C, ${V.rain} ${d.pp}%${rainfallStr}`;
-                    if (d.cape >= 1500 && d.triggerWindow) {
+                    if (hasStorm) {
                         // Intentional line break before the storm clause (v1.0.125): keeps the
                         // temp/rain/mm basics on one line and gives the storm window a clean
                         // second line. Better than letting WhatsApp wrap mid-phrase.

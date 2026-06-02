@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.280 — three broadcast fixes from a real sample review. (1) CREDIBILITY: '雨 100%' beside '没有下雨' looked like a bug — daily % is the day's MAX hourly prob of ANY precip, so humid Cameron days read ~100% even when only a trace falls below the 0.7mm hourly display threshold. Now low daily totals are tagged trace ('微量 / trace only / sedikit sahaja'): <1mm with high prob, and 1-4mm that spreads sub-threshold, so daily % and the empty hourly reconcile. (2) STALE DATA: broadcasts now refresh STALE detail data (past TTL), not just missing — so a 6PM broadcast no longer sends 08:00 data with a 'data old' warning to recipients. (3) FOG TIMING: non-dawn fog tags now say overnight/dawn ('夜间/清晨有浓雾' etc.) instead of a vague 'risk', since that's when Cameron fog actually forms. bump CACHE_VERSION on each release
+// Version 1.0.283 — Malay broadcast storm wording corrected per native speaker: 'Tempoh kemungkinan ribut' -> 'Masa kemungkinan ribut' (renders 'Masa kemungkinan ribut 12PM-3PM'). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606020949';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021001';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
