@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.294 — fixed iOS home-screen icon confusion. There were TWO conflicting <link rel='apple-touch-icon'> tags: a real PNG (apple-touch-icon.png, 180x180) AND an inline SVG data-URI. iOS doesn't reliably support SVG data-URIs for home-screen icons and picks unpredictably between duplicate tags — the likely cause of iOS grabbing a stale/cached icon. Removed the SVG data-URI; the real PNG is now the single source. NOTE: manifest.json icons array does NOT drive the iOS home icon (that's Android/Chrome); iOS uses the apple-touch-icon link. iOS caches placed icons aggressively — existing testers must remove+re-add the app to see the new icon. bump CACHE_VERSION on each release
+// Version 1.0.295 — boot screen now shows the REAL app icon. It was drawing a crude hand-coded inline SVG (flat green bands, cartoon sun) that didn't match the actual detailed app icon (misty hills, tea terraces, crops, hazy sun). Replaced the inline SVG with <img src='icon-192.png'> (already precached by the SW, so instant + offline-safe; onerror hides gracefully on a cold offline first load). Boot screen and home-screen icon are now the same artwork from the same file. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021133';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021145';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
