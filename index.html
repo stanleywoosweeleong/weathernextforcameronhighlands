@@ -10094,7 +10094,15 @@
                 // newest run's data is already available (availability time has passed) and
                 // the run is recent (< ~6.5h old), call it fresh; otherwise it's the prior
                 // run still in use while we wait for the next one.
-                const availMs = availT * 1000;
+                //
+                // OFFSET (v1.0.290): the metadata we can reach reports availability ~2h
+                // LATER than the broadcaster's proven 1/7/13/19 MYT schedule — consistent
+                // with Open-Meteo's documented "~2h extra dissemination delay" on the 0.25°
+                // ECMWF feed. We subtract that 2h so the displayed times match the data the
+                // app actually serves. WORKING ASSUMPTION — if real-world results drift,
+                // this single constant is the dial to fine-tune.
+                const META_DELAY_MS = 2 * 3600 * 1000;
+                const availMs = (availT * 1000) - META_DELAY_MS;
                 const availPassed = now >= availMs;
                 const fresh = availPassed && (ageMin <= 6.5 * 60);
 
