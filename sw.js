@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.292 — removed redundant ✓/⚠️ symbols from the freshness bar text. The coloured status dot (green=fresh, amber=awaiting) already conveys the state, so the leading checkmark/warning emoji duplicated it. Dropping them lets the dot carry status and the text carry just the useful detail (the time), and shortens the line so it's less likely to wrap on mobile. bump CACHE_VERSION on each release
+// Version 1.0.293 — boot screen fixes. (1) Removed the 🌫️ fog emoji from the boot title — it rendered as a broken grey tofu box on iOS PWA; title now reads clean '金马伦高原 Cameron Highlands'. (2) Boot icon bottom looked creased/cut because the green field layers were square-cornered rects while the sky had rx=22 rounded corners, so the green poked out to sharp corners. Wrapped the whole icon in a rounded clipPath so the fields follow the icon's rounded shape; also pulled the furrow lines in slightly and softened them (opacity 0.5->0.35). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021125';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021130';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
