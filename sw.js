@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.293 — boot screen fixes. (1) Removed the 🌫️ fog emoji from the boot title — it rendered as a broken grey tofu box on iOS PWA; title now reads clean '金马伦高原 Cameron Highlands'. (2) Boot icon bottom looked creased/cut because the green field layers were square-cornered rects while the sky had rx=22 rounded corners, so the green poked out to sharp corners. Wrapped the whole icon in a rounded clipPath so the fields follow the icon's rounded shape; also pulled the furrow lines in slightly and softened them (opacity 0.5->0.35). bump CACHE_VERSION on each release
+// Version 1.0.294 — fixed iOS home-screen icon confusion. There were TWO conflicting <link rel='apple-touch-icon'> tags: a real PNG (apple-touch-icon.png, 180x180) AND an inline SVG data-URI. iOS doesn't reliably support SVG data-URIs for home-screen icons and picks unpredictably between duplicate tags — the likely cause of iOS grabbing a stale/cached icon. Removed the SVG data-URI; the real PNG is now the single source. NOTE: manifest.json icons array does NOT drive the iOS home icon (that's Android/Chrome); iOS uses the apple-touch-icon link. iOS caches placed icons aggressively — existing testers must remove+re-add the app to see the new icon. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021130';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021133';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
