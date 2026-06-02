@@ -9006,10 +9006,11 @@
                     // Compact fog tag for the broadcast. Only emitted when fog matters.
                     // amFog = hours of fog in the 5-9am commute window; band = dense/fog.
                     fog: (band, amFog) => {
-                        if (band === 'dense') return amFog >= 2 ? '🌫️ Dense dawn fog — drive slow' : '🌫️ Dense fog risk';
-                        if (band === 'fog')   return amFog >= 2 ? '🌫️ Foggy dawn — low visibility' : '🌫️ Foggy spells';
+                        if (band === 'dense') return amFog >= 2 ? '🌫️ Dense dawn fog — drive slow' : '🌫️ Dense fog likely (overnight/dawn)';
+                        if (band === 'fog')   return amFog >= 2 ? '🌫️ Foggy dawn — low visibility' : '🌫️ Foggy spells (mostly overnight/dawn)';
                         return null;
-                    }
+                    },
+                    trace: 'trace only'
                 },
                 zh: {
                     storm: '可能有暴雨',
@@ -9028,10 +9029,11 @@
                         return '极端降雨';
                     },
                     fog: (band, amFog) => {
-                        if (band === 'dense') return amFog >= 2 ? '🌫️ 清晨浓雾 — 小心驾驶' : '🌫️ 有浓雾风险';
-                        if (band === 'fog')   return amFog >= 2 ? '🌫️ 清晨有雾 — 能见度低' : '🌫️ 间中有雾';
+                        if (band === 'dense') return amFog >= 2 ? '🌫️ 清晨浓雾 — 小心驾驶' : '🌫️ 夜间/清晨有浓雾';
+                        if (band === 'fog')   return amFog >= 2 ? '🌫️ 清晨有雾 — 能见度低' : '🌫️ 夜间/清晨间中有雾';
                         return null;
-                    }
+                    },
+                    trace: '微量'
                 },
                 ms: {
                     storm: 'Kemungkinan Ribut Petir',
@@ -9048,10 +9050,11 @@
                         return 'Hujan Ekstrem';
                     },
                     fog: (band, amFog) => {
-                        if (band === 'dense') return amFog >= 2 ? '🌫️ Kabus tebal subuh — pandu perlahan' : '🌫️ Risiko kabus tebal';
-                        if (band === 'fog')   return amFog >= 2 ? '🌫️ Subuh berkabus — penglihatan rendah' : '🌫️ Berkabus berkala';
+                        if (band === 'dense') return amFog >= 2 ? '🌫️ Kabus tebal subuh — pandu perlahan' : '🌫️ Kabus tebal (malam/subuh)';
+                        if (band === 'fog')   return amFog >= 2 ? '🌫️ Subuh berkabus — penglihatan rendah' : '🌫️ Berkabus (malam/subuh)';
                         return null;
-                    }
+                    },
+                    trace: 'sedikit sahaja'
                 }
             };
             // For ta and my, no native-speaker confirmation of vocabulary — fall through
@@ -9140,9 +9143,19 @@
                             rainfallStr = label
                                 ? ` (${label} ${mmRounded}mm/D)`
                                 : ` (${mmRounded}mm/D)`;
+                        } else if (d.rv < 4 && V.trace) {
+                            // Low daily total (1–4mm) usually spreads so thin that no single
+                            // hour reaches the 0.7mm hourly display threshold — so the hourly
+                            // timeline reads "no rain". Tag the mm as trace so the daily "100%"
+                            // and the empty hourly list reconcile for the reader.
+                            rainfallStr = ` (${mmRounded}mm/D, ${V.trace})`;
                         } else {
                             rainfallStr = ` (${mmRounded}mm/D)`;
                         }
+                    } else if (d.pp >= 50 && V.trace) {
+                        // High probability but <1mm total: pure trace. Without this note
+                        // "雨 100%" beside "没有下雨" reads as a bug to the user.
+                        rainfallStr = ` (${V.trace})`;
                     }
                     let line = `${prefix}: ${d.hi}°C, ${V.rain} ${d.pp}%${rainfallStr}`;
                     if (d.cape >= 1500 && d.triggerWindow) {
@@ -9763,10 +9776,26 @@
                         : filteredIds;
                 }
                 
-                // Find ids missing from daysCache and fetch them.
+                // Decide which ids need a network refresh for the BROADCAST. Unlike normal
+                // browsing, a broadcast goes to many recipients, so it should be fresh:
+                // refetch anything missing OR stale (older than the detail TTL), not just
+                // missing. fetchMultiDetailWeather self-filters to non-fresh ids, so passing
+                // all neededIds refetches stale+missing and skips fresh — efficient.
                 const cache = window.daysCache || {};
-                const missing = neededIds.filter(id => !cache[id] || cache[id].length === 0);
-                
+                const missingFromDays = neededIds.filter(id => !cache[id] || cache[id].length === 0);
+                // Stale = present in daysCache but its underlying detail cache is past TTL.
+                const staleIds = neededIds.filter(id => {
+                    if (!cache[id] || cache[id].length === 0) return false; // that's "missing"
+                    try {
+                        const entry = (typeof getDetailCacheEntry === 'function')
+                            ? getDetailCacheEntry(id, (typeof window.modelFor === 'function') ? window.modelFor(id) : activeModel)
+                            : null;
+                        return entry ? !entry.isFresh : true;
+                    } catch (e) { return true; }
+                });
+                const toRefresh = Array.from(new Set([...missingFromDays, ...staleIds]));
+                const missing = toRefresh; // keep variable name for the code below
+
                 if (missing.length > 0) {
                     // Show loading status — large multi-location fetch can take 5-10 seconds.
                     // v1.0.137: show total report count + cached count so it's clear the
