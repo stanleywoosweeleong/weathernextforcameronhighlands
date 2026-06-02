@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.295 — boot screen now shows the REAL app icon. It was drawing a crude hand-coded inline SVG (flat green bands, cartoon sun) that didn't match the actual detailed app icon (misty hills, tea terraces, crops, hazy sun). Replaced the inline SVG with <img src='icon-192.png'> (already precached by the SW, so instant + offline-safe; onerror hides gracefully on a cold offline first load). Boot screen and home-screen icon are now the same artwork from the same file. bump CACHE_VERSION on each release
+// Version 1.0.296 — data-freshness UI redesign: split the persistent status from the detail. A small tappable status dot now lives in the HEADER (next to the model pills) — green=fresh / amber=awaiting / grey=checking-or-unavailable, always visible at a glance. The detailed message ('数据已更新 (18:55…)/Fresh — updated…' or 'next update ~HH:MM') is now a bottom TOAST that fires automatically on app load and whenever the header dot is tapped (reuses showToast, auto-hides 3s). Removed the freshness line from the broadcast bar entirely, so the broadcast buttons sit cleaner. Same metadata logic underneath (model-matched query, 2h offset, 6h-cycle schedule). bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021145';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606021158';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

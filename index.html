@@ -961,6 +961,12 @@
                         <div id="ui-term-countdown" class="text-xs font-black text-slate-400 uppercase tracking-tighter">--</div>
                         <div id="data-status" class="w-1.5 h-1.5 rounded-full bg-transparent ml-1 opacity-0 transition-opacity duration-300"></div>
                     </div>
+                    <!-- Data-freshness status dot (v1.0.296). Persistent at-a-glance cue
+                         (green=fresh / amber=awaiting / grey=checking-or-unavailable).
+                         Tap to show the detailed freshness toast at the bottom. -->
+                    <div id="fresh-dot-wrap" onclick="window.checkDataFreshness(true)" title="Data freshness / 数据更新状态" class="flex items-center ml-1.5 cursor-pointer active:scale-90 transition-transform shrink-0">
+                        <div id="fresh-dot" class="rounded-full" style="width:11px;height:11px;background:#cbd5e1;"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -973,16 +979,7 @@
     <main id="main-content" style="height: calc(100vh - var(--chrome-h, 215px) - var(--safe-top) - var(--safe-bottom)); display: flex; flex-direction: column;" class="bg-slate-100">
         <!-- Broadcast buttons (v1.0.122; v1.0.138 added hourly bilingual button) -->
         <div id="broadcast-bar" class="flex flex-col gap-1.5 px-2 py-2 bg-slate-50 border-b border-slate-200 shrink-0">
-            <!-- Data freshness indicator (v1.0.285): checks Open-Meteo's metadata for the
-                 latest ECMWF run, so the broadcaster knows whether fresh data has landed
-                 before broadcasting. Tappable to re-check. Metadata calls don't count
-                 against the API rate limit. -->
-            <div id="data-fresh-bar" onclick="window.checkDataFreshness(true)"
-                 class="flex items-center justify-center gap-2 text-[13px] font-semibold text-slate-600 py-1.5 cursor-pointer active:scale-95 transition-transform"
-                 title="Tap to re-check Open-Meteo data freshness / 点击重新检查数据更新">
-                <span id="data-fresh-dot" style="width:10px;height:10px;border-radius:50%;background:#cbd5e1;flex-shrink:0;"></span>
-                <span id="data-fresh-text">检查数据更新… / Checking data…</span>
-            </div>
+            <!-- Data-freshness moved to the header status dot + a bottom toast (v1.0.296). -->
             <div class="flex gap-1.5">
                 <button onclick="window.handleBroadcastClick('favorites')" 
                         class="flex-1 py-2.5 px-2 rounded-lg font-black text-[11px] uppercase tracking-wider text-white active:scale-95 transition-transform shadow-md"
@@ -10037,16 +10034,21 @@
         // ============================================================
         let _lastFreshnessCheck = 0;
         window.checkDataFreshness = async (force) => {
-            const dot = document.getElementById('data-fresh-dot');
-            const txt = document.getElementById('data-fresh-text');
-            if (!dot || !txt) return;
+            const dot = document.getElementById('fresh-dot');
+            if (!dot) return;
             // Throttle automatic checks to once per 5 min; manual tap (force) always runs.
             const now = Date.now();
             if (!force && (now - _lastFreshnessCheck) < 5 * 60 * 1000) return;
             _lastFreshnessCheck = now;
 
-            const setBar = (color, message) => { dot.style.background = color; txt.innerText = message; };
-            setBar('#cbd5e1', '检查数据更新… / Checking…');
+            // setStatus updates the persistent header dot colour; the detailed message is
+            // shown as a bottom toast (transient). Toast fires on the final result only
+            // (not the interim "checking" state) to avoid noise.
+            const setDot = (color) => { dot.style.background = color; };
+            const toast = (message, isError) => {
+                if (typeof window.showToast === 'function') window.showToast(message, !!isError);
+            };
+            setDot('#cbd5e1');  // grey: checking
 
             try {
                 // Query the metadata for the SAME model the app actually fetches forecasts
@@ -10111,13 +10113,16 @@
                     : `${sinceCurMin}m`;
 
                 if (fresh) {
-                    setBar('#16a34a', `数据已更新 (${availMyt}，${sinceStr}前) / Fresh — updated ${availMyt} MYT (${sinceStr} ago)`);
+                    setDot('#16a34a');  // green
+                    toast(`数据已更新 (${availMyt}，${sinceStr}前) / Fresh — updated ${availMyt} MYT (${sinceStr} ago)`);
                 } else {
-                    setBar('#f59e0b', `数据待更新 — 下次约 ${nextMyt} (还有 ${toNextStr}) / Next update ~${nextMyt} MYT (in ${toNextStr})`);
+                    setDot('#f59e0b');  // amber
+                    toast(`数据待更新 — 下次约 ${nextMyt} (还有 ${toNextStr}) / Next update ~${nextMyt} MYT (in ${toNextStr})`);
                 }
             } catch (e) {
                 // Graceful fallback — never block the broadcaster.
-                setBar('#cbd5e1', '数据更新状态不可用 / Freshness unavailable — tap to retry');
+                setDot('#cbd5e1');  // grey: unknown
+                if (force) toast('数据更新状态不可用 / Freshness unavailable — tap to retry', true);
             }
         };
 
