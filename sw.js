@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.272 — FIX v1.0.271 bug: changing one location's model flipped ALL of them. Root cause: the detail view is a STACK of all favourite cards, so currentDisplayedIds holds every favourite — my setModel/toggleModel looped over all of them. Fix: each detail card's model toggle now passes ITS OWN id (model-toggle-<id> + toggleModel('<id>')); setModel(model, targetId) and toggleModel(targetId) apply to just that one location, refetch only it. updateModelUI now sets each card's toggle text from its own modelFor(id), so cards can show different models. Home pills still set the global default. bump CACHE_VERSION on each release
+// Version 1.0.273 — FIX blank detail screen after a per-location model switch. The detail view is a stack of all favourite cards; tapping one card's model toggle called fetchMultiDetailWeather([thatId]) which made renderReports rebuild with just 1 id — its smart-render saw a layout mismatch (N cards vs 1) and wiped the whole stack (innerHTML='') → blank until re-entry. Fix: fetchMultiDetailWeather now takes an optional renderIds; setModel fetches ONLY the changed location but RE-RENDERS the full currentDisplayedIds stack, so isSameLayout stays true and only the changed card's data updates. Per-location switching + persistence confirmed working; this fixes the render. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606020736';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606020747';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;

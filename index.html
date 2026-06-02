@@ -3610,14 +3610,14 @@
         window.setModel = (model, targetId = null) => {
             if (targetId) {
                 // Specific location (from its own detail-card toggle): set ONLY that
-                // location's model, persist, and refetch only it. Other displayed
-                // locations are untouched — this is the per-location fix.
+                // location's model, persist, refetch ONLY it, but RE-RENDER the full
+                // displayed stack so the other cards aren't wiped (blank-screen bug).
                 window.setLocModel(targetId, model);
                 updateModelUI();
                 saveUserData();
-                fetchMultiDetailWeather([targetId]);
+                fetchMultiDetailWeather([targetId], currentDisplayedIds.length ? currentDisplayedIds : [targetId]);
             } else if (currentDisplayedIds.length === 1) {
-                // Detail view of a single location (no multi-fav stack): treat as that one.
+                // Detail view of a single location.
                 window.setLocModel(currentDisplayedIds[0], model);
                 updateModelUI();
                 saveUserData();
@@ -4997,8 +4997,12 @@
             } catch (e) { if (e.name !== 'AbortError') setStatus("Network Error", 'error'); }
         }
 
-        async function fetchMultiDetailWeather(locIds) {
+        async function fetchMultiDetailWeather(locIds, renderIds = null) {
              if(!locIds || locIds.length === 0) return;
+             // renderIds lets a caller fetch a SUBSET (e.g. one location whose model
+             // changed) while re-rendering the FULL displayed stack, so the other cards
+             // aren't wiped. Defaults to locIds when not given.
+             const _renderSet = (renderIds && renderIds.length) ? renderIds : locIds;
              
              // ===== PHASE 1: hydrate from cache instantly =====
              // For each requested location, check if we have a usable cached payload.
@@ -5035,7 +5039,7 @@
              // This is the perceptual speed win — taps feel instant when cache is hot.
              const cachedIds = locIds.filter(id => cacheStatus[id] !== 'missing');
              if (cachedIds.length > 0) {
-                 renderReports(locIds);
+                 renderReports(_renderSet);
              }
              
              // ===== PHASE 2: figure out which ids need a network fetch =====
@@ -5154,7 +5158,7 @@
              // the stale-cached version that was shown during phase 1.
              try { 
                  await Promise.all(idsToFetch.map(fetchOne));
-                 renderReports(locIds);
+                 renderReports(_renderSet);
                  setStatus("Ready", true);
              } catch (e) { setStatus("Sync Error", 'error'); }
         }
