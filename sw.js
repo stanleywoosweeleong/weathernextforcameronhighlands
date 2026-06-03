@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.303 — PRODUCTION: replaced the cdn.tailwindcss.com runtime script with a pre-built, inlined Tailwind stylesheet (~20KB) containing only the utility classes this app uses (generated via Tailwind v3 CLI scanning index.html, includes preflight). Removes the 'should not be used in production' console warning AND the per-load in-browser CSS generation cost. Kept single-file (inlined <style id=tw-prebuilt>). Verified headless: warning gone, no JS errors, styling intact. Also removed the now-dead cdn.tailwindcss.com entry from the SW precache list. NOTE (baseline for lowland fork): if new Tailwind classes are added by hand later, regenerate the inlined CSS via the Tailwind CLI or they won't be styled. bump CACHE_VERSION on each release
+// Version 1.0.304 — FIX ET0 (and fog) help card showing MIXED language after a language switch. The in-place help-card language-rebuild loop listed ['temp','wvet','cloud','storm','sky','accuracy','leafwet','vpd'] but omitted 'et0' and 'fog' (added later in v1.0.261/267), so an open ET0/fog card kept its old language while every other card updated. Added 'et0' and 'fog' to the rebuild list; both rowtypes are already handled in toggleHelpCard with HELP_CARD_CONTENT[lang] + English fallback. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606031022';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606031220';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
