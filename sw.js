@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.305 — FIX the real form-field accessibility issue (DevTools: 'A <label> isnt associated with a form field', 5 resources). v1.0.300 misread it as inputs-without-labels and added aria-labels (good, but not the cause). The actual issue was 5 orphaned <label> elements used as SECTION CAPTIONS (名字/Name, GPS坐标/Coordinates, 海拔/Elevation, 显示名字/Display name, 英文名字/English name) that head GROUPS of inputs and have no for-attr or wrapped input. Converted those 5 captions from <label> to <div> (identical styling, ids preserved) — they were headings, not single-field labels. Verified headless: 0 orphaned labels. The only remaining <label> (SOP checkbox) correctly wraps its input. bump CACHE_VERSION on each release
+// Version 1.0.306 — FIX broadcast contradiction: on a high-confidence storm day the message printed '~ 模型一致 / models agree' AND '时段内或有零星雷阵雨（不确定） / scattered storms (uncertain)' for the same farm — 'agree' vs 'uncertain' collide. The two come from separate systems (ensemble confidence marker vs CAPE-based storm-maybe line). Added a stormMaybeConfident variant per language (zh '时段内可能有雷阵雨' / en 'Scattered storms likely in the window' / ms 'Ribut berselerak mungkin dalam masa ini') and made the storm line read the same window.confidenceCache[lid][dayIdx]: when confidence==='high', drop the '(uncertain)' qualifier so both lines align. Otherwise unchanged. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606031243';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606031412';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
