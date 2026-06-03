@@ -1,5 +1,15 @@
 // ============================================================
 // WeatherNext Service Worker
+// Version 1.0.308 — FIX false 'data stale' broadcast warning. The header age
+// came from getLatestModelRun() — a clock-only guess (now-5h floored to 6h) that
+// ignored the actual data and could print '20:00, 9h ago' at ~5:30 AM even when
+// the 1 AM run had been fetched fresh. Extracted the freshness pill's REAL
+// model-run logic (live Open-Meteo metadata) into computeModelRunFreshness(),
+// now shared by the pill AND the broadcast; the async handler computes it and
+// passes it in. Header shows true run time/age and warns ONLY when genuinely
+// stale (older than one 6h cycle). Graceful fallback to the clock guess if
+// metadata is unreachable. bump CACHE_VERSION on each release
+//
 // Version 1.0.307 — COMBINE confidence into the storm line (Version A). Builds on
 // 1.0.306's contradiction fix: the confident storm line now carries a bracketed
 // confidence tag — zh '时段内可能有雷阵雨（较确定）' / en '...likely in the window
@@ -13,7 +23,7 @@
 // Version 1.0.306 — FIX broadcast contradiction: on a high-confidence storm day the message printed '~ 模型一致 / models agree' AND '时段内或有零星雷阵雨（不确定） / scattered storms (uncertain)' for the same farm — 'agree' vs 'uncertain' collide. The two come from separate systems (ensemble confidence marker vs CAPE-based storm-maybe line). Added a stormMaybeConfident variant per language (zh '时段内可能有雷阵雨' / en 'Scattered storms likely in the window' / ms 'Ribut berselerak mungkin dalam masa ini') and made the storm line read the same window.confidenceCache[lid][dayIdx]: when confidence==='high', drop the '(uncertain)' qualifier so both lines align. Otherwise unchanged. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606031620';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606031720';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
