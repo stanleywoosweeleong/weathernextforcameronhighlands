@@ -28,7 +28,7 @@ kilometres away:
 |---|---|---|
 | Fog zone (Blue Valley, Kg. Raja) | x1.30 | Persistent fog, longest leaf wetness |
 | Valley / moisture pool (Ringlet, Bertam) | x1.20 | Cold air & moisture settle overnight |
-| Mid-slope main belt (Tringkap, Kuala Terla, Brinchang) | x1.00 | The main growing belt |
+| Mid-slope main belt (Tringkap, Kuala Terla Tea Estate, Brinchang) | x1.00 | The main growing belt |
 | Ridge (Kea Farm upper) | x0.90 | Windier, dries faster |
 
 | Elevation | Effect |
@@ -89,7 +89,7 @@ app. It works offline after the first visit (service-worker cached).
 
 ## Seeded zones
 
-On first launch the app seeds these 16 Cameron Highlands farm zones. They are
+On first launch the app seeds these 15 Cameron Highlands farm zones. They are
 auto-favourited and can be renamed, edited, or deleted freely afterwards. Add
 as many more farms as you like from inside the app. Each zone ships with a
 default crop and microclimate classification (editable per farm).
@@ -103,7 +103,6 @@ default crop and microclimate classification (editable per farm).
 | Brinchang | 碧兰璋 | 4.49223, 101.38732 | 1470 m | mid-slope | strawberry |
 | Kea Farm | 吉亚农场 | 4.50436, 101.40734 | 1530 m | ridge | leafy |
 | Tringkap | 丁甲 | 4.51494, 101.42771 | 1450 m | mid-slope | leafy |
-| Kuala Terla | 吉拉烈 | 4.54673, 101.41608 | 1430 m | mid-slope | leafy |
 | Kampung Raja | 甘榜拉惹 | 4.56709, 101.40968 | 1470 m | fog | tomato |
 | Blue Valley | 蓝谷 | 4.58322, 101.41243 | 1600 m | fog | leafy |
 | Sungai Palas | 双溪巴拉斯 | 4.52250, 101.36700 | 1550 m | mid-slope | tea |
@@ -159,9 +158,9 @@ To enable GitHub Pages: **Settings -> Pages -> Source: Deploy from branch ->
 `main` / `root`.** Pages serves over HTTPS automatically, which the service
 worker requires.
 
-> **Icons:** the four icon PNGs are currently inherited from the Jerantut
-> build. Swap in Cameron-Highlands artwork (e.g. a misty tea-terrace / strawberry
-> theme) when ready — no code change needed, just replace the files.
+> **Icons:** the four icon PNGs use Cameron-Highlands artwork (misty hills /
+> tea-terrace theme). To change them, just replace the files — no code change
+> needed; the boot screen and home-screen icon both reference `icon-192.png`.
 
 ### Updating the app
 
