@@ -1,9 +1,9 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.302 — removed the 'Kuala Terla' town seed location (kept 'Kuala Terla Tea Estate'). The two sat ~457m apart in the SAME ECMWF grid cell, so they produced identical forecasts — redundant. Seed array drops 16->15. SEED_VERSION bumped ch-2->ch-3 with a one-time migration that also removes c_ch-kuala-terla from existing testers' saved list AND favourites, UNLESS they renamed it (then it's kept — they clearly want it). Users can re-add it manually any time. bump CACHE_VERSION on each release
+// Version 1.0.303 — PRODUCTION: replaced the cdn.tailwindcss.com runtime script with a pre-built, inlined Tailwind stylesheet (~20KB) containing only the utility classes this app uses (generated via Tailwind v3 CLI scanning index.html, includes preflight). Removes the 'should not be used in production' console warning AND the per-load in-browser CSS generation cost. Kept single-file (inlined <style id=tw-prebuilt>). Verified headless: warning gone, no JS errors, styling intact. Also removed the now-dead cdn.tailwindcss.com entry from the SW precache list. NOTE (baseline for lowland fork): if new Tailwind classes are added by hand later, regenerate the inlined CSS via the Tailwind CLI or they won't be styled. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606021304';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606031022';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
@@ -17,8 +17,8 @@ const SHELL_ASSETS = [
   './icon-512.png',
   './favicon-32.png',
   './apple-touch-icon.png',
-  // External CDN assets — cache so app loads fully offline after first visit
-  'https://cdn.tailwindcss.com',
+  // External CDN assets — cache so app loads fully offline after first visit.
+  // (Tailwind is no longer here — it's now pre-built and inlined in index.html.)
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'
 ];
 
