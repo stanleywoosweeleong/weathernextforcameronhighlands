@@ -1,9 +1,19 @@
 // ============================================================
 // WeatherNext Service Worker
+// Version 1.0.307 — COMBINE confidence into the storm line (Version A). Builds on
+// 1.0.306's contradiction fix: the confident storm line now carries a bracketed
+// confidence tag — zh '时段内可能有雷阵雨（较确定）' / en '...likely in the window
+// (fairly sure)' / ms '...(agak pasti)' — matching the existing '（不确定）' on the
+// uncertain line so every storm line ends with a confidence word. The now-redundant
+// standalone '~ 模型一致' line is suppressed ONLY on storm days where that storm line
+// fires (storm window + no measurable rain hour); it's KEPT on actual-rain days
+// (where the hourly list shows real rain and no storm-maybe line exists) so no farm
+// loses its confidence cue. bump CACHE_VERSION on each release
+//
 // Version 1.0.306 — FIX broadcast contradiction: on a high-confidence storm day the message printed '~ 模型一致 / models agree' AND '时段内或有零星雷阵雨（不确定） / scattered storms (uncertain)' for the same farm — 'agree' vs 'uncertain' collide. The two come from separate systems (ensemble confidence marker vs CAPE-based storm-maybe line). Added a stormMaybeConfident variant per language (zh '时段内可能有雷阵雨' / en 'Scattered storms likely in the window' / ms 'Ribut berselerak mungkin dalam masa ini') and made the storm line read the same window.confidenceCache[lid][dayIdx]: when confidence==='high', drop the '(uncertain)' qualifier so both lines align. Otherwise unchanged. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606031412';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606031620';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
