@@ -23,7 +23,7 @@
 // Version 1.0.306 — FIX broadcast contradiction: on a high-confidence storm day the message printed '~ 模型一致 / models agree' AND '时段内或有零星雷阵雨（不确定） / scattered storms (uncertain)' for the same farm — 'agree' vs 'uncertain' collide. The two come from separate systems (ensemble confidence marker vs CAPE-based storm-maybe line). Added a stormMaybeConfident variant per language (zh '时段内可能有雷阵雨' / en 'Scattered storms likely in the window' / ms 'Ribut berselerak mungkin dalam masa ini') and made the storm line read the same window.confidenceCache[lid][dayIdx]: when confidence==='high', drop the '(uncertain)' qualifier so both lines align. Otherwise unchanged. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606032020';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606041213';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
