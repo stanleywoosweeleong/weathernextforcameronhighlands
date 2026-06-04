@@ -4757,7 +4757,10 @@
             if (loc) {
                 const zoneTxt = ({ valley: 'a cool moisture-pooling valley', fog: 'a fog-prone high-humidity zone', midslope: 'the main mid-slope growing belt', ridge: 'a well-aired exposed ridge' })[loc.zone] || 'a highland farm';
                 const elevTxt = loc.elev ? `${loc.elev} m elevation` : 'high elevation';
-                chCtx = `Location context: this is a Cameron Highlands (Pahang, Malaysia) farm at ${elevTxt}, in ${zoneTxt}. ` +
+                const coordTxt = (typeof loc.lat === 'number' && typeof loc.lng === 'number')
+                    ? `at coordinates ${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)} (use these to judge the regional/altitude setting without assuming it is any other specific place)`
+                    : '';
+                chCtx = `Location context: this is a Cameron Highlands (Pahang, Malaysia) farm ${coordTxt ? coordTxt + ', ' : ''}at ${elevTxt}, in ${zoneTxt}. ` +
                         `Cameron Highlands is a cool tropical highland (typically 12–24°C) with frequent fog, prolonged leaf wetness and very high overnight humidity — conditions that drive fungal diseases such as Botrytis (gray mould), downy & powdery mildew, and late blight. ` +
                         `Weigh leaf-wetness duration and high-RH persistence heavily, not just whether it rained. Tailor spray timing and airflow/drainage advice to this cool, humid, foggy microclimate rather than to lowland Malaysian conditions. `;
                 // Fold in the app's computed disease risk for today, if available.
