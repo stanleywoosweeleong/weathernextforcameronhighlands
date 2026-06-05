@@ -1,5 +1,30 @@
 // ============================================================
 // WeatherNext Service Worker
+// Version 1.0.309 — BROADCAST CLARITY PORT (Raub v1.3.0–v1.3.14, 2026-06-05).
+// The WhatsApp broadcast text builder (buildBroadcastText) was replaced wholesale
+// with the refined Raub version. Cameron is the HIGHLAND reference build — its
+// highland calibration (cool-temp framing, elevation-amplified fog sensitivity in
+// computeFog, the elevation-aware AI prompt) lives OUTSIDE buildBroadcastText and
+// is UNCHANGED; only the broadcast TEXT logic was swapped. Identity preserved:
+// weathernextforcameron namespace, appId wnext-ag-v41-weathernextforcameron, and
+// the build's GPS sort. The existing v1.0.306/307 storm-confidence combine and
+// v1.0.308 real-freshness header are RETAINED (the Raub function was built on top
+// of them). Verified against highland scenarios (19°C + dense 1500m dawn fog read
+// correctly). Fixes added on top:
+//   • Fog tag gated to the broadcast window (no warning about an already-past dawn)
+//   • Fog rendered in the location's language + Malay, never the greeting choice
+//   • Fog tag placed BEFORE the afternoon storm clause (dawn→afternoon order)
+//   • Favourites day-1 capped at 23:00 (no double-listing tomorrow's small hours)
+//   • Afternoon midnight-crossover note ("12am 之后为明天预报")
+//   • 🌫️ and 🕛 emoji removed (blank-box on older device OSes); 📍 kept
+//   • Single-language Malay hourly labels now render in Malay
+//   • Thin-rain reconciliation ("可能有丝丝细雨 / Possible drizzle / Mungkin hujan
+//     merintik-rintik") instead of a contradictory "no rain"
+//   • Confidence marker states WHAT models agree on ("模型一致：很可能有雨 / 大致无雨")
+//   • Probability floored to the measurable-hour signal; trace tag suppressed when
+//     a real rain hour exists; past-storm clause suppressed outside the window
+// bump CACHE_VERSION on each release
+//
 // Version 1.0.308 — FIX false 'data stale' broadcast warning. The header age
 // came from getLatestModelRun() — a clock-only guess (now-5h floored to 6h) that
 // ignored the actual data and could print '20:00, 9h ago' at ~5:30 AM even when
@@ -23,7 +48,7 @@
 // Version 1.0.306 — FIX broadcast contradiction: on a high-confidence storm day the message printed '~ 模型一致 / models agree' AND '时段内或有零星雷阵雨（不确定） / scattered storms (uncertain)' for the same farm — 'agree' vs 'uncertain' collide. The two come from separate systems (ensemble confidence marker vs CAPE-based storm-maybe line). Added a stormMaybeConfident variant per language (zh '时段内可能有雷阵雨' / en 'Scattered storms likely in the window' / ms 'Ribut berselerak mungkin dalam masa ini') and made the storm line read the same window.confidenceCache[lid][dayIdx]: when confidence==='high', drop the '(uncertain)' qualifier so both lines align. Otherwise unchanged. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606041213';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606060145';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
