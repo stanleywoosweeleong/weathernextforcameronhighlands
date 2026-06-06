@@ -1,6 +1,6 @@
 // ============================================================
 // WeatherNext Service Worker
-// Version 1.0.309 — BROADCAST CLARITY PORT (Raub v1.3.0–v1.3.14, 2026-06-05).
+// Version 1.0.311 — FIX misleading fog tag wording. The low-dawn-fog-count fallback said '夜间/清晨有浓雾 / Dense fog likely (overnight/dawn) / Kabus tebal (malam/subuh)' — the 'overnight/夜间/malam' part points back to last midnight, which is past and irrelevant to a farmer reading a 5–7 AM broadcast. Since the fog line sits under a day header (今天/明天/date) and the relevant hazard is that day's DAWN, dropped the overnight reference and made it day-agnostic morning wording: zh '清晨有浓雾'/'清晨有雾'; en 'Dense fog in the morning'/'Foggy spells in the morning'; ms 'Kabus tebal waktu pagi'/'Berkabus waktu pagi'. The stronger amFog>=2 dawn-driving warnings (清晨浓雾—小心驾驶 etc.) are unchanged. Correct for today AND future favourites days. bump CACHE_VERSION on each release
 // The WhatsApp broadcast text builder (buildBroadcastText) was replaced wholesale
 // with the refined Raub version. Cameron is the HIGHLAND reference build — its
 // highland calibration (cool-temp framing, elevation-amplified fog sensitivity in
@@ -25,7 +25,7 @@
 //     a real rain hour exists; past-storm clause suppressed outside the window
 // bump CACHE_VERSION on each release
 //
-// Version 1.0.308 — FIX false 'data stale' broadcast warning. The header age
+// Version 1.0.311 — FIX misleading fog tag wording. The low-dawn-fog-count fallback said '夜间/清晨有浓雾 / Dense fog likely (overnight/dawn) / Kabus tebal (malam/subuh)' — the 'overnight/夜间/malam' part points back to last midnight, which is past and irrelevant to a farmer reading a 5–7 AM broadcast. Since the fog line sits under a day header (今天/明天/date) and the relevant hazard is that day's DAWN, dropped the overnight reference and made it day-agnostic morning wording: zh '清晨有浓雾'/'清晨有雾'; en 'Dense fog in the morning'/'Foggy spells in the morning'; ms 'Kabus tebal waktu pagi'/'Berkabus waktu pagi'. The stronger amFog>=2 dawn-driving warnings (清晨浓雾—小心驾驶 etc.) are unchanged. Correct for today AND future favourites days. bump CACHE_VERSION on each release
 // came from getLatestModelRun() — a clock-only guess (now-5h floored to 6h) that
 // ignored the actual data and could print '20:00, 9h ago' at ~5:30 AM even when
 // the 1 AM run had been fetched fresh. Extracted the freshness pill's REAL
@@ -35,7 +35,7 @@
 // stale (older than one 6h cycle). Graceful fallback to the clock guess if
 // metadata is unreachable. bump CACHE_VERSION on each release
 //
-// Version 1.0.307 — COMBINE confidence into the storm line (Version A). Builds on
+// Version 1.0.311 — FIX misleading fog tag wording. The low-dawn-fog-count fallback said '夜间/清晨有浓雾 / Dense fog likely (overnight/dawn) / Kabus tebal (malam/subuh)' — the 'overnight/夜间/malam' part points back to last midnight, which is past and irrelevant to a farmer reading a 5–7 AM broadcast. Since the fog line sits under a day header (今天/明天/date) and the relevant hazard is that day's DAWN, dropped the overnight reference and made it day-agnostic morning wording: zh '清晨有浓雾'/'清晨有雾'; en 'Dense fog in the morning'/'Foggy spells in the morning'; ms 'Kabus tebal waktu pagi'/'Berkabus waktu pagi'. The stronger amFog>=2 dawn-driving warnings (清晨浓雾—小心驾驶 etc.) are unchanged. Correct for today AND future favourites days. bump CACHE_VERSION on each release
 // 1.0.306's contradiction fix: the confident storm line now carries a bracketed
 // confidence tag — zh '时段内可能有雷阵雨（较确定）' / en '...likely in the window
 // (fairly sure)' / ms '...(agak pasti)' — matching the existing '（不确定）' on the
@@ -45,10 +45,10 @@
 // (where the hourly list shows real rain and no storm-maybe line exists) so no farm
 // loses its confidence cue. bump CACHE_VERSION on each release
 //
-// Version 1.0.306 — FIX broadcast contradiction: on a high-confidence storm day the message printed '~ 模型一致 / models agree' AND '时段内或有零星雷阵雨（不确定） / scattered storms (uncertain)' for the same farm — 'agree' vs 'uncertain' collide. The two come from separate systems (ensemble confidence marker vs CAPE-based storm-maybe line). Added a stormMaybeConfident variant per language (zh '时段内可能有雷阵雨' / en 'Scattered storms likely in the window' / ms 'Ribut berselerak mungkin dalam masa ini') and made the storm line read the same window.confidenceCache[lid][dayIdx]: when confidence==='high', drop the '(uncertain)' qualifier so both lines align. Otherwise unchanged. bump CACHE_VERSION on each release
+// Version 1.0.311 — FIX misleading fog tag wording. The low-dawn-fog-count fallback said '夜间/清晨有浓雾 / Dense fog likely (overnight/dawn) / Kabus tebal (malam/subuh)' — the 'overnight/夜间/malam' part points back to last midnight, which is past and irrelevant to a farmer reading a 5–7 AM broadcast. Since the fog line sits under a day header (今天/明天/date) and the relevant hazard is that day's DAWN, dropped the overnight reference and made it day-agnostic morning wording: zh '清晨有浓雾'/'清晨有雾'; en 'Dense fog in the morning'/'Foggy spells in the morning'; ms 'Kabus tebal waktu pagi'/'Berkabus waktu pagi'. The stronger amFog>=2 dawn-driving warnings (清晨浓雾—小心驾驶 etc.) are unchanged. Correct for today AND future favourites days. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606060145';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606061248';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
