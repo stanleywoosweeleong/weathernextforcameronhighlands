@@ -48,7 +48,7 @@
 // Version 1.0.311 — FIX misleading fog tag wording. The low-dawn-fog-count fallback said '夜间/清晨有浓雾 / Dense fog likely (overnight/dawn) / Kabus tebal (malam/subuh)' — the 'overnight/夜间/malam' part points back to last midnight, which is past and irrelevant to a farmer reading a 5–7 AM broadcast. Since the fog line sits under a day header (今天/明天/date) and the relevant hazard is that day's DAWN, dropped the overnight reference and made it day-agnostic morning wording: zh '清晨有浓雾'/'清晨有雾'; en 'Dense fog in the morning'/'Foggy spells in the morning'; ms 'Kabus tebal waktu pagi'/'Berkabus waktu pagi'. The stronger amFog>=2 dawn-driving warnings (清晨浓雾—小心驾驶 etc.) are unchanged. Correct for today AND future favourites days. bump CACHE_VERSION on each release
 // ============================================================
 
-const CACHE_VERSION = 'wnext-weathernextforcameron-202606090530';
+const CACHE_VERSION = 'wnext-weathernextforcameron-202606091115';
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const WEATHER_CACHE = `${CACHE_VERSION}-weather`;
